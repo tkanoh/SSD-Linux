@@ -1,0 +1,40 @@
+#	$ssdlinux: samba,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+# samba
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/make_printerdef	usr/contrib/samba/bin/make_printerdef
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/make_smbcodepage	usr/contrib/samba/bin/make_smbcodepage
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/make_unicodemap	usr/contrib/samba/bin/make_unicodemap
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/nmblookup		usr/contrib/samba/bin/nmblookup
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/rpcclient		usr/contrib/samba/bin/rpcclient
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/smbcacls		usr/contrib/samba/bin/smbcacls
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/smbclient		usr/contrib/samba/bin/smbclient
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/smbcontrol		usr/contrib/samba/bin/smbcontrol
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/smbpasswd		usr/contrib/samba/bin/smbpasswd
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/smbspool		usr/contrib/samba/bin/smbspool
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/smbstatus		usr/contrib/samba/bin/smbstatus
+#SCOPY	@SRCTOPDIR@/dist/samba/source/smbtar			usr/contrib/samba/bin/smbtar
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/tdbbackup		usr/contrib/samba/bin/tdbbackup
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/testparm		usr/contrib/samba/bin/testparm
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/testprns		usr/contrib/samba/bin/testprns
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/wbinfo		usr/contrib/samba/bin/wbinfo
+BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/nmbd		usr/contrib/samba/sbin/nmbd
+BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/smbd		usr/contrib/samba/sbin/smbd
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/swat		usr/contrib/samba/sbin/swat
+#BCOPY	@SRCTOPDIR@/contrib/samba/build/bin/winbindd		usr/contrib/samba/sbin/winbindd
+#
+ECOPY	644 @SRCTOPDIR@/contrib/setup/etc/smb.conf		usr/contrib/samba/lib/smb.conf
+ECOPY	644 @SRCTOPDIR@/contrib/setup/etc/smb.conf		usr/contrib/etc/defaults/smb.conf
+#
+SPECIAL	(cd @SAMBADEST@/lib/codepages; tar cvpf - . ) | (cd usr/contrib/samba/lib/codepages; tar xpf - )
+SPECIAL	rm usr/contrib/samba/lib/codepages/*.936
+SPECIAL	rm usr/contrib/samba/lib/codepages/*.949
+SPECIAL	rm usr/contrib/samba/lib/codepages/*.950
+SPECIAL	rm usr/contrib/samba/lib/codepages/*.1251
+COPY	@SRCTOPDIR@/dist/samba/source/po/en.gmo	usr/contrib/samba/share/locale/en/LC_MESSAGES/samba.mo
+COPY	@SRCTOPDIR@/dist/samba/source/po/ja.gmo	usr/contrib/samba/share/locale/ja/LC_MESSAGES/samba.mo
+#COPY	@SRCTOPDIR@/dist/samba/source/web/po/en.gmo usr/contrib/samba/share/locale/en/LC_MESSAGES/samba_swat.mo
+#COPY	@SRCTOPDIR@/dist/samba/source/web/po/ja.gmo usr/contrib/samba/share/locale/ja/LC_MESSAGES/samba_swat.mo
+#SPECIAL (cd @SAMBADEST@/swat/ja; tar cvpf - . ) | (cd usr/contrib/samba/swat/ja; tar xpf - )
+#SPECIAL (cd @SAMBADEST@/swat/using_samba/ja; tar cvpf - . ) | (cd usr/contrib/samba/swat/using_samba/ja; tar xpf - )
+SYMLINK /dev/null var/log/smbd.log
+SYMLINK /dev/null var/log/nmbd.log

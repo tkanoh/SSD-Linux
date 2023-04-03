@@ -1,0 +1,36 @@
+#	$ssdlinux: setup_cgi,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+BCOPY	@SRCTOPDIR@/contrib/setup/setup.cgi	usr/contrib/etc/setup/setup.cgi
+SPECIAL	chmod 4755 usr/contrib/etc/setup/setup.cgi
+SPECIAL	chown 32768:100 home/user1
+
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/badpasswd.t	usr/contrib/etc/setup/badpasswd.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/dhcpd.t	usr/contrib/etc/setup/dhcpd.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/fw.t		usr/contrib/etc/setup/fw.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/httpd.t	usr/contrib/etc/setup/httpd.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/ipv6.t		usr/contrib/etc/setup/ipv6.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/login.t	usr/contrib/etc/setup/login.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/masq.t		usr/contrib/etc/setup/masq.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/misc.t		usr/contrib/etc/setup/misc.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/named-master.t usr/contrib/etc/setup/named-master.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/named-slave.t	usr/contrib/etc/setup/named-slave.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/named.t	usr/contrib/etc/setup/named.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/network.t	usr/contrib/etc/setup/network.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/ok.t		usr/contrib/etc/setup/ok.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/ok3.t		usr/contrib/etc/setup/ok3.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/save.t		usr/contrib/etc/setup/save.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/sendmail.t	usr/contrib/etc/setup/sendmail.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/system.t	usr/contrib/etc/setup/system.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/user.t		usr/contrib/etc/setup/user.t
+COPY	@SRCTOPDIR@/contrib/setup/tfiles/ob_title.gif	usr/contrib/etc/setup/ob_title.gif
+COPY	@SRCTOPDIR@/contrib/setup/index.html		usr/contrib/etc/setup/index.html
+
+ECOPY	644 @SRCTOPDIR@/contrib/setup/etc/thttpd.conf		usr/contrib/etc/thttpd.conf
+ECOPY	644 @SRCTOPDIR@/contrib/setup/etc/setup_thttpd.conf	usr/contrib/etc/setup_thttpd.conf
+ECOPY	555 @SRCTOPDIR@/contrib/setup/etc/netstart.local	usr/contrib/etc/netstart.local
+ECOPY	555 @SRCTOPDIR@/contrib/setup/etc/rc.local		usr/contrib/etc/rc.local
+ECOPY	644 @SRCTOPDIR@/contrib/setup/etc/openblocks.conf	usr/contrib/etc/openblocks.conf
+ECOPY	644 @SRCTOPDIR@/contrib/setup/etc/openblocks.conf	usr/contrib/etc/defaults/openblocks.conf
+ECOPY	644 @SRCTOPDIR@/contrib/setup/etc/thttpd.conf		usr/contrib/etc/defaults/thttpd.conf
+ECOPY	644 @SRCTOPDIR@/etc/common/dhcpd.conf.sample		usr/contrib/etc/defaults/dhcpd.conf
+ECOPY	644 @SRCTOPDIR@/etc/common/namedb/named.conf		usr/contrib/etc/defaults/named.conf

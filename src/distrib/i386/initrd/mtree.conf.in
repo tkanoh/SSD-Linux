@@ -1,0 +1,16 @@
+./bin
+./cdrom
+./sbin
+./dev
+./etc/pcmcia/cis
+./lib/modules/@KERNEL_VERSION@/net
+./lib/modules/@KERNEL_VERSION@/pcmcia
+./mnt
+./proc
+./tmp
+./usr/bin
+./usr/sbin
+./usr/mdec/grub/i386-ssd
+./var/run
+./var/db
+./root

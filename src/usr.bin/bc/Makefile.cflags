@@ -1,0 +1,7 @@
+#	$ssdlinux: Makefile.cflags,v 1.1 2002/07/01 07:22:47 yamagata Exp $
+
+DIST=			${.CURDIR}/../../../dist/bc
+LIBCOMMONDIR=		${.CURDIR}/../common
+
+CPPFLAGS+=		-DHAVE_CONFIG_H -I${LIBCOMMONDIR} -I${DIST}/h
+CPPFLAGS+=		-O2 -Wall -funsigned-char

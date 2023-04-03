@@ -1,0 +1,12 @@
+#	$ssdlinux: Makefile.ldflags,v 1.4 2004/07/12 02:26:29 yamagata Exp $
+
+LIBSRCDIR=	${DIST}/../../lib
+
+LDADD+=	-L${LIBSRCDIR}/dump -lcompat
+LDADD+=	-L${LIBSRCDIR}/e2fsprogs/libext2fs -lext2fs
+LDADD+=	-L${LIBSRCDIR}/e2fsprogs/libcom_err -lcom_err
+LDADD+=	-L${LIBSRCDIR}/e2fsprogs/libblkid -lblkid
+LDADD+=	-L${LIBSRCDIR}/e2fsprogs/libuuid -luuid
+LDADD+=	-L${LIBSRCDIR}/e2fsprogs/libe2p -le2p
+LDADD+=	-L${LIBSRCDIR}/libbz2 -lbz2
+LDADD+=	-L${LIBSRCDIR}/libz -lz

@@ -1,0 +1,18 @@
+#	$ssdlinux: common,v 1.1 2004/12/02 01:54:31 todoroki Exp $
+/etc/adjtime
+/etc/fstab
+/etc/group
+/etc/hosts
+/etc/hosts.allow
+/etc/hosts.deny
+/etc/inetd.conf
+/etc/inittab
+/etc/nsswitch.conf
+/etc/passwd
+/etc/rc.conf
+/etc/rc.iptables
+/etc/rc.local
+/etc/resolv.conf
+/etc/shadow
+/etc/syslog.conf
+/etc/netstart.local

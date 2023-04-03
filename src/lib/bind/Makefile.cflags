@@ -1,0 +1,45 @@
+#	$ssdlinux: Makefile.cflags,v 1.12 2005/03/14 03:48:04 yamagata Exp $
+
+LIBBINDDIR?=	${DIST}/../../lib/bind
+CPPFLAGS+=	-W -Wall -Wmissing-prototypes -Wcast-qual -Wwrite-strings
+CPPFLAGS+=	-I${LIBBINDDIR}/include
+CPPFLAGS+=	-I${DIST}
+CPPFLAGS+=	-I${DIST}/include
+CPPFLAGS+=	-I${DIST}/unix/include
+CPPFLAGS+=	-I${DIST}/lib/lwres/include
+CPPFLAGS+=	-I${DIST}/lib/lwres/unix/include
+CPPFLAGS+=	-I${DIST}/lib/dns/include
+CPPFLAGS+=	-I${DIST}/lib/dns/sec/dst/include
+CPPFLAGS+=	-I${DIST}/lib/isccfg/include
+CPPFLAGS+=	-I${DIST}/lib/isccc/include
+CPPFLAGS+=	-I${DIST}/lib/isc/include
+CPPFLAGS+=	-I${DIST}/lib/isc
+CPPFLAGS+=	-I${DIST}/lib/isc/unix/include
+CPPFLAGS+=	-I${DIST}/lib/isc/nothreads/include
+
+CPPFLAGS+=	-DVERSION=\"9.2.5\"
+.if ${IPV6} == "yes"
+CPPFLAGS+=	-DWANT_IPV6=1
+.endif
+.if ${TARGET_HOSTTYPE} == "powerpc"
+CPPFLAGS+=	-DWORDS_BIGENDIAN=1
+.endif
+
+LDADD+=		-L${LIBBINDDIR}/liblwres -llwres
+LDADD+=		-L${LIBBINDDIR}/libisccfg -lisccfg
+.ifndef NO_SSL
+LDADD+=		-L${LIBBINDDIR}/libdns -ldns
+LDADD+=		-L${LIBBINDDIR}/../ssl/libcrypto -lcrypto
+.endif
+LDADD+=		-L${LIBBINDDIR}/libisccc -lisccc
+LDADD+=		-L${LIBBINDDIR}/libisc -lisc
+LDADD+=		-lnsl
+DPADD+=		${LIBBINDDIR}/liblwres/liblwres.a
+DPADD+=		${LIBBINDDIR}/libisccfg/libisccfg.a
+.ifndef NO_SSL
+DPADD+=		${LIBBINDDIR}/libdns/libdns.a
+.endif
+DPADD+=		${LIBBINDDIR}/libisccc/libisccc.a
+DPADD+=		${LIBBINDDIR}/libisc/libisc.a
+
+NOGCCERROR=	yes

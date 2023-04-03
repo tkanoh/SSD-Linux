@@ -1,0 +1,52 @@
+#	$ssdlinux: sync_fs-fix.diff,v 1.1 2004/11/02 17:06:13 kanoh Exp $
+
+
+Don't hold lock_super() while running ->sync_fs().
+
+It can deadlock, because:
+
+a) ext3_sync_fs() has to wait until a transaction has finished.
+
+b) a transaction cannot finish when someone else holds lock_super().
+    Because lock_super() is used in the block allocator.
+
+
+
+
+ Documentation/filesystems/Locking |    2 ++
+ fs/buffer.c                       |    2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+--- 24/Documentation/filesystems/Locking~sync_fs-fix	Sun Dec 15 11:12:48 2002
++++ 24-akpm/Documentation/filesystems/Locking	Sun Dec 15 12:07:26 2002
+@@ -93,6 +93,7 @@ prototypes:
+ 	void (*delete_inode) (struct inode *);
+ 	void (*put_super) (struct super_block *);
+ 	void (*write_super) (struct super_block *);
++	int (*sync_fs) (struct super_block *);
+ 	int (*statfs) (struct super_block *, struct statfs *);
+ 	int (*remount_fs) (struct super_block *, int *, char *);
+ 	void (*clear_inode) (struct inode *);
+@@ -108,6 +109,7 @@ delete_inode:	no	
+ clear_inode:	no	
+ put_super:	yes	yes	maybe		(see below)
+ write_super:	yes	yes	maybe		(see below)
++write_super:	yes	no	maybe		(see below)
+ statfs:		yes	no	no
+ remount_fs:	yes	yes	maybe		(see below)
+ umount_begin:	yes	no	maybe		(see below)
+--- 24/fs/buffer.c~sync_fs-fix	Sun Dec 15 11:12:48 2002
++++ 24-akpm/fs/buffer.c	Sun Dec 15 11:13:13 2002
+@@ -327,9 +327,9 @@ int fsync_super(struct super_block *sb)
+ 	lock_super(sb);
+ 	if (sb->s_dirt && sb->s_op && sb->s_op->write_super)
+ 		sb->s_op->write_super(sb);
++	unlock_super(sb);
+ 	if (sb->s_op && sb->s_op->sync_fs)
+ 		sb->s_op->sync_fs(sb);
+-	unlock_super(sb);
+ 	unlock_kernel();
+ 
+ 	return sync_buffers(dev, 1);
+
+_

@@ -1,0 +1,18 @@
+--- ed-0.2/buf.c.orig	1994-11-19 21:37:59.000000000 +0900
++++ ed-0.2/buf.c	2004-06-15 14:17:14.000000000 +0900
+@@ -200,13 +200,13 @@
+ int
+ open_sbuf ()
+ {
+-  char *mktemp ();
+   int u;
++  int fd;
+ 
+   isbinary = newline_added = 0;
+   u = umask(077);
+   strcpy (sfn, "/tmp/ed.XXXXXX");
+-  if (mktemp (sfn) == NULL || (sfp = fopen (sfn, "w+")) == NULL)
++  if ((fd = mkstemp (sfn)) == -1 || (sfp = fopen (sfn, "w+")) == NULL)
+     {
+       fprintf (stderr, "%s: %s\n", sfn, strerror (errno));
+       sprintf (errmsg, "Cannot open temp file");

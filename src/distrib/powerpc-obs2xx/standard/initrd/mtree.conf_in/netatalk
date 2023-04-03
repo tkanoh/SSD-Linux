@@ -1,0 +1,5 @@
+#	$ssdlinux: netatalk,v 1.1 2004/12/02 01:54:34 todoroki Exp $
+./usr/contrib/netatalk/bin
+./usr/contrib/netatalk/sbin
+./usr/contrib/netatalk/etc/nls
+./usr/contrib/netatalk/etc/uams

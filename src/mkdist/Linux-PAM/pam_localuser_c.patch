@@ -1,0 +1,11 @@
+--- Linux-PAM-0.78/modules/pam_localuser/pam_localuser.c.orig	2004-09-24 01:36:58.000000000 +0900
++++ Linux-PAM-0.78/modules/pam_localuser/pam_localuser.c	2004-11-22 16:10:34.000000000 +0900
+@@ -33,7 +33,7 @@
+  * OF THE POSSIBILITY OF SUCH DAMAGE.
+  */
+ 
+-#include "../../_pam_aconf.h"
++#include "security/_pam_aconf.h"
+ 
+ #include <errno.h>
+ #include <limits.h>

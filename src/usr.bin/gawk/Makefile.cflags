@@ -1,0 +1,15 @@
+#	$ssdlinux: Makefile.cflags,v 1.2 2003/03/26 08:53:19 yamagata Exp $
+
+DIST=		${.CURDIR}/../../../dist/gawk
+LIBCOMMONDIR=	${.CURDIR}/../common
+
+.PATH:		${DIST} ${DIST}/doc
+
+CPPFLAGS+=	-DDEFPATH="\".:/usr/share/awk\"" -DHAVE_CONFIG_H
+CPPFLAGS+=	-DGAWK -DLOCALEDIR="\"/usr/share/locale\""
+CPPFLAGS+=	-I${LIBCOMMONDIR} -I${DIST}
+.if ${TARGET_HOSTTYPE} == "i386"
+CPPFLAGS+=	-DINTDIV0_RAISES_SIGFPE="1"
+.else
+CPPFLAGS+=	-DINTDIV0_RAISES_SIGFPE="0"
+.endif

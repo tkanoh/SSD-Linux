@@ -1,0 +1,8 @@
+#	$ssdlinux: zebra,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+/etc/bgpd.conf
+/etc/ospf6d.conf
+/etc/ospfd.conf
+/etc/ripd.conf
+/etc/ripngd.conf
+/etc/vtysh.conf
+/etc/zebra.conf

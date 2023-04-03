@@ -1,0 +1,39 @@
+#	$ssdlinux: netatalk,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+BCOPY	@SRCTOPDIR@/contrib/netatalk/build/etc/afpd/afpd	usr/contrib/netatalk/sbin/afpd
+BCOPY	@SRCTOPDIR@/contrib/netatalk/build/etc/atalkd/atalkd	usr/contrib/netatalk/sbin/atalkd
+#BCOPY	@SRCTOPDIR@/contrib/netatalk/build/etc/papd/papd	usr/contrib/netatalk/sbin/papd
+#BCOPY	@SRCTOPDIR@/contrib/netatalk/build/etc/psf/psa		usr/contrib/netatalk/sbin/psa
+#BCOPY	@SRCTOPDIR@/contrib/netatalk/build/etc/psf/psf		usr/contrib/netatalk/sbin/psf
+BCOPY	@SRCTOPDIR@/contrib/netatalk/build/bin/nbp/nbprgstr	usr/contrib/netatalk/bin/nbprgstr
+#SYMLINK psf usr/contrib/netatalk/sbin/ifmpap
+#SYMLINK psf usr/contrib/netatalk/sbin/ifmpaprev
+#SYMLINK psf usr/contrib/netatalk/sbin/ifpap
+#SYMLINK psf usr/contrib/netatalk/sbin/ifpaprev
+#SYMLINK psf usr/contrib/netatalk/sbin/ifwmpap
+#SYMLINK psf usr/contrib/netatalk/sbin/ifwmpaprev
+#SYMLINK psf usr/contrib/netatalk/sbin/ifwpap
+#SYMLINK psf usr/contrib/netatalk/sbin/ifwpaprev
+#SYMLINK psf usr/contrib/netatalk/sbin/ofmpap
+#SYMLINK psf usr/contrib/netatalk/sbin/ofpap
+#SYMLINK psf usr/contrib/netatalk/sbin/ofwmpap
+#SYMLINK psf usr/contrib/netatalk/sbin/tfmpap
+#SYMLINK psf usr/contrib/netatalk/sbin/tfmpaprev
+#SYMLINK psf usr/contrib/netatalk/sbin/tfpap
+#SYMLINK psf usr/contrib/netatalk/sbin/tfpaprev
+#SYMLINK psf usr/contrib/netatalk/sbin/tfwmpap
+#SYMLINK psf usr/contrib/netatalk/sbin/tfwmpaprev
+#SYMLINK psf usr/contrib/netatalk/sbin/tfwpap
+#SYMLINK psf usr/contrib/netatalk/sbin/tfwpaprev
+
+ECOPY	644 @SRCTOPDIR@/contrib/netatalk/build/config/afpd.conf		usr/contrib/netatalk/etc/afpd.conf
+ECOPY	644 @SRCTOPDIR@/dist/netatalk/config/atalkd.conf		usr/contrib/netatalk/etc/atalkd.conf
+ECOPY	644 @SRCTOPDIR@/dist/netatalk/config/AppleVolumes.default	usr/contrib/netatalk/etc/AppleVolumes.default
+ECOPY	644 @SRCTOPDIR@/dist/netatalk/config/AppleVolumes.system	usr/contrib/netatalk/etc/AppleVolumes.system
+COPY	@SRCTOPDIR@/contrib/netatalk/build/etc/uams/.libs/uams_guest.so	usr/contrib/netatalk/etc/uams/uams_guest.so
+#COPY	@SRCTOPDIR@/contrib/netatalk/build/etc/uams/.libs/uams_passwd.so usr/contrib/netatalk/etc/uams/uams_passwd.so
+#SYMLINK uams_passwd.so usr/contrib/netatalk/etc/uams/uams_clrtxt.so
+COPY	@SRCTOPDIR@/contrib/netatalk/build/etc/afpd/nls/maccode.437	usr/contrib/netatalk/etc/nls/maccode.437
+COPY	@SRCTOPDIR@/contrib/netatalk/build/etc/afpd/nls/maccode.850	usr/contrib/netatalk/etc/nls/maccode.850
+COPY	@SRCTOPDIR@/contrib/netatalk/build/etc/afpd/nls/maccode.iso8859-1 usr/contrib/netatalk/etc/nls/maccode.iso8859-1
+COPY	@SRCTOPDIR@/contrib/netatalk/build/etc/afpd/nls/maccode.iso8859-1.adapted usr/contrib/netatalk/etc/nls/maccode.iso8859-1

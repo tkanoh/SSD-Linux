@@ -1,0 +1,6 @@
+#	$ssdlinux: perl,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+# /usr/bin
+BCOPY @SRCTOPDIR@/usr.bin/perl/build/perl	usr/bin/perl
+
+# /usr/lib

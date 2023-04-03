@@ -1,0 +1,41 @@
+#	$ssdlinux: Makefile.ldflags,v 1.7 2002/12/29 15:59:10 kanoh Exp $
+
+LDSTATIC?=
+
+.ifdef FORCE_NO_PAM
+.if ${LDSTATIC} == "-static -s"
+LDADD+=		-L${LIBSHADOW}/libmisc_no_pam -lmisc
+LDADD+=		-L${LIBSHADOW}/libshadow_no_pam -lshadow
+LDADD+=		-lcrypt
+DPADD+=		${LIBSHADOW}/libmisc_no_pam/libmisc.a
+DPADD+=		${LIBSHADOW}/libshadow_no_pam/libshadow.a
+.else
+LDADD+=		-L${LIBSHADOW}/libshadow_no_pam -lshadow
+LDADD+=		-L${LIBSHADOW}/libmisc_no_pam -lmisc
+LDADD+=		-lcrypt
+DPADD+=		${LIBSHADOW}/libshadow_no_pam/libshadow.a
+DPADD+=		${LIBSHADOW}/libmisc_no_pam/libmisc.a
+.endif
+.else 
+.if ${LDSTATIC} == "-static -s"
+LDADD+=		-L${LIBSHADOW}/libmisc -lmisc
+LDADD+=		-L${LIBSHADOW}/libshadow -lshadow
+LDADD+=		-lcrypt
+DPADD+=		${LIBSHADOW}/libmisc/libmisc.a
+DPADD+=		${LIBSHADOW}/libshadow/libshadow.a
+.else 
+LDADD+=		-L${LIBSHADOW}/libshadow -lshadow
+LDADD+=		-L${LIBSHADOW}/libmisc -lmisc
+LDADD+=		-lcrypt
+DPADD+=		${LIBSHADOW}/libshadow/libshadow.a
+DPADD+=		${LIBSHADOW}/libmisc/libmisc.a
+.endif
+.if ${USE_PAM} == "yes"
+LIBPAM=		${DIST}/../../lib/pam
+LDADD+=		-L${LIBPAM}/libpam -lpam
+LDADD+=		-L${LIBPAM}/libpam_misc -lpam_misc
+LDADD+=		-ldl
+DPADD+=		${LIBPAM}/libpam/libpam.a
+DPADD+=		${LIBPAM}/libpam_misc/libpam_misc.a
+.endif
+.endif

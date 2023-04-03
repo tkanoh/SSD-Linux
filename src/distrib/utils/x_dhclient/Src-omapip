@@ -1,0 +1,9 @@
+#	$ssdlinux: Src-omapip,v 1.1.1.1 2002/05/02 13:37:05 kanoh Exp $
+#	$NetBSD: Src-omapip,v 1.6 2001/04/06 18:53:33 mellon Exp $
+
+OMSRCS=	array.c alloc.OM.c result.c \
+	errwarn.c dispatch.OM.c support.OM.c handle.c \
+	hash.OM.c
+OMSRCS+= generic.c protocol.c connection.c buffer.c \
+	toisc.c auth.c listener.c message.c mrtrace.c \
+	trace.c

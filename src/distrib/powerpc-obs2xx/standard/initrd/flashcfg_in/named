@@ -1,0 +1,6 @@
+#	$ssdlinux: named,v 1.1 2004/12/02 01:54:31 todoroki Exp $
+/etc/namedb/named.conf
+/etc/namedb/127
+/etc/namedb/localhost
+/etc/namedb/loopback.v6
+/etc/namedb/db

@@ -1,0 +1,5 @@
+#	$ssdlinux: pcmcia.base,v 1.3 2005/03/08 06:56:02 todoroki Exp $
+/etc/pcmcia/config.opts
+/etc/pcmcia/network.opts
+/etc/pcmcia/wireless.opts
+/etc/pcmcia/addon.conf

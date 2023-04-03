@@ -1,0 +1,24 @@
+if [ -f /usr/contrib/etc/openblocks.conf ]; then
+        . /usr/contrib/etc/openblocks.conf
+fi
+
+if [ "x$x_ipv6_tunnel" = "xYES" ]; then
+	echo "setting IPv6 over IPv4 tunnel $x_ipv6_tunnel_here -> $x_ipv6_tunnel_there."
+	ip tunnel add sit1 mode sit remote $x_ipv6_tunnel_there local $x_ipv6_tunnel_here
+	ifconfig sit1 up
+	route -A inet6 add default dev sit1
+fi
+
+echo -n "starting OpenBlockS daemons:"
+
+if [ -x /usr/contrib/sbin/thttpd ]; then
+	echo -n " httpd:880"
+	/usr/contrib/sbin/thttpd -C /usr/contrib/etc/setup_thttpd.conf
+	if [ "x$x_httpd_enable" = "xYES" ]; then
+		echo -n " httpd"
+		/usr/contrib/sbin/thttpd -C /usr/contrib/etc/thttpd.conf
+	fi
+fi
+
+
+echo "."

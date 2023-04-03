@@ -1,0 +1,9 @@
+#	$ssdlinux: Makefile.inc,v 1.1.1.1 2002/05/02 13:37:13 kanoh Exp $
+
+BINDIR?=	/usr/sbin
+WARNS?=		0
+NONLS=		yes
+
+CPPFLAGS+=	-O0
+CPPFLAGS+=	-DSYSLOG -DVEND_CMU -DDHCP -DDYNAMIC -DDEBUG
+CPPFLAGS+=	-DLOG_BOOTP=LOG_DAEMON

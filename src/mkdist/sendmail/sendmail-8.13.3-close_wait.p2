@@ -1,0 +1,113 @@
+#	$ssdlinux: sendmail-8.13.3-close_wait.p2,v 1.2 2005/01/19 02:23:06 yamagata Exp $
+diff -aruN sendmail-8.13.3.orig/sendmail/mci.c sendmail-8.13.3/sendmail/mci.c
+--- sendmail-8.13.3.orig/sendmail/mci.c	2004-08-05 06:11:31.000000000 +0900
++++ sendmail-8.13.3/sendmail/mci.c	2005-01-19 11:14:09.000000000 +0900
+@@ -398,6 +398,57 @@
+ 
+ 	return mci;
+ }
++
++/*
++**  MCI_CLOSE -- (forcefully) close files used for a connection.
++**	Note: this is a last resort, usually smtpquit() or endmailer()
++**		should be used to close a connection.
++**
++**	Parameters:
++**		mci -- the connection to close.
++**		where -- where has this been called?
++**
++**	Returns:
++**		none.
++*/
++
++void
++mci_close(mci, where)
++	MCI *mci;
++	char *where;
++{
++	bool dumped;
++
++	if (mci == NULL)
++		return;
++	dumped = false;
++	if (mci->mci_out != NULL)
++	{
++		if (tTd(56, 1))
++		{
++			sm_dprintf("mci_close: mci_out!=NULL, where=%s\n",
++				where);
++			mci_dump(sm_debug_file(), mci, false);
++			dumped = true;
++		}
++		(void) sm_io_close(mci->mci_out, SM_TIME_DEFAULT);
++		mci->mci_out = NULL;
++	}
++	if (mci->mci_in != NULL)
++	{
++		if (tTd(56, 1))
++		{
++			sm_dprintf("mci_close: mci_in!=NULL, where=%s\n",
++				where);
++			if (!dumped)
++				mci_dump(sm_debug_file(), mci, false);
++		}
++		(void) sm_io_close(mci->mci_in, SM_TIME_DEFAULT);
++		mci->mci_in = NULL;
++	}
++	mci->mci_state = MCIS_CLOSED;
++}
++
+ /*
+ **  MCI_NEW -- allocate new MCI structure
+ **
+diff -aruN sendmail-8.13.3.orig/sendmail/sendmail.h sendmail-8.13.3/sendmail/sendmail.h
+--- sendmail-8.13.3.orig/sendmail/sendmail.h	2004-11-10 04:45:46.000000000 +0900
++++ sendmail-8.13.3/sendmail/sendmail.h	2005-01-19 11:14:09.000000000 +0900
+@@ -728,6 +728,7 @@
+ 
+ /* functions */
+ extern void	mci_cache __P((MCI *));
++extern void	mci_close __P((MCI *, char *where));
+ extern void	mci_dump __P((SM_FILE_T *, MCI *, bool));
+ extern void	mci_dump_all __P((SM_FILE_T *, bool));
+ extern void	mci_flush __P((bool, MCI *));
+diff -aruN sendmail-8.13.3.orig/sendmail/usersmtp.c sendmail-8.13.3/sendmail/usersmtp.c
+--- sendmail-8.13.3.orig/sendmail/usersmtp.c	2005-01-11 09:24:19.000000000 +0900
++++ sendmail-8.13.3/sendmail/usersmtp.c	2005-01-19 11:14:09.000000000 +0900
+@@ -89,6 +89,7 @@
+ 	*/
+ 
+ 	SmtpError[0] = '\0';
++	SmtpMsgBuffer[0] = '\0';
+ 	CurHostName = mci->mci_host;		/* XXX UGLY XXX */
+ 	if (CurHostName == NULL)
+ 		CurHostName = MyHostName;
+@@ -2899,7 +2900,10 @@
+ 	char *oldcurhost;
+ 
+ 	if (mci->mci_state == MCIS_CLOSED)
++	{
++		mci_close(mci, "smtpquit:1");
+ 		return;
++	}
+ 
+ 	oldcurhost = CurHostName;
+ 	CurHostName = mci->mci_host;		/* XXX UGLY XXX */
+@@ -3133,7 +3137,7 @@
+ 			if (strncmp(SmtpMsgBuffer, "QUIT", 4) == 0)
+ 			{
+ 				errno = mci->mci_errno;
+-				mci->mci_state = MCIS_CLOSED;
++				mci_close(mci, "reply:1");
+ 				return -1;
+ 			}
+ 			mci->mci_state = MCIS_ERROR;
+@@ -3158,7 +3162,7 @@
+ 			/* errors on QUIT should be ignored */
+ 			if (strncmp(SmtpMsgBuffer, "QUIT", 4) == 0)
+ 			{
+-				mci->mci_state = MCIS_CLOSED;
++				mci_close(mci, "reply:2");
+ 				return -1;
+ 			}
+ 

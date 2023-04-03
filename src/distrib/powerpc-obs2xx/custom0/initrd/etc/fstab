@@ -1,0 +1,5 @@
+#	$ssdlinux: fstab,v 1.1 2004/12/02 01:54:22 todoroki Exp $
+/dev/ram  /            ext2   defaults       1 1
+/dev/hda1 /var/ftp/pub ext2   defaults       1 2
+none      /proc	proc          defaults       0 0
+none      /dev/pts     devpts gid=4,mode=620 0 0

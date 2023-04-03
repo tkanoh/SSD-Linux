@@ -1,0 +1,11 @@
+#	$ssdlinux: Makefile.ldflags,v 1.2 2004/03/17 06:43:53 yamagata Exp $
+
+DHCPLIB=	${DIST}/../../lib/dhcp
+LDADD+=		-L${DHCPLIB}/common -ldhcp
+LDADD+=		-L${DHCPLIB}/minires -lres
+LDADD+=		-L${DHCPLIB}/omapip -lomapi
+LDADD+=		-L${DHCPLIB}/dst -ldst
+DPADD+=		${DHCPLIB}/common/libdhcp.a
+DPADD+=		${DHCPLIB}/minires/libres.a
+DPADD+=		${DHCPLIB}/omapip/libomapi.a
+DPADD+=		${DHCPLIB}/dst/libdst.a

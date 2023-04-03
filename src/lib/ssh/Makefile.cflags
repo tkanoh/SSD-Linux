@@ -1,0 +1,35 @@
+#	$ssdlinux: Makefile.cflags,v 1.8 2004/07/02 14:34:23 yamagata Exp $
+
+CPPFLAGS+=	-Wall
+CPPFLAGS+=	-DETCDIR=\"/etc\"
+CPPFLAGS+=	-D_PATH_SSH_PROGRAM=\"/usr/bin/ssh\"
+CPPFLAGS+=	-D_PATH_SSH_ASKPASS_DEFAULT=\"/usr/libexec/ssh-askpass\"
+CPPFLAGS+=	-D_PATH_SFTP_SERVER=\"/usr/libexec/sftp-server\"
+CPPFLAGS+=	-D_PATH_SSH_KEY_SIGN=\"/usr/libexec/ssh-keysign\"
+CPPFLAGS+=	-D_PATH_SSH_PIDDIR=\"/var/run\"
+CPPFLAGS+=	-D_PATH_PRIVSEP_CHROOT_DIR=\"/var/chroot/sshd\"
+CPPFLAGS+=	-DSSH_RAND_HELPER=\"/usr/libexec/ssh-rand-helper\"
+CPPFLAGS+=	-DHAVE_CONFIG_H
+.if ${TARGET_HOSTTYPE} == "powerpc"
+CPPFLAGS+=	-DWORDS_BIGENDIAN=1
+.endif
+.if ${USE_PAM} == "yes"
+CPPFLAGS+=	
+CPPFLAGS+=	-DUSE_PAM=1
+CPPFLAGS+=	-DMAIL_DIRECTORY=\"/var/mail\"
+CPPFLAGS+=	-DHAVE_LIBDL=1
+CPPFLAGS+=	-DHAVE_LIBPAM=1
+CPPFLAGS+=	-DHAVE_PAM_GETENVLIST=1
+.if defined(CROSS_BUILD) || defined(NEW_GLIBC)
+CPPFLAGS+= -I${DIST}/../../lib/pam/include
+CPPFLAGS+= -I${DIST}/../Linux-PAM/libpam/include
+CPPFLAGS+= -I${DIST}/../Linux-PAM/libpamc/include
+CPPFLAGS+= -I${DIST}/../Linux-PAM/libpam_misc/include
+.endif
+.else
+#CPPFLAGS+=	-DHAS_SHADOW_EXPIRE=1
+.endif
+.if defined(CROSS_BUILD) || defined(NEW_GLIBC)
+CPPFLAGS+=	-I${DIST}/../openssl/include
+CPPFLAGS+=	-I${DIST}/../zlib
+.endif

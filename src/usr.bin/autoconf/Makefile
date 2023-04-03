@@ -1,0 +1,14 @@
+#	$ssdlinux: Makefile,v 1.3 2002/05/27 17:00:11 kanoh Exp $
+
+.include <bsd.own.mk>
+
+DISTNAME=	autoconf
+HAVE_DESTDIR=	yes
+CONFIGURE_FULL_PREFIX=1
+CONFIGURE_ENV=
+CONFIGURE_OPTIONS=
+GMAKE_ENV=
+GMAKE_OPTIONS=
+GMAKE_INSTALL_OPTIONS= DESTDIR=${DESTDIR}
+
+.include <bsd.gnu.mk>

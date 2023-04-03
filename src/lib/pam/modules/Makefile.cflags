@@ -1,0 +1,39 @@
+#	$ssdlinux: Makefile.cflags,v 1.8 2004/11/24 01:15:57 yamagata Exp $
+
+DIST=		${.CURDIR}/../../../../dist/Linux-PAM
+
+.include "../Makefile.cflags"
+
+SCRIPTS=	${MODULE}.so
+CLEANFILES+=	${SCRIPTS} *.o
+
+MODULEDIR?=	${MODULE}
+
+MSRCDIR=	${DIST}/modules
+KERNSRC=	${DIST}/../../linux
+
+CPPFLAGS+=	-I${DIST}/include
+
+.if defined(CONFFILE)
+CPPFLAGS+=	-DDEFAULT_CONF_FILE=\"${FILESDIR}/${CONFFILE}\"
+.if defined(DESTDIR) || !make(install) 
+FILES?=		${CONFFILE}
+.endif
+.endif
+
+.PATH:		${MSRCDIR}/${MODULEDIR}
+
+ADDLIB+=	-L${.CURDIR}/../pammodutil -lpammodutil
+
+.ifndef ALTMKSCRIPTS
+${SCRIPTS}: ${.TARGET:M*.so:.so=.c}
+	${CC} ${CPPFLAGS} -c ${MSRCDIR}/${MODULEDIR}/${.TARGET:M*.so:.so=.c} \
+		-o ${.TARGET:M*.so:.so=.o}
+	${CC} -shared -Xlinker -x -o ${.TARGET} ${.TARGET:M*.so:.so=.o} -lc ${ADDLIB}
+.ifdef MAKECONF
+	${MAKECONF}
+.endif
+.endif # .ifndef ALTMKSCRIPTS
+
+scriptsinstall::
+	${INSTALL} -c -m ${SCRIPTSMODE} -o ${BINOWN} -g ${BINGRP} ${SCRIPTS} ${DESTDIR}${BINDIR}

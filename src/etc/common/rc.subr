@@ -1,0 +1,42 @@
+#	$ssdlinux: rc.subr,v 1.5 2003/02/17 08:31:39 yamagata Exp $
+#   $NetBSD: rc.subr,v 1.2 1997/08/30 03:34:29 cjs Exp $
+# functions used by various rc scripts 
+
+# Test $1 variable, and warn if not set to YES or NO.
+checkyesno() {
+	eval value=\$${1};
+	if [ "$value" = YES ]; then 
+		 return 0;
+	else    
+		if [ "$value" != NO ]; then 
+			logger -s "WARNING: \$${1} is not set properly."
+		fi      
+		return 1;
+	fi
+}
+
+checklist() {
+	eval list=\$${1};
+	eval value=\$${2};
+	local int;
+	for int in $list
+	do
+		if [ "X$int" = "X$value" ]; then
+			return 0;
+		fi
+	done
+	return 1;
+}
+
+checknolist() {
+	eval list=\$${1};
+	eval value=\$${2};
+	local int;
+	for int in $list
+	do
+		if [ "X$int" = "X$value" ]; then
+			return 1;
+		fi
+	done
+	return 0;
+}

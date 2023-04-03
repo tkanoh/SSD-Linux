@@ -1,0 +1,17 @@
+--- cron3.0pl1/misc.c.orig	1994-03-01 11:39:30.000000000 +0900
++++ cron3.0pl1/misc.c	2004-06-15 17:40:00.000000000 +0900
+@@ -25,11 +25,14 @@
+ 
+ 
+ #include "cron.h"
++/*
+ #if SYS_TIME_H
+ # include <sys/time.h>
+ #else
+ # include <time.h>
+ #endif
++*/
++# include <time.h>
+ #include <sys/file.h>
+ #include <sys/stat.h>
+ #include <errno.h>

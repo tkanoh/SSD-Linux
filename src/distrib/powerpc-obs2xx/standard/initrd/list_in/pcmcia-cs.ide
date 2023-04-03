@@ -1,0 +1,7 @@
+#       $ssdlinux: pcmcia-cs.ide,v 1.2 2005/01/14 03:14:15 todoroki Exp $
+
+# IDE Cards(CF)
+ECOPY	555 @SRCTOPDIR@/etc/pcmcia/ide			etc/pcmcia/ide
+ECOPY	644 @SRCTOPDIR@/dist/pcmcia-cs/etc/ide.opts	etc/pcmcia/ide.opts
+COPY	@MODULESDIR@/pcmcia/ide-cs.o.gz			lib/modules/@KERNEL_VERSION@/pcmcia/ide-cs.o.gz
+BCOPY	@SRCTOPDIR@/usr.bin/pcmcia-cs/ide_info/ide_info	usr/bin/ide_info

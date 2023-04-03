@@ -1,0 +1,9 @@
+#	$ssdlinux: README,v 1.1 2004/11/11 17:13:56 kanoh Exp $
+#	$NetBSD: README,v 1.2 1995/02/27 13:24:00 cgd Exp $
+#	@(#)README	8.1 (Berkeley) 6/4/93
+
+These are the current memory pool routines.
+They aren't ready for prime time, yet, and
+the interface is expected to change.
+
+--keith

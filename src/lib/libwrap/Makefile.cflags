@@ -1,0 +1,15 @@
+#	$ssdlinux: Makefile.cflags,v 1.1.1.1 2002/05/02 13:37:06 kanoh Exp $
+
+CPPFLAGS+=-DHAVE_LIBNSL=1 -DHAVE_LIBRESOLV=1 -DHAVE_LIBRPCSVC=1
+CPPFLAGS+=-DFACILITY=LOG_AUTHPRIV -DSEVERITY=LOG_INFO -DAPPEND_DOT -DALWAYS_RFC931
+CPPFLAGS+=-DREAL_DAEMON_DIR=\"/usr/libexec\" -DHOSTS_ACCESS -DDAEMON_UMASK=022
+CPPFLAGS+=-DRFC931_TIMEOUT=10 -DALWAYS_HOSTNAME -DSYS_ERRLIST_DEFINED -DBROKEN_SO_LINGER
+CPPFLAGS+=-DHOSTS_ALLOW=\"/etc/hosts.allow\" -DHOSTS_DENY=\"/etc/hosts.deny\"
+CPPFLAGS+=-DPROCESS_OPTIONS -DUSE_GETDOMAIN
+CPPFLAGS+=-Dss_family=__ss_family -Dss_len=__ss_len
+
+# -DPARANOID is not used by libwrap, only by programs that use it.
+# in this case inetd does not use it (probably rightly so) and so
+# we don't want to use it in wrapper-related utilities (such as
+# tcpdmatch) that include this file.
+#CPPFLAGS+=-DPARANOID

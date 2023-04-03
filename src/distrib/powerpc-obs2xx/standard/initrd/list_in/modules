@@ -1,0 +1,12 @@
+#	$ssdlinux: modules,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+ECOPY	644 @SRCTOPDIR@/etc/common/lkm.conf	etc/lkm.conf
+ECOPY	644 @SRCTOPDIR@/etc/common/rc.lkm	etc/rc.lkm
+BCOPY	@SRCTOPDIR@/sbin/depmod/depmod		sbin/depmod
+BCOPY	@SRCTOPDIR@/sbin/insmod/insmod		sbin/insmod
+SYMLINK insmod					sbin/kallsyms
+SYMLINK insmod					sbin/ksyms
+SYMLINK insmod					sbin/lsmod
+SYMLINK insmod					sbin/modprobe
+SYMLINK insmod					sbin/rmmod
+BCOPY	@SRCTOPDIR@/sbin/modinfo/modinfo	sbin/modinfo

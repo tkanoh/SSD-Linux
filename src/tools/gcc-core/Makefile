@@ -1,0 +1,20 @@
+#	$ssdlinux: Makefile,v 1.8 2004/06/08 16:59:12 kanoh Exp $
+TOOLCHAIN= yes
+
+.include <bsd.own.mk>
+
+DISTNAME=	gcc
+CONFIGURE_FULL_PREFIX= 1
+CONFIGURE_ENV=	CFLAGS="-O2" CXXFLAGS="-O2" LDFLAGS=-s
+CONFIGURE_OPTIONS= --enable-threads --verbose
+CONFIGURE_OPTIONS+= --enable-languages=c --with-newlib
+GMAKE_ENV=
+GMAKE_OPTIONS= LANGUAGES=c all-gcc
+GMAKE_INSTALL_OPTIONS=
+INSTALL_STRIP=	no
+
+GNU_TARGET=	${TARGET_MACHTYPE}${NEW_GLIBC}
+GNU_WITH_LIBS=	${NEW_GLIBC_LIBS}
+GNU_WITH_HEADER=${NEW_GLIBC_HEADER}
+
+.include <bsd.gnu.mk>

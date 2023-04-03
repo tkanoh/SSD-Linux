@@ -1,0 +1,77 @@
+#	$ssdlinux: inetd.conf.in,v 1.2 2002/06/12 03:19:37 kanoh Exp $
+#
+# See "man 8 inetd" for more information.
+#
+# If you make changes to this file, either reboot your machine or send the
+# inetd a HUP signal:
+# Do a "ps x" as root and look up the pid of inetd. Then do a
+# "kill -HUP <pid of inetd>".
+# The inetd will re-read this file whenever it gets that signal.
+#
+# <service_name> <sock_type> <proto> <flags> <user> <server_path> <args>
+#
+# The first 4 services are really only used for debugging purposes, so
+# we comment them out since they can otherwise be used for some nasty
+# denial-of-service attacks.  If you need them, uncomment them.
+# echo   	stream	@TCP@	nowait	root	internal
+# echo   	dgram	@UDP@	wait	root	internal
+# discard	stream	@TCP@	nowait	root	internal
+# discard	dgram	@UDP@	wait	root	internal
+# daytime	stream	@TCP@	nowait	root	internal
+# daytime	dgram	@UDP@	wait	root	internal
+# chargen	stream	@TCP@	nowait	root	internal
+# chargen	dgram	@UDP@	wait	root	internal
+time	stream	@TCP@	nowait	root	internal
+time	dgram	@UDP@	wait	root	internal
+#
+# These are standard services.
+#
+# Washington University FTP Daemon:
+#ftp     stream  @TCP@     nowait  root    /usr/libexec/ftpd ftpd
+#telnet	stream  @TCP@     nowait  root    /usr/libexec/telnetd telnetd
+#
+# This is for BSD sendmail.  NOTE:  It's not a good idea to uncomment this
+# one, since sendmail is already set up to run as a daemon in /etc/rc.d/rc.M.
+# But, if you really want to run sendmail this way for some reason, you'll 
+# need to uncomment the smtp line below AND change the line in /etc/rc.d/rc.M
+# to run sendmail like this:  /usr/sbin/sendmail -q30m   
+# ...otherwise the queue will not be processed.
+# smtp  stream  @TCP@     nowait  root    /usr/sbin/@TCP@d  sendmail -bs
+#
+# The comsat daemon notifies the user of new mail when biff is set to y:
+#comsat        dgram   @UDP@     wait    root    /usr/libexec/comsat  comsat
+#
+# Shell, login, exec and talk are BSD protocols.
+#
+#shell	stream	@TCP@	nowait	root	/usr/libexec/rshd rshd -L
+#login	stream	@TCP@	nowait	root	/usr/libexec/rlogind rlogind
+#ntalk	dgram	@UDP@	wait	root	/usr/libexec/talkd	talkd
+#
+# Tftp service is provided primarily for booting.  Most sites
+# run this only on machines acting as "boot servers." 
+#
+#tftp	dgram	@UDP@	wait	nobody	/usr/libexec/tftpd	tftpd
+#
+# Finger, systat and netstat give out user information which may be
+# valuable to potential "system crackers."  Many sites choose to disable 
+# some or all of these services to improve security.
+# Try "telnet localhost systat" and "telnet localhost netstat" to see that
+# information yourself!
+#
+#finger	stream	@TCP@	nowait	nobody	/usr/libexec/fingerd	fingerd -u
+#
+# Ident service is used for net authentication
+# Since we start identd as nobody, it can't write a .pid file in /var/run, so tell it
+# to use /dev/null.  This is of little importance unless you run identd as a
+# standalone daemon anyway.
+#auth	stream	@TCP@	wait	nobody	/usr/libexec/identd	identd -w -o -e -N
+#
+# Sun-RPC based services.
+# <service name/version><sock_type><rpc/prot><flags><user><server><args>
+#
+# rusersd/2-3	dgram	rpc/@UDP@	wait	root	/usr/libexec/rpc.rusersd	rpc.rusersd
+# walld/1	dgram	rpc/@UDP@	wait	root	/usr/libexec/rpc.rwalld		rpc.rwalld
+#
+#rsync		stream	@TCP@	nowait	root	/usr/bin/rsync rsync --daemon
+# End of inetd.conf.
+

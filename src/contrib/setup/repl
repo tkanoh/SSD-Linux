@@ -1,0 +1,6 @@
+#!/usr/bin/perl
+
+while(<>){
+  s/"(x_[\w_]+)"/uc($1)/eg;
+  print;
+}

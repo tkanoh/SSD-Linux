@@ -1,0 +1,151 @@
+#	$ssdlinux: ramdiskbin.conf.in,v 1.30 2004/12/24 07:10:21 yamagata Exp $
+
+srcdirs	bin sbin usr.bin usr.sbin
+
+progs	agetty badblocks basename cardmgr cat chgrp chmod chown chroot cmp cp date depmod df dhclient
+progs	e2fsck expr fdisk ftp grep grub gzip
+progs	halt hostname ifconfig init insmod ln ls login mkdir mke2fs mknod mkswap mount mv
+progs	passwd ping portmap pwd rm route 
+progs	sed sfdisk sh shutdown sleep sort stty swapon sysinst tar touch umount uname uniq
+#progs	dump restore
+
+ln insmod modprobe
+ln halt reboot
+ln halt poweroff
+ln init telinit
+ln e2fsck fsck.ext2
+ln e2fsck fsck.ext3
+ln sh -sh
+ln sh bash
+ln sh -bash
+ln swapon swapoff
+
+special cat srcdir distrib/utils/x_cat
+special basename srcdir distrib/utils/x_basename
+special chgrp srcdir distrib/utils/x_chgrp
+special chmod srcdir distrib/utils/x_chmod
+special chown srcdir distrib/utils/x_chown
+special chroot srcdir distrib/utils/x_chroot
+special cmp srcdir distrib/utils/x_cmp
+special cp srcdir distrib/utils/x_cp
+special date srcdir distrib/utils/x_date
+special df srcdir distrib/utils/x_df
+special dhclient srcdir distrib/utils/x_dhclient
+#special dump srcdir distrib/utils/x_dump
+special expr srcdir distrib/utils/x_expr
+special ftp srcdir distrib/utils/x_ftp
+special grep srcdir distrib/utils/x_grep
+special grub srcdir distrib/utils/x_grub
+special gzip srcdir distrib/utils/x_gzip
+special ifconfig srcdir distrib/utils/x_ifconfig
+special insmod srcdir distrib/utils/x_insmod
+#special login srcdir distrib/utils/x_login_no_shadow
+special login srcdir distrib/utils/x_login
+special ln srcdir distrib/utils/x_ln
+special ls srcdir distrib/utils/x_ls
+special mkdir srcdir distrib/utils/x_mkdir
+#special mount srcdir distrib/utils/x_mount
+special mount srcdir distrib/utils/x_mount_no_nfs
+special mv srcdir distrib/utils/x_mv
+special passwd srcdir distrib/utils/x_passwd
+special portmap srcdir distrib/utils/x_portmap
+special rm srcdir distrib/utils/x_rm
+special sed srcdir distrib/utils/x_sed
+special sleep srcdir distrib/utils/x_sleep
+special sort srcdir distrib/utils/x_sort
+special sysinst srcdir distrib/utils/sysinst
+special tar srcdir distrib/utils/x_tar
+special touch srcdir distrib/utils/x_touch
+#special umount srcdir distrib/utils/x_umount
+special umount srcdir distrib/utils/x_umount_no_nfs
+special uniq srcdir distrib/utils/x_uniq
+
+special agetty objs agetty.o
+special badblocks objs badblocks.o
+special cat objs cat.o
+special basename objs basename.o
+special cardmgr objs cardmgr.o lex_config.o yacc_config.o
+special chgrp objs chgrp.o chown-core.o
+special chmod objs chmod.o
+special chown objs chown.o chown-core.o
+special chroot objs chroot.o
+special cmp objs cmp.o version.o c-stack.o cmpbuf.o error.o exitfail.o freesoft.o getopt.o getopt1.o offtostr.o
+special cp objs cp.o copy.o cp-hash.o
+special date objs date.o
+special depmod objs depmod.o
+special df objs df.o
+special dhclient objs alloc.OM.o alloc.o array.o auth.o base64.o bpf.o buffer.o clparse.o comapi.o conflex.o connection.o convert.o ctrace.o dhclient.o discover.o dispatch.OM.o dispatch.o dns.o dst_api.o dst_support.o errwarn.o ethernet.o execute.o fddi.o generic.o handle.o hash.OM.o hmac_link.o inet.o listener.o lpf.o md5_dgst.o memory.o message.o mrtrace.o ns_date.o ns_name.o ns_parse.o ns_samedomain.o ns_sign.o ns_verify.o options.o packet.o parse.o prandom.o print.o protocol.o res_comp.o res_findzonecut.o res_init.o res_mkquery.o res_mkupdate.o res_send.o res_sendsigned.o res_update.o result.o socket.o support.OM.o tables.o toisc.o tr.o trace.o tree.o upf.o
+#special dump objs itime.o main.o optr.o tape.o traverse.o unctime.o dumprmt.o bylabel.o fstab.o
+special e2fsck objs badblocks.o dict.o dirinfo.o dx_dirinfo.o e2fsck.o ea_refcount.o ehandler.o journal.o message.o pass1.o pass1b.o pass2.o pass3.o pass4.o pass5.o problem.o recovery.o region.o rehash.o revoke.o super.o swapfs.o unix.o util.o
+special expr objs expr.o
+special fdisk objs fdisk.o llseek.o disksize.o fdiskbsdlabel.o fdisksgilabel.o fdisksunlabel.o fdiskaixlabel.o i386_sys_types.o partname.o
+special ftp objs cmds.o cmdtab.o complete.o domacro.o fetch.o fgetln.o fparseln.o ftp.o glob.o main.o progressbar.o ruserpass.o setprogname.o sl_init.o strlcat.o strlcpy.o strunvis.o strvis.o util.o
+special grep objs grep.o dfa.o kwset.o obstack.o savedir.o getopt.o getopt1.o search.o grepmat.o
+special grub objs asmstub.o device.o main.o libgrub_a-boot.o libgrub_a-builtins.o libgrub_a-common.o libgrub_a-char_io.o libgrub_a-cmdline.o libgrub_a-disk_io.o libgrub_a-gunzip.o libgrub_a-fsys_ext2fs.o libgrub_a-stage2.o
+special gzip objs minigzip.o
+special hostname objs hostname.o
+special halt objs halt.o ifdown.o utmp.o hddown.o
+special ifconfig objs ifconfig.o
+special init objs init.o utmp.o
+special insmod objs insmod.o modprobe.o
+# login without shadow 
+#special login objs login.o checktty.o
+# login with shadow 
+special login objs login.o
+special ln objs ln.o
+special ls objs ls-50.o ls-ls.o
+special mkdir objs mkdir.o
+special mke2fs objs mke2fs.o util.o
+special mknod objs mknod.o
+special mkswap objs mkswap.o
+# mount without NFS
+special mount objs mount.o fstab.o sundries.o xmalloc.o realpath.o mntent.o version.o get_label_uuid.o mount_by_label.o mount_blkid.o mount_guess_fstype.o getusername.o lomount.o
+# mount with NFS
+#special mount objs mount.o fstab.o sundries.o xmalloc.o realpath.o mntent.o version.o get_label_uuid.o mount_by_label.o mount_blkid.o mount_guess_fstype.o getusername.o  lomount.onfsmount_xdr.o nfsmount_clnt.o nfsmount.o
+special mv objs mv.o copy.o cp-hash.o remove.o
+special passwd objs passwd.o
+special ping objs ping.o
+special portmap objs portmap.o pmap_check.o from_local.o daemon.o strerror.o
+special pwd objs pwd.o
+#special restore objs dirs.o interactive.o main.o restore.o symtab.o tape.o utilities.o dumprmt.o
+special rm objs rm.o remove.o
+special route objs route.o
+special sed objs sed.o compile.o execute.o regexp.o fmt.o mbcs.o utils.o regex.o
+special sfdisk objs sfdisk.o disksize.o i386_sys_types.o partname.o
+special sh objs alias.o cd.o echo.o error.o eval.o exec.o expand.o histedit.o input.o jobs.o mail.o main.o memalloc.o miscbltin.o mystring.o options.o parser.o redir.o show.o test.o times.o trap.o output.o var.o setmode.o arith.o arith_lex.o builtins.o init.o nodes.o signames.o syntax.o
+special shutdown objs dowall.o shutdown.o utmp.o
+special sleep objs sleep.o
+special sort objs sort.o
+special stty objs stty.o
+special swapon objs swapon.o version.o xmalloc.o get_label_uuid.o mount_by_label.o mount_blkid.o
+special sysinst objs sysinst.o
+special tar objs buffer.o compare.o create.o delete.o extract.o xheader.o incremen.o list.o mangle.o misc.o names.o sparse.o system.o tar.o update.o utf8.o prepargs.o rtapelib.o localcharset.o
+special touch objs touch.o
+special umount objs umount.o fstab.o sundries.o xmalloc.o realpath.o mntent.o getusername.o get_label_uuid.o mount_by_label.o mount_blkid.o version.o lomount.o
+special uname objs uname.o
+special uniq objs uniq.o
+
+libs -static -s
+libs -L@SRCTOP@/distrib/utils/libhack -lhack
+libs -L@SRCTOP@/distrib/utils/libnet-tools -lnet-tools
+libs -L@SRCTOP@/lib/dump -lcompat
+libs -L@SRCTOP@/lib/e2fsprogs/libext2fs -lext2fs
+libs -L@SRCTOP@/lib/e2fsprogs/libcom_err -lcom_err
+libs -L@SRCTOP@/lib/e2fsprogs/libblkid -lblkid
+libs -L@SRCTOP@/lib/e2fsprogs/libuuid -luuid
+libs -L@SRCTOP@/lib/e2fsprogs/libe2p -le2p
+libs -L@SRCTOP@/lib/util-linux -lutil-linux
+libs -L@SRCTOP@/lib/modutils/libobj -lobj
+libs -L@SRCTOP@/lib/modutils/libutil -lutil
+libs -L@SRCTOP@/lib/shadow/libshadow_no_pam -lshadow
+libs -L@SRCTOP@/distrib/utils/libshadow-misc -lmisc
+libs -L@SRCTOP@/lib/libtermcap -ltermcap
+libs -L@SRCTOP@/lib/libfl -lfl
+libs -L@SRCTOP@/lib/glibc-static/build/rt -lrt
+libs -L@SRCTOP@/lib/libz -lz 
+libs -L@SRCTOP@/lib/glibc-static/build -lc
+libs -L@SRCTOP@/lib/glibc-static/build/crypt -lcrypt
+libs -L@SRCTOP@/lib/glibc-static/build/nss -lnss_files
+libs -L@SRCTOP@/lib/glibc-static/build/nss -lnss_dns
+libs -L@SRCTOP@/lib/glibc-static/build/resolv -lresolv
+libs -L@SRCTOP@/lib/glibc-static/build/nis -lnsl

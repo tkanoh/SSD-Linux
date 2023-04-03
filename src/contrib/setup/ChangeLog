@@ -1,0 +1,153 @@
+2003-04-25 Tamotsu Kanoh <kanoh@plathome.co.jp>
+	* tfiles/fw.t: DENY を DROP に修正
+
+2003-04-23 Jun Todoroki <todoroki@platc2.co.jp>
+	* Makefile, setup.c: IPv6=no 時に IPv6 のメニューを削除するように
+	  修正
+
+2003-04-22 Jun Todoroki <todoroki@platc2.co.jp>
+	* tfiles/system.t: 秒を 0 に固定、再び無表示化
+	* setup.c: timeform() を修正 
+
+2003-04-16 Tamotsu Kanoh <kanoh@plathome.co.jp>
+        * tfiles/system.t: 秒入力を復活
+	* setup.c: timeform() の sec がインクリメントされないように修正
+ 
+2003-04-15 Tamotsu Kanoh <kanoh@plathome.co.jp>
+	* setup.c: アクセスポート制限に伴うエラーメッセージの「イーサネット1」
+	  「イーサネット0」に修正 
+
+2003-02-20 Atsushi Yamagata <yamagata@plathome.co.jp>
+	* rc2conf.c: rc2named_zonedb()でMXレコードを扱えるよう修正
+	* valtab.c: x_named_zone_record_resource___T、
+	  x_named_zone_soa_mname__、x_named_zone_soa_rname__
+	  に説明を与えた
+	* tfiles/named-master.t: 「mname」を「ホスト名」に、「rname」を
+	  「メール・アドレス」に変更
+	* tfiles/named-slave.t: 「マスター」を「マスタ」に変更
+
+2003-02-19 Tamotsu Kanoh <kanoh@plathome.co.jp>
+	* tfiles/system.t: 秒を 0 に固定、無表示化
+	* rc2conf.c: str_named_zone_slave のフォーマットを修正  
+
+2003-02-19 Atsushi Yamagata <yamagata@plathome.co.jp>
+	* valtab.c: ゾーン名を空欄にして追加ボタンを押すとエラー・メッ
+	  セージにx_named_zone_name___Tが表示されるのを修正
+	  「namedを起動時に起動する」を変更するとメッセージに
+	  x_named_enableが表示されるのを修正
+	  下記の用語に統一
+	* Makefile, rc2conf.c, rc2conf.h, yazaki-main.c: rc2conf.hの内
+	  容がsetup.hに移動されてあるので、rc2conf.hを削除、includeせず、
+	  依存性の記述を削除
+	* setup.c: 「ユーザー」を「ユーザ」に変更
+	  メニューから「ヘルプ」を削除
+	* tfiles/user.t: 「ユーザー」を「ユーザ」に、「uid」を「UID」に、
+	  「login」「アカウント」を「ログイン名」に、「name」「名前」を
+	  「ユーザ名」に変更
+	* tfiles/ipv6.t, tfiles/masq.t: 「イーサネット1」を「eth0」に、
+	  「イーサネット2」を「eth1」に変更
+	*  tfiles/network.t: 「イーサネット1」を「eth0」に、
+	  「イーサネット2」を「eth1」に、
+	  「ドメインネーム」を「ドメイン名」に変更
+	* tfiles/dhcpd.t, tfiles/system.t: 「ホストネーム」を
+	  「ホスト名」に、「ドメインネーム」を「ドメイン名」に変更
+	* tfiles/login.t, tfiles/badpasswd.t: 「Login」を「ログイン名」
+	  に、「Password」を「パスワード」に、「ログインする」を
+	  「ログイン」に、ボタンの位置を変更
+	* tfiles/sendmail.t: 「オフィシャルホスト名」を「ホスト名(FQDN)」
+	  に、「hostname/domain」を「ホステ名.ドメイン名」に変更
+
+2003-02-18 Atsushi Yamagata <yamagata@plathome.co.jp>
+	* setup.c: typoを修正
+
+2003-01-14 Tamotsu Kanoh <kanoh@plathome.co.jp>
+	* apache に代えて thttpd を使用するように変更
+
+2002-10-4 Tamotsu Kanoh <kanoh@plathome.co.jp>
+	* samba の設定変更メッセージ(output_change())が正常に表示される
+	  よう修正 valtab.c
+	* Copyright に 2002 を追加 setup.c
+
+2002-9-6 Tamotsu Kanoh <kanoh@plathome.co.jp>
+	* named_zone_record_typ に MX を追加 named-master.t
+	* AAAA,MX レコードが入力できるよう named_zone_record_resource の
+	  is_hostname を NULL に変更 valtab.c
+
+2002-8-19 Tamotsu Kanoh <kanoh@plathome.co.jp>
+	* 時刻設定が動作するよう修正 ok.c
+
+2002-8-18 Tamotsu Kanoh <kanoh@plathome.co.jp>
+	* initrd-custom0 用メニューを追加 -DCUSTOM0 
+	* network.t dhcpd.t の input form を簡素化
+
+2002-8-8 Tamotsu Kanoh <kanoh@plathome.co.jp>
+	* SERVER_PORT != 880 によるアクセス制限を追加、port 番号 880
+	  は Makefile で指定可能
+	* x_openblocks_access_limit の設定値が page_cannot_access() の
+	  エラーメッセージに反映されるよう修正.
+
+2002-8-1 Tamotsu Kanoh <kanoh@plathome.co.jp>
+	* sendmail V10 対応 -DSENDMAIL_V10=1
+	* sendmail.t に x_sendmail_enable の input form を追加
+	* master RR を /etc/namedb/db, slave RR を /etc/namedb/2nd へ 
+
+2002-7-20 Tamotsu Kanoh <kanoh@plathome.co.jp>
+	* /var/named を /etc/namedb へ変更
+	* /etc/named.conf を /etc/namedb/named.conf へ変更 
+	* rc2dhcpd() に 'ddns-update-style none;' を追加
+	* /etc/defaults を /usr/contrib/etc/defaults へ変更
+	* httpd ServerRoot を /usr/contrib/apache2 へ変更
+
+2002-7-8 Naoki Hamada <nao@heart-s.com>
+	* installallで必要なファイルがすべてインストールされるよう調整
+
+2002-7-4 Naoki Hamada <nao@heart-s.com>
+	* /usr/contrib対応misc.c,setup.h
+
+2002-6-28 Naoki Hamada <nao@heart-s.com>
+	* radvd.confのテンプレート修正setup.c,symtab,valtab.c
+	
+2002-6-26 Naoki Hamada <nao@heart-s.com>
+	* IPv6のinterface IDを静的に生成するよう変更ok.c
+	
+2002-6-13 Naoki Hamada <nao@heart-s.com>
+	* sym.oのsymtabへの依存関係をMakefileに追加
+	
+2002-6-6 Naoki Hamada <nao@heart-s.com>
+	* Makefileの記述を修正し、構築とインストールを分離(ぷらっと版マージ)
+	
+2002-6-4 Naoki Hamada <nao@heart-s.com>
+	* openblocks.confへの出力がおかしくなるバグ修正valtab.c
+
+2002-6-3 Naoki Hamada <nao@heart-s.com>
+	* radvd対応
+	
+2002-5-31 Naoki Hamada <nao@heart-s.com>
+	* ipv6対応
+	
+2002-5-24 Naoki Hamada <nao@heart-s.com>
+	* /etc/defaultを/etc/defaultsに変更(SSD化)
+	* /etc/sysconfig/network関連のコードを削除(SSD化)
+	* /etc/upsetconf?を/etc/rc.iptablesに変更(SSD化)
+	
+2001-12-4 Issei Numata <issei@heart.ne.jp>
+	* IPマスカレードが追記モードでupsetconfをオープンするため、設定を変えても追記されて
+	  しまう問題を修正
+	* IPマスカレードで「利用しない」と「イーサネット1」が入れかわっていた問題を修正
+	* いくつかの関数の定義の修正
+	* シンボルをマクロで実装するよう修正
+	* symtabおよび gensymを追加
+	* ChangeLogを追加
+
+2001-11-21 Issei Numata <issei@heart.ne.jp>
+	* x_keyを保存しないように修正
+	* x_openblocks_autoconfig_versionを廃止しソースにバージョンを埋め込み
+	* /var/named/db を /var/namedに変更
+	* ユーザ作成のときに home ディレクトリを作成するように変更
+	* ユーザ削除のときに homeディレクトリを削除するように変更
+	* x_hostnameと x_domainnameを変更したときに named.localを変更するように変更
+	* iptablesを使うように変更
+	* /etc/flashcfgが無い場合、もしくは /etc/flashcfgのサイズが0の場合は flashcfgを実行しないよう変更
+	* Makefile修正
+	* malloc修正(mallocしっぱなし)
+	* 番号の若いnamedのレコードを消すと、それ以降が消せなくなる問題を修正

@@ -1,0 +1,42 @@
+.\"	$ssdlinux: test.umlaut,v 1.1.1.1 2002/05/02 13:37:09 kanoh Exp $
+.\"     $NetBSD: $
+.\"
+.sc
+.lp
+.ec $
+umlaut is: $*:
+.ec
+.sp
+\w"umlau\*:t"
+.sp
+.XX "umlau\*:t"
+null
+.sp
+.de XX
+null
+..
+.XX "umlau\\\\*:t"
+.br
+.XX "umlau\\*:t"
+.br
+.XX "umlau\*:t"
+.sp
+.de XX
+.ec ^
+$1 = ^$1
+.br
+$2 = ^$2
+.ec
+..
+.XX "umlau\*:t"
+.sp
+.de XX
+$1 = \\$1
+.br
+$2 = \\$2
+..
+.XX "umlau\*:t"
+.sp
+.i "umlau\*:t"
+.sp
+.b "umlau\*:t"

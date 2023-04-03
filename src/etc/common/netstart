@@ -1,0 +1,332 @@
+#!/bin/sh -
+#
+#	$ssdlinux: netstart,v 1.11 2003/11/05 08:44:03 yamagata Exp $
+
+if [ -f /etc/rc.subr ]; then
+	. /etc/rc.subr
+else
+	echo "Can't read /etc/rc.subr; aborting."
+	exit 1;
+fi
+
+if [ -f /etc/rc.conf ]; then
+	. /etc/rc.conf
+fi
+
+if checkyesno do_contrib_rc; then
+	if [ -f /usr/contrib/etc/netstart.local ]; then
+		. /usr/contrib/etc/netstart.local
+	fi
+fi
+
+# If $hostname is set, use it for my symbolic name, otherwise use /etc/myname
+if [ -z "$hostname" -a -f /etc/myname ]; then
+	hostname=`cat /etc/myname`
+fi
+if [ -n "$hostname" ]; then
+	echo "hostname: $hostname"
+	hostname $hostname
+fi
+
+# Check $domainname first, then /etc/defaultdomain, for domain name
+if [ -z "$domainname" -a -f /etc/defaultdomain ]; then
+	domainname=`cat /etc/defaultdomain`
+fi
+if [ -n "$domainname" -a -x /bin/domainname ]; then
+	echo "domainname: $domainname"
+	domainname $domainname
+fi
+
+# Enable, flush and install packet filter rules before configuring interfaces.
+if checkyesno iptables; then
+	if [ -f /etc/rc.iptables ]; then
+		if [ -f /proc/sys/net/ipv4/ip_forward ]; then
+			sysctl -w net.ipv4.ip_forward=1 >/dev/null
+		fi
+		. /etc/rc.iptables
+	else
+		logger -s "WARNING: /etc/rc.iptables not readable " \
+		    "iptables not started."
+		# abort the boot rather than risk a security problem
+		exit 1;
+	fi
+fi
+
+# Set the address for the first loopback interface, so that the auto-route
+# from a newly configured interface's address to lo0 works correctly.
+#
+# NOTE: obscure networking problems may occur if lo0 isn't configured...
+#
+#ifconfig lo0 inet 127.0.0.1
+ifconfig lo inet 127.0.0.1
+route add -net 127.0.0.0 netmask 255.0.0.0 lo
+
+# IPv6 routing setups, and host/router mode selection.
+
+if [ -f /proc/net/if_inet6 ]
+then
+	# We have IPv6 support in kernel.
+
+	# disallow link-local unicast dest without outgoing scope
+	# identifiers.
+	#
+	ip -6 route add unreach fe80::/10
+
+	# disallow site-local unicast dest without outgoing scope
+	# identifiers.
+	# If you configure site-locals without scope id (it is
+	# permissible config for routers that are not on scope
+	# boundary), you may want to comment the following one out.
+	#
+	ip -6 route add unreach fec0::/10
+	# disallow "internal" addresses to appear on the wire.
+	#
+	ip -6 route add unreach ::ffff:0.0.0.0/96
+	
+	# disallow packets to malicious IPv4 compatible prefix
+	#
+	ip -6 route add unreach ::224.0.0.0/100
+	ip -6 route add unreach ::127.0.0.0/104
+	ip -6 route add unreach ::0.0.0.0/104
+	ip -6 route add unreach ::255.0.0.0/104
+
+	# disallow packets to malicious 6to4 prefix
+	#
+	ip -6 route add unreach 2002:e000::/20
+	ip -6 route add unreach 2002:7f00::/24
+	ip -6 route add unreach 2002:0000::/24
+	ip -6 route add unreach 2002:ff00::/24
+
+	# Completely disallow packets to IPv4 compatible prefix.
+	# This may conflict with RFC1933 under following circumstances:
+	# (1) An IPv6-only KAME node tries to originate packets to IPv4
+	#     comatible destination.  The KAME node has no IPv4
+	#     compatible support.  Under RFC1933, it should transmit
+	#     native IPv6 packets toward IPv4 compatible destination,
+	#     hoping it would reach a router that forwards the packet
+	#     toward auto-tunnel interface.
+	# (2) An IPv6-only node originates a packet to IPv4 compatible
+	#     destination.  A KAME node is acting as an IPv6 router, and
+	#     asked to forward it.
+	# Due to rare use of IPv4 compatible address, and security
+	# issues with it, we disable it by default.
+	#
+	ip -6 route add unreach ::0.0.0.0/96
+
+	sysctl -w net.ipv6.conf.all.forwarding=0 >/dev/null
+	sysctl -w net.ipv6.conf.all.accept_ra=0 >/dev/null
+	sysctl -w net.ipv6.conf.all.accept_redirects=0 >/dev/null
+
+	case $ip6mode in
+	router)
+		echo 'IPv6 mode: router'
+		sysctl -w net.ipv6.conf.all.forwarding=1 >/dev/null
+		;;
+
+	autohost)
+		echo 'IPv6 mode: autoconfigured host'
+		sysctl -w net.ipv6.conf.all.accept_ra=1 >/dev/null
+		sysctl -w net.ipv6.conf.all.accept_redirects=1 >/dev/null
+		;;
+
+	host)	
+		echo 'IPv6 mode: host'
+		;;
+
+	*)	echo 'WARNING: invalid value in ip6mode'
+		;;
+
+	esac
+fi
+
+# Configure all of the network interfaces listed in $net_interfaces;
+# if $auto_ifconfig is YES, grab all interfaces from ifconfig.
+# In the following, "xxN" stands in for interface names, like "le0".
+# For any interfaces that has an $ifconfig_xxN variable associated,
+# we do "ifconfig xxN $ifconfig_xxN".
+# If there is no such variable, we take the contents of the file
+# /etc/ifconfig.xxN, and run "ifconfig xxN" repeatedly, using each
+# line of the file as the arguments for a seperate "ifconfig" invocation.
+#
+# In order to configure an interface reasonably, you at the very least
+# need to specify "[addr_family] [hostname]" (as in "inet my.domain.org"),
+# and probably a netmask (as in "netmask 0xffffffe0"). You will
+# frequently need to specify a media type, as in "media UTP", for
+# interface cards with multiple media connections that do not autoconfigure.
+# see the ifconfig manual page for details.
+
+if [ "$net_interfaces" != NO ]; then
+	done_dhclient=NO
+	if checkyesno dhclient; then
+		tmp="`ifconfig -a -l`"
+		do_dhclient=NO
+		for int in $tmp; do
+			if [ "X$int" = "Xeth0" -o "X$int" = "Xeth1" -o "X$int" = "Xeth2" ] ; then
+				do_dhclient=YES
+			fi
+		done
+		if checkyesno do_dhclient; then
+			dhclient $dhclient_flags
+			done_dhclient=YES
+			for int in $dhclient_flags; do
+				if [ "X$int" = "Xeth0" -o "X$int" = "Xeth1" -o "X$int" = "Xeth2" ] ; then
+					done_dhclient=PART
+				fi
+			done
+		fi
+	fi
+	if [ "$done_dhclient" != YES ]; then
+		if checkyesno auto_ifconfig; then
+			tmp="`ifconfig -a -l`"
+		else
+			tmp="$net_interfaces"
+		fi
+		echo -n 'configuring network interfaces:'
+		for int in $tmp; do
+			eval `echo 'args=$ifconfig_'$int`
+			if [ -n "$args" ]; then
+				if checknolist dhclient_flags int; then
+					echo -n " $int"
+					ifconfig $int $args
+				fi
+			elif [ -f /etc/ifconfig.$int ]; then
+				if checknolist dhclient_flags int; then
+					echo -n " $int"
+					(while read args; do
+						ifconfig $int $args
+					done) < /etc/ifconfig.$int
+				fi
+			else
+				if [ "$auto_ifconfig" != YES ]; then
+					echo
+					echo "WARNING: /etc/ifconfig.$int missing " \
+					    "and ifconfig_$int not set; " \
+					    "interface $int not configured."
+				fi
+				continue
+			fi
+			if checknolist dhclient_flags int; then
+				configured_interfaces="$configured_interfaces $int"
+			fi
+		done
+		echo '.'
+	fi
+fi
+
+# Check $defaultroute, then /etc/mygate, for the name of my gateway host.
+# That name must be in /etc/hosts.
+if [ -z "$defaultroute" -a -f /etc/mygate ]; then
+	defaultroute=`cat /etc/mygate`
+fi
+if [ -n "$defaultroute" ]; then
+	if [ "$done_dhclient" != YES ]; then
+#		route add default $defaultroute
+		route add default gw $defaultroute netmask 0.0.0.0 metric 1
+	fi
+fi
+
+# Check if each configured interface xxN has an $ifaliases_xxN variable
+# associated, then configure additional IP addresses for that interface.
+# The variable contains a list of "address netmask" pairs, with "netmask"
+# set to "-" if the interface default netmask is to be used.
+# 
+if [ -n "$configured_interfaces" ]; then
+	echo 'adding interface aliases:';
+	done_aliases_message=yes
+fi
+for int in $configured_interfaces; do
+	eval `echo 'args=$ifaliases_'$int`
+	if [ -n "$args" ]; then
+		set -- $args
+		while [ $# -ge 2 ]; do
+			addr=$1 ; net=$2 ; shift 2
+			if [ "$net" = "-" ]; then
+				/sbin/ifconfig $int inet alias $addr
+			else
+				/sbin/ifconfig $int inet alias $addr netmask $net
+			fi
+			# Use loopback, not the wire
+			route add $addr 127.0.0.1
+		done
+	fi
+done
+
+# /etc/ifaliases, if it exists, contains the names of additional IP
+# addresses for each interface. It is formatted as a series of lines
+# that contain
+#	address interface netmask
+if [ -f /etc/ifaliases ]; then
+(
+	if [ "$done_aliases_message" != yes ]; then
+		echo 'adding interface aliases:';
+	fi
+	while read addr int net; do
+		if [ -z "$net" ]; then
+			ifconfig $int inet alias $addr
+		else
+			ifconfig $int inet alias $addr netmask $net
+		fi
+		# use loopback, not the wire
+		route add $addr 127.0.0.1
+	done
+) < /etc/ifaliases
+fi
+
+if [ -f /proc/net/if_inet6 ]
+then
+	# wait till DAD is completed. always invoke it in case
+	# if are configured manually by ifconfig
+	#
+	dadcount=`sysctl -n net.ipv6.conf.default.dad_transmits 2>/dev/null`
+	sleep $dadcount
+	sleep 1
+
+	if checkyesno rtsol; then
+		if [ "$ip6mode" = "autohost" ]; then
+			echo 'Sending router solicitation...'
+			rtsol $rtsol_flags
+		else
+			echo
+			logger -s "WARNING: ip6mode must be set to 'autohost' to use rtsol."
+		fi
+
+		# wait till DAD is completed, for global addresses
+		# configured by router advert message.
+		#
+		sleep $dadcount
+		sleep 1
+	fi
+fi
+
+# /etc/ppp/peers and $ppp_peers contain boot configuration information
+# for pppd.  each value in $ppp_peers that has a file in /etc/ppp/peers
+# of the same name, will be run as `pppd <peer>'.
+if [ -n "$ppp_peers" ]; then
+	set -- $ppp_peers
+	echo -n "starting pppd:"
+	while [ $# -ge 1 ]; do
+		peer=$1; shift
+		if [ -f /etc/ppp/peers/$peer ]; then
+			pppd call $peer
+			echo -n " $peer"
+		fi
+	done
+	echo "."
+fi
+
+if checkyesno vtund; then
+	if [ -r /etc/vtund.conf ]; then
+		if [ -f /proc/sys/net/ipv4/ip_forward ]; then
+			sysctl -w net.ipv4.ip_forward=1 >/dev/null
+		fi
+		echo 'starting vtund';	vtund $vtund_flags
+	else
+		echo
+		logger -s "WARNING: /etc/vtund.conf not readable; " \
+			"vtund not started."
+	fi
+fi
+
+if [ -s /etc/netstart.local ]; then
+	. /etc/netstart.local
+fi

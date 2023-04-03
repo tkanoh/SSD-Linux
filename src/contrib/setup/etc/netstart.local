@@ -1,0 +1,113 @@
+#
+CONF="/usr/contrib/etc/openblocks.conf"
+
+if [ -s $CONF ]
+then
+        echo "processing openblocks settings:"
+        . $CONF
+else
+        echo "Cannot read $CONF; aborting."
+	exit
+fi
+
+if [ "$x_hostname" ]
+then
+        hostname=$x_hostname
+fi
+
+if [ "$x_domainname" ]
+then
+	domainname=$x_domainname
+fi
+
+for i in $x_eth_typ__
+do
+	eval `echo 'type=$x_eth_typ__'$i`
+	eval `echo 'adr=$x_eth_adr__'$i`
+	eval `echo 'mask=$x_eth_subnet_mask__'$i`
+	eval `echo 'broadcast=$x_eth_broadcast__'$i`
+
+	eval `echo 'ipv6=$x_ipv6_enable__'$i`
+
+	eth=""
+
+	case "x$type" in
+	x1)
+	        dhclient_interfaces=$dhclient_interfaces" $i"
+        	;;
+	x2)
+        	if [ "$adr" ]
+	        then
+	                eth="inet $adr"
+	        fi
+	        if [ "$mask" ]
+        	then
+	                eth="$eth netmask $mask"
+        	fi
+	        if [ "$broadcast" ]
+        	then
+	                eth="$eth broadcast $broadcast"
+	        fi
+	        ;;
+	esac
+
+	eval `echo 'dhcpd_enable=$x_dhcpd_enable__'$i`
+	if [ "x$dhcpd_enable" = "xYES" ]
+	then
+		dhcpd_interfaces=$dhcpd_interfaces" $i"
+	fi
+
+	if [ "x$ipv6" = "xYES" ]
+	then
+		eval `echo 'prefix=$x_ipv6_prefix__'$i`
+		eval `echo 'local=$x_ipv6_local__'$i`
+		eth="$eth add $prefix:$local/64"
+	fi
+
+	if [ "$eth" ]
+	then
+		eval `echo 'ifconfig_'$i'="'$eth'"'`
+	fi
+done
+
+if [ "$x_defaultroute_adr" ]
+then
+	defaultroute=$x_defaultroute_adr
+fi
+
+if [ "$dhclient_interfaces" ]
+then
+	dhclient=YES
+	dhclient_flags=$dhclient_interfaces
+fi
+
+if [ "$dhcpd_interfaces" ]
+then
+	dhcpd="YES"
+	dhcpd_flags="$dhcpd_interfaces"
+fi
+
+if [ "$x_ntp_hostname" ]
+then
+	ntpdate=YES
+	ntpdate_hosts=$x_ntp_hostname
+fi
+
+if [ "x$x_ipv6_tunnel" = "xYES" ]
+then
+	ip6mode="router"
+	radvd="YES"
+	rtsol="NO"
+fi
+
+if [ "x$x_sendmail_enable" = "xYES" ]
+then
+	sendmail="YES"
+fi
+
+if [ "x$x_named_enable" = "xYES" ]
+then
+	named="YES"
+fi
+
+echo "openblocks settings done."

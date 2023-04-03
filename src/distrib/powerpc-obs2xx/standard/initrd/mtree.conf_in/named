@@ -1,0 +1,5 @@
+#	$ssdlinux: named,v 1.1 2004/12/02 01:54:34 todoroki Exp $
+./etc/namedb
+./etc/namedb/db
+./etc/namedb/2nd
+./var/run/named

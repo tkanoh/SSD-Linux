@@ -1,0 +1,16 @@
+#       $ssdlinux: usb.base,v 1.1 2004/12/02 01:54:33 todoroki Exp $
+
+BCOPY	@SRCTOPDIR@/usr.sbin/usbutils/build/lsusb		usr/sbin/lsusb
+BCOPY	@SRCTOPDIR@/usr.sbin/usbutils/build/usbmodules		usr/sbin/usbmodules
+COPY	@SRCTOPDIR@/usr.sbin/usbutils/build/../../../dist/usbutils/libusb/usb.ids	usr/share/usb.ids
+BCOPY	@SRCTOPDIR@/usr.bin/wc/wc				usr/bin/wc
+ECOPY	555 @SRCTOPDIR@/dist/hotplug/etc/hotplug/usb.agent	etc/hotplug/usb.agent
+ECOPY	555 @SRCTOPDIR@/dist/hotplug/etc/hotplug/usb.rc		etc/hotplug/usb.rc
+ECOPY	644 @SRCTOPDIR@/dist/hotplug/etc/hotplug/usb.distmap	etc/hotplug/usb.distmap
+ECOPY	644 @SRCTOPDIR@/dist/hotplug/etc/hotplug/usb.handmap	etc/hotplug/usb.handmap
+ECOPY	644 @SRCTOPDIR@/dist/hotplug/etc/hotplug/usb.usermap	etc/hotplug/usb.usermap
+
+# usb base modules
+
+# All modules below is tested. It works on OpenBlockS266.
+COPY	@MODULESDIR@/kernel/drivers/usb/host/ehci-hcd.o.gz	lib/modules/@KERNEL_VERSION@/usb/ehci-hcd.o.gz

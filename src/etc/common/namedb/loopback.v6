@@ -1,0 +1,11 @@
+;	$ssdlinux: loopback.v6,v 1.1 2002/06/11 06:07:27 kanoh Exp $
+
+$TTL	3600
+@	IN	SOA	ssdlinux.org. hostmaster.ssdlinux.org.  (
+				2002061101	; Serial
+				3600		; Refresh
+				300		; Retry
+				3600000		; Expire
+				3600 )		; Minimum
+	IN	NS	localhost.
+1	IN	PTR	localhost.

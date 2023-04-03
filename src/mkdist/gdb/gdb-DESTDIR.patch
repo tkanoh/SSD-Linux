@@ -1,0 +1,284 @@
+diff -aruN gdb-6.3.orig/Makefile.in gdb-6.3/Makefile.in
+--- gdb-6.3.orig/Makefile.in	2004-11-09 01:21:22.000000000 +0900
++++ gdb-6.3/Makefile.in	2004-11-10 15:03:56.000000000 +0900
+@@ -2021,7 +2021,7 @@
+ ### other supporting targets
+ 
+ MAKEDIRS= \
+-	$(DESTDIR)$(prefix) \
++	$()$(prefix) \
+ 	$(DESTDIR)$(exec_prefix)
+ .PHONY: installdirs
+ installdirs: mkinstalldirs
+diff -aruN gdb-6.3.orig/bfd/Makefile.in gdb-6.3/bfd/Makefile.in
+--- gdb-6.3.orig/bfd/Makefile.in	2004-10-15 14:47:11.000000000 +0900
++++ gdb-6.3/bfd/Makefile.in	2004-11-10 15:03:56.000000000 +0900
+@@ -1119,7 +1119,7 @@
+ all-am: Makefile $(LIBRARIES) $(LTLIBRARIES) config.h
+ installdirs: installdirs-recursive
+ installdirs-am:
+-	for dir in "$(DESTDIR)$(bfdlibdir)"; do \
++	for dir in "$()$(bfdlibdir)"; do \
+ 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
+ 	done
+ install: install-recursive
+@@ -1319,18 +1319,18 @@
+ 
+ .PHONY: install_libbfd uninstall_libbfd
+ install_libbfd: $(bfdlib_LTLIBRARIES) $(BFD_H)
+-	$(mkinstalldirs) $(DESTDIR)$(bfdlibdir)
+-	$(mkinstalldirs) $(DESTDIR)$(bfdincludedir)
++	$(mkinstalldirs) $()$(bfdlibdir)
++	$(mkinstalldirs) $()$(bfdincludedir)
+ 	@list='$(bfdlib_LTLIBRARIES)'; for p in $$list; do \
+ 	  if test -f $$p; then \
+-	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(bfdlibdir)/$$p"; \
+-	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(bfdlibdir)/$$p; \
++	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $()$(bfdlibdir)/$$p"; \
++	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $()$(bfdlibdir)/$$p; \
+ 	  else :; fi; \
+ 	done
+-	$(INSTALL_DATA) $(BFD_H) $(DESTDIR)$(bfdincludedir)/bfd.h
+-	$(INSTALL_DATA) $(INCDIR)/ansidecl.h $(DESTDIR)$(bfdincludedir)/ansidecl.h
+-	$(INSTALL_DATA) $(INCDIR)/symcat.h $(DESTDIR)$(bfdincludedir)/symcat.h
+-	$(INSTALL_DATA) $(INCDIR)/bfdlink.h $(DESTDIR)$(bfdincludedir)/bfdlink.h
++	$(INSTALL_DATA) $(BFD_H) $()$(bfdincludedir)/bfd.h
++	$(INSTALL_DATA) $(INCDIR)/ansidecl.h $()$(bfdincludedir)/ansidecl.h
++	$(INSTALL_DATA) $(INCDIR)/symcat.h $()$(bfdincludedir)/symcat.h
++	$(INSTALL_DATA) $(INCDIR)/bfdlink.h $()$(bfdincludedir)/bfdlink.h
+ 
+ uninstall_libbfd:
+ 	list='$(bfdlib_LTLIBRARIES)'; for p in $$list; do \
+diff -aruN gdb-6.3.orig/bfd/doc/Makefile.in gdb-6.3/bfd/doc/Makefile.in
+--- gdb-6.3.orig/bfd/doc/Makefile.in	2004-09-20 07:32:12.000000000 +0900
++++ gdb-6.3/bfd/doc/Makefile.in	2004-11-10 15:03:56.000000000 +0900
+@@ -517,7 +517,7 @@
+ 
+ install-info-am: $(INFO_DEPS)
+ 	@$(NORMAL_INSTALL)
+-	test -z "$(infodir)" || $(mkdir_p) "$(DESTDIR)$(infodir)"
++	test -z "$(infodir)" || $(mkdir_p) "$()$(infodir)"
+ 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
+ 	list='$(INFO_DEPS)'; \
+ 	for file in $$list; do \
+@@ -530,8 +530,8 @@
+                        $$d/$$file_i[0-9] $$d/$$file_i[0-9][0-9] ; do \
+ 	    if test -f $$ifile; then \
+ 	      relfile=`echo "$$ifile" | sed 's|^.*/||'`; \
+-	      echo " $(INSTALL_DATA) '$$ifile' '$(DESTDIR)$(infodir)/$$relfile'"; \
+-	      $(INSTALL_DATA) "$$ifile" "$(DESTDIR)$(infodir)/$$relfile"; \
++	      echo " $(INSTALL_DATA) '$$ifile' '$()$(infodir)/$$relfile'"; \
++	      $(INSTALL_DATA) "$$ifile" "$()$(infodir)/$$relfile"; \
+ 	    else : ; fi; \
+ 	  done; \
+ 	done
+@@ -541,8 +541,8 @@
+ 	  list='$(INFO_DEPS)'; \
+ 	  for file in $$list; do \
+ 	    relfile=`echo "$$file" | sed 's|^.*/||'`; \
+-	    echo " install-info --info-dir='$(DESTDIR)$(infodir)' '$(DESTDIR)$(infodir)/$$relfile'";\
+-	    install-info --info-dir="$(DESTDIR)$(infodir)" "$(DESTDIR)$(infodir)/$$relfile" || :;\
++	    echo " install-info --info-dir='$()$(infodir)' '$()$(infodir)/$$relfile'";\
++	    install-info --info-dir="$()$(infodir)" "$()$(infodir)/$$relfile" || :;\
+ 	  done; \
+ 	else : ; fi
+ install-man:
+diff -aruN gdb-6.3.orig/etc/Makefile.in gdb-6.3/etc/Makefile.in
+--- gdb-6.3.orig/etc/Makefile.in	2003-01-03 05:51:02.000000000 +0900
++++ gdb-6.3/etc/Makefile.in	2004-11-10 15:03:56.000000000 +0900
+@@ -70,17 +70,17 @@
+ 	done
+ 
+ install-info: info
+-	$(SHELL) $(srcdir)/../mkinstalldirs $(DESTDIR)$(infodir)
++	$(SHELL) $(srcdir)/../mkinstalldirs $()$(infodir)
+ 	if test ! -f standards.info; then cd $(srcdir); fi; \
+ 	if test -f standards.info; then \
+ 	  for i in standards.info*; do \
+-	    $(INSTALL_DATA) $$i $(DESTDIR)$(infodir)/$$i; \
++	    $(INSTALL_DATA) $$i $()$(infodir)/$$i; \
+ 	  done; \
+ 	fi
+ 	if test ! -f configure.info; then cd $(srcdir); fi; \
+ 	if test -f configure.info; then \
+ 	  for i in configure.info*; do \
+-	    $(INSTALL_DATA) $$i $(DESTDIR)$(infodir)/$$i; \
++	    $(INSTALL_DATA) $$i $()$(infodir)/$$i; \
+ 	  done; \
+ 	fi
+ 
+diff -aruN gdb-6.3.orig/gdb/Makefile.in gdb-6.3/gdb/Makefile.in
+--- gdb-6.3.orig/gdb/Makefile.in	2004-11-04 11:18:49.000000000 +0900
++++ gdb-6.3/gdb/Makefile.in	2004-11-10 15:03:56.000000000 +0900
+@@ -1023,13 +1023,13 @@
+ 		else \
+ 		  true ; \
+ 		fi ; \
+-		$(SHELL) $(srcdir)/../mkinstalldirs $(DESTDIR)$(bindir) ; \
++		$(SHELL) $(srcdir)/../mkinstalldirs $()$(bindir) ; \
+ 		$(INSTALL_PROGRAM) gdb$(EXEEXT) \
+-			$(DESTDIR)$(bindir)/$$transformed_name$(EXEEXT) ; \
++			$()$(bindir)/$$transformed_name$(EXEEXT) ; \
+ 		$(SHELL) $(srcdir)/../mkinstalldirs \
+-			$(DESTDIR)$(man1dir) ; \
++			$()$(man1dir) ; \
+ 		$(INSTALL_DATA) $(srcdir)/gdb.1 \
+-			$(DESTDIR)$(man1dir)/$$transformed_name.1
++			$()$(man1dir)/$$transformed_name.1
+ 	@$(MAKE) DO=install "DODIRS=$(SUBDIRS)" $(FLAGS_TO_PASS) subdir_do
+ .PHONY: install-tui
+ install-tui:
+@@ -1040,13 +1040,13 @@
+ 		else \
+ 		  true ; \
+ 		fi ; \
+-		$(SHELL) $(srcdir)/../mkinstalldirs $(DESTDIR)$(bindir) ; \
++		$(SHELL) $(srcdir)/../mkinstalldirs $()$(bindir) ; \
+ 		$(INSTALL_PROGRAM) $(TUI)$(EXEEXT) \
+-			$(DESTDIR)$(bindir)/$$transformed_name$(EXEEXT) ; \
++			$()$(bindir)/$$transformed_name$(EXEEXT) ; \
+ 		$(SHELL) $(srcdir)/../mkinstalldirs \
+-			$(DESTDIR)$(man1dir) ; \
++			$()$(man1dir) ; \
+ 		$(INSTALL_DATA) $(srcdir)/gdb.1 \
+-			$(DESTDIR)$(man1dir)/$$transformed_name.1
++			$()$(man1dir)/$$transformed_name.1
+ 
+ 
+ uninstall: force $(CONFIG_UNINSTALL)
+diff -aruN gdb-6.3.orig/gdb/doc/Makefile.in gdb-6.3/gdb/doc/Makefile.in
+--- gdb-6.3.orig/gdb/doc/Makefile.in	2004-01-22 03:44:52.000000000 +0900
++++ gdb-6.3/gdb/doc/Makefile.in	2004-11-10 15:03:56.000000000 +0900
+@@ -156,14 +156,14 @@
+ diststuff: info
+ 
+ install-info: $(INFO_DEPS)
+-	$(SHELL) $(srcdir)/../../mkinstalldirs $(DESTDIR)$(infodir)
++	$(SHELL) $(srcdir)/../../mkinstalldirs $()$(infodir)
+ 	@list='$(INFO_DEPS)'; \
+ 	for file in $$list; do \
+ 	  if test -f $$file; then d=.; else d=$(srcdir); fi; \
+ 	  for ifile in `cd $$d && echo $$file $$file-[0-9] $$file-[0-9][0-9]`; do \
+ 	    if test -f $$d/$$ifile; then \
+-	      echo " $(INSTALL_DATA) $$d/$$ifile $(DESTDIR)$(infodir)/$$ifile"; \
+-	      $(INSTALL_DATA) $$d/$$ifile $(DESTDIR)$(infodir)/$$ifile; \
++	      echo " $(INSTALL_DATA) $$d/$$ifile $()$(infodir)/$$ifile"; \
++	      $(INSTALL_DATA) $$d/$$ifile $()$(infodir)/$$ifile; \
+ 	    else : ; fi; \
+ 	  done; \
+ 	done
+@@ -171,8 +171,8 @@
+ 	@if $(SHELL) -c 'install-info --version | sed 1q | fgrep -s -v -i debian' >/dev/null 2>&1; then \
+ 	  list='$(INFO_DEPS)'; \
+ 	  for file in $$list; do \
+-	    echo " install-info --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/$$file";\
+-	    install-info --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/$$file || :;\
++	    echo " install-info --info-dir=$()$(infodir) $()$(infodir)/$$file";\
++	    install-info --info-dir=$()$(infodir) $()$(infodir)/$$file || :;\
+ 	  done; \
+ 	else : ; fi
+ 
+diff -aruN gdb-6.3.orig/gdb/gdbserver/Makefile.in gdb-6.3/gdb/gdbserver/Makefile.in
+--- gdb-6.3.orig/gdb/gdbserver/Makefile.in	2004-10-17 01:18:54.000000000 +0900
++++ gdb-6.3/gdb/gdbserver/Makefile.in	2004-11-10 15:03:56.000000000 +0900
+@@ -154,8 +154,8 @@
+ 	if [ x$$n = x ]; then n=gdbserver; else true; fi; \
+ 	$(SHELL) $(srcdir)/../../mkinstalldirs $(DESTDIR)$(bindir); \
+ 	$(INSTALL_PROGRAM) gdbserver $(DESTDIR)$(bindir)/$$n; \
+-	$(SHELL) $(srcdir)/../../mkinstalldirs $(DESTDIR)$(man1dir); \
+-	$(INSTALL_DATA) $(srcdir)/gdbserver.1 $(DESTDIR)$(man1dir)/$$n.1
++	$(SHELL) $(srcdir)/../../mkinstalldirs $()$(man1dir); \
++	$(INSTALL_DATA) $(srcdir)/gdbserver.1 $()$(man1dir)/$$n.1
+ 
+ uninstall: force
+ 	n=`echo gdbserver | sed '$(program_transform_name)'`; \
+diff -aruN gdb-6.3.orig/libiberty/Makefile.in gdb-6.3/libiberty/Makefile.in
+--- gdb-6.3.orig/libiberty/Makefile.in	2004-05-26 05:03:59.000000000 +0900
++++ gdb-6.3/libiberty/Makefile.in	2004-11-10 15:03:56.000000000 +0900
+@@ -271,18 +271,18 @@
+ install: install_to_$(INSTALL_DEST) install-subdir
+ 
+ install_to_libdir: all
+-	${mkinstalldirs} $(DESTDIR)$(libdir)$(MULTISUBDIR)
+-	$(INSTALL_DATA) $(TARGETLIB) $(DESTDIR)$(libdir)$(MULTISUBDIR)/$(TARGETLIB)n
+-	( cd $(DESTDIR)$(libdir)$(MULTISUBDIR) ; $(RANLIB) $(TARGETLIB)n )
+-	mv -f $(DESTDIR)$(libdir)$(MULTISUBDIR)/$(TARGETLIB)n $(DESTDIR)$(libdir)$(MULTISUBDIR)/$(TARGETLIB)
++	${mkinstalldirs} $()$(libdir)$(MULTISUBDIR)
++	$(INSTALL_DATA) $(TARGETLIB) $()$(libdir)$(MULTISUBDIR)/$(TARGETLIB)n
++	( cd $()$(libdir)$(MULTISUBDIR) ; $(RANLIB) $(TARGETLIB)n )
++	mv -f $()$(libdir)$(MULTISUBDIR)/$(TARGETLIB)n $()$(libdir)$(MULTISUBDIR)/$(TARGETLIB)
+ 	if test -n "${target_header_dir}"; then \
+ 	  case "${target_header_dir}" in \
+ 	    /*)    thd=${target_header_dir};; \
+ 	    *)     thd=${includedir}${MULTISUBDIR}/${target_header_dir};; \
+ 	  esac; \
+-	  ${mkinstalldirs} $(DESTDIR)$${thd}; \
++	  ${mkinstalldirs} $()$${thd}; \
+ 	  for h in ${INSTALLED_HEADERS}; do \
+-	    ${INSTALL_DATA} $$h $(DESTDIR)$${thd}; \
++	    ${INSTALL_DATA} $$h $()$${thd}; \
+ 	  done; \
+ 	fi
+ 	@$(MULTIDO) $(FLAGS_TO_PASS) multi-do DO=install
+diff -aruN gdb-6.3.orig/opcodes/Makefile.in gdb-6.3/opcodes/Makefile.in
+--- gdb-6.3.orig/opcodes/Makefile.in	2004-10-15 14:48:51.000000000 +0900
++++ gdb-6.3/opcodes/Makefile.in	2004-11-10 15:03:56.000000000 +0900
+@@ -775,7 +775,7 @@
+ all-am: Makefile $(LIBRARIES) $(LTLIBRARIES) config.h
+ installdirs: installdirs-recursive
+ installdirs-am:
+-	for dir in "$(DESTDIR)$(bfdlibdir)"; do \
++	for dir in "$()$(bfdlibdir)"; do \
+ 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
+ 	done
+ install: install-recursive
+@@ -899,15 +899,15 @@
+ 
+ .PHONY: install_libopcodes uninstall_libopcodes
+ install_libopcodes: $(bfdlib_LTLIBRARIES)
+-	$(mkinstalldirs) $(DESTDIR)$(bfdlibdir)
+-	$(mkinstalldirs) $(DESTDIR)$(bfdincludedir)
++	$(mkinstalldirs) $()$(bfdlibdir)
++	$(mkinstalldirs) $()$(bfdincludedir)
+ 	@list='$(bfdlib_LTLIBRARIES)'; for p in $$list; do \
+ 	  if test -f $$p; then \
+-	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(bfdlibdir)/$$p"; \
+-	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(bfdlibdir)/$$p; \
++	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $()$(bfdlibdir)/$$p"; \
++	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $()$(bfdlibdir)/$$p; \
+ 	  else :; fi; \
+ 	done
+-	$(INSTALL_DATA) $(INCDIR)/dis-asm.h $(DESTDIR)$(bfdincludedir)/dis-asm.h
++	$(INSTALL_DATA) $(INCDIR)/dis-asm.h $()$(bfdincludedir)/dis-asm.h
+ 
+ uninstall_libopcodes:
+ 	list='$(bfdlib_LTLIBRARIES)'; for p in $$list; do \
+diff -aruN gdb-6.3.orig/sim/common/Makefile.in gdb-6.3/sim/common/Makefile.in
+--- gdb-6.3.orig/sim/common/Makefile.in	2004-07-27 06:37:45.000000000 +0900
++++ gdb-6.3/sim/common/Makefile.in	2004-11-10 15:04:23.000000000 +0900
+@@ -119,10 +119,10 @@
+ 
+ install-man: installdirs
+ 	n=`echo run | sed '$(program_transform_name)'`; \
+-	$(INSTALL_DATA) $(srcdir)/run.1 $(DESTDIR)$(man1dir)/$$n.1
++	$(INSTALL_DATA) $(srcdir)/run.1 $()$(man1dir)/$$n.1
+ 
+ installdirs:
+-	$(SHELL) $(srcdir)/../../mkinstalldirs $(DESTDIR)$(man1dir)
++	$(SHELL) $(srcdir)/../../mkinstalldirs $()$(man1dir)
+ 
+ Makefile: Makefile.in config.status
+ 	$(SHELL) ./config.status
+diff -aruN gdb-6.3.orig/sim/ppc/Makefile.in gdb-6.3/sim/ppc/Makefile.in
+--- gdb-6.3.orig/sim/ppc/Makefile.in	2004-08-06 06:14:06.000000000 +0900
++++ gdb-6.3/sim/ppc/Makefile.in	2004-11-10 15:06:43.000000000 +0900
+@@ -886,7 +886,7 @@
+ 
+ install: installdirs
+ 	n=`echo run | sed '$(program_transform_name)'`; \
+-	$(INSTALL_PROGRAM) run$(EXEEXT) $(DESTDIR)$(bindir)/$$n$(EXEEXT)
++	$(INSTALL_PROGRAM) run$(EXEEXT) $()$(bindir)/$$n$(EXEEXT)
+ 
+ installdirs:
+-	$(SHELL) $(srcdir)/../../mkinstalldirs $(DESTDIR)$(bindir)
++	$(SHELL) $(srcdir)/../../mkinstalldirs $()$(bindir)

@@ -1,0 +1,6 @@
+#	$ssdlinux: Makefile.ldflags,v 1.3 2003/04/11 05:25:05 todoroki Exp $
+
+LDADD+= -lcrypt
+.if ${IPV6} == "yes"
+LDADD+=	-L${THTTPDTOP}/../../lib/libinet6/src -linet6 
+.endif

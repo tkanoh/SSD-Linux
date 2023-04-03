@@ -1,0 +1,67 @@
+#!/bin/sh
+#	$ssdlinux: rc.sysinit,v 1.1 2004/12/02 01:54:31 todoroki Exp $
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+/sbin/update &
+
+/sbin/mount -n -v -o remount,rw /
+
+# remove /etc/mtab* so that mount will create it with a root entry
+/bin/rm -f /etc/mtab* /etc/nologin /etc/shutdownpid
+
+# mount file systems in fstab (and create an entry for /)
+# but not NFS or SMB because TCP/IP is not yet configured
+/sbin/mount -a -v -t nonfs,nosmbfs
+
+# Clean up temporary files on the /var volume:
+/bin/rm -f /var/run/*.pid /var/log/setup/tmp/*
+
+# Looks like we have to create this.
+/bin/rm -f /var/run/utmp && /usr/bin/touch /var/run/utmp
+
+if [ -f /etc/rc.subr ]; then
+	. /etc/rc.subr
+else
+	echo "Can't read /etc/rc.subr; aborting."
+	exit 1;
+fi
+
+if [ -f /etc/rc.conf ]; then
+	. /etc/rc.conf
+fi
+
+# load kernel modules specified in /etc/lkm.conf
+if checkyesno lkm && [ -f /etc/rc.lkm ]; then
+	/bin/sh /etc/rc.lkm start
+fi
+
+RELEASE=`/bin/uname -r`
+
+if checkyesno pcmcia && [ -f /etc/rc.pcmcia ]; then
+	/bin/sh /etc/rc.pcmcia start
+	sleep 5
+fi
+
+if checkyesno serial && [ -f /etc/rc.serial ]; then
+	. /etc/rc.serial
+fi
+
+/sbin/swapon -a
+if [ "$no_swap" != YES ]; then
+	if [ "`/sbin/swapon -s | grep '/dev'`" = "" ]; then
+		echo "WARNING:  no swap space configured!"
+	fi
+fi
+
+if [ -x /sbin/hwclock ]; then
+	if [ -z "$hardwareclock" -a -f /etc/hardwareclock ]; then
+		hardwareclock=`cat /etc/hardwareclock`
+	fi
+	/sbin/hwclock --$hardwareclock --hctosys
+fi
+
+if [ -f "/etc/random-seed" ]; then
+	/bin/cat /etc/random-seed >/dev/urandom
+fi
+/bin/dd if=/dev/urandom of=/etc/random-seed count=1 bs=512 2> /dev/null

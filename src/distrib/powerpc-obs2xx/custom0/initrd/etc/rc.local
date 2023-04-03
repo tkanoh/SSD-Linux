@@ -1,0 +1,73 @@
+#	$ssdlinux: rc.local,v 1.1 2004/12/02 01:54:22 todoroki Exp $
+
+if [ -f /usr/contrib/etc/openblocks.conf ]; then
+	. /usr/contrib/etc/openblocks.conf
+fi
+
+MOUNT_POINT=/var/ftp/pub
+MODEL_FN=/proc/ide/hda/model
+MOUNTED=`df | grep '/dev/hda1'`
+
+if [ x"$MOUNTED" = x  ]; then
+	if [ -f $MODEL_FN ]; then
+		MODEL=`cat $MODEL_FN`
+		DISKLABEL=NONE
+		case "$MODEL" in
+			"TRANSCEND 128M")
+				DISKLABEL=TS128MFLASHCP
+				;;
+			"SanDisk SDCFB-128")
+				DISKLABEL=SDCFB128
+				;;
+			"TOSHIBA THNCF128MBA")
+				DISKLABEL=THNCF128MBA
+				;;
+		esac
+		if [ ! "$DISKLABEL" = "NONE" ] ; then
+			/sbin/sfdisk /dev/hda < /usr/contrib/etc/disklabel.$DISKLABEL
+			/sbin/mke2fs /dev/hda1
+			/sbin/mount -t ext2 /dev/hda1 /var/ftp/pub
+		fi
+	fi
+fi
+
+/usr/sbin/chown nobody.nogroup $MOUNT_POINT
+/bin/chmod 1777 $MOUNT_POINT
+
+echo -n 'starting local daemons:'
+
+if [ -x /usr/contrib/sbin/thttpd ]; then
+	echo -n " httpd:880"
+	/usr/contrib/sbin/thttpd -C /usr/contrib/etc/setup_thttpd.conf
+	if [ "x$x_httpd_enable" = "xYES" ]; then
+		echo -n " httpd"
+		/usr/contrib/sbin/thttpd -C /usr/contrib/etc/thttpd.conf
+	fi
+fi
+
+# SMB server
+if [ "x$x_samba_enable" = "xYES" ]; then
+	if [ -x /usr/contrib/samba/sbin/smbd -a -f /usr/contrib/samba/lib/smb.conf ]; then
+		/usr/contrib/samba/sbin/smbd -D -l /var/log/smbd.log; echo -n ' smbd';
+	fi
+	if [ "x$x_samba_nmbd_enable" = "xYES" ]; then
+		if [ -x /usr/contrib/samba/sbin/nmbd ]; then
+			/usr/contrib/samba/sbin/nmbd -D -l /var/log/nmbd.log; echo -n ' nmbd';
+		fi
+	fi
+	if [ "x$x_netatalk_enable" = "xYES" ]; then
+		if [ -x /usr/contrib/netatalk/sbin/atalkd ]; then
+			/usr/contrib/netatalk/sbin/atalkd; echo -n ' atalkd';
+		fi
+		if [ -x /usr/contrib/netatalk/bin/nbprgstr ]; then
+			/usr/contrib/netatalk/bin/nbprgstr -p 4 `hostname|sed 's/\..*$//'`:Workstation
+			/usr/contrib/netatalk/bin/nbprgstr -p 4 `hostname|sed 's/\..*$//'`:netatalk
+			echo -n ' nbprgstr'
+		fi
+		if [ -x /usr/contrib/netatalk/sbin/afpd ]; then
+			/usr/contrib/netatalk/sbin/afpd; echo -n ' afpd';
+		fi
+	fi
+fi
+
+echo '.'

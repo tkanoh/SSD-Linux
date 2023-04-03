@@ -1,0 +1,44 @@
+#	$ssdlinux: cfbin,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+# /bin
+BCOPY @SRCTOPDIR@/bin/dd/dd			bin/dd
+BCOPY @SRCTOPDIR@/bin/ed/ed			bin/ed
+SYMLINK ed					bin/red
+BCOPY @SRCTOPDIR@/bin/rcp/rcp			bin/rcp
+BCOPY @SRCTOPDIR@/bin/rexec/rexec		bin/rexec
+
+# /sbin
+
+# /usr/bin
+BCOPY @SRCTOPDIR@/usr.bin/bind/dig/dig		usr/bin/dig
+BCOPY @SRCTOPDIR@/usr.bin/bind/host/host	usr/bin/host
+BCOPY @SRCTOPDIR@/usr.bin/bind/nslookup/nslookup	usr/bin/nslookup
+BCOPY @SRCTOPDIR@/usr.bin/bzip2/bzip2		usr/bin/bzip2
+BCOPY @SRCTOPDIR@/usr.bin/free/free		usr/bin/free
+BCOPY @SRCTOPDIR@/usr.bin/head/head		usr/bin/head
+BCOPY @SRCTOPDIR@/usr.bin/less/less/less	usr/bin/less
+BCOPY @SRCTOPDIR@/usr.bin/pgrep/pgrep		usr/bin/pgrep
+BCOPY @SRCTOPDIR@/usr.bin/pmap/pmap		usr/bin/pmap
+BCOPY @SRCTOPDIR@/usr.bin/skill/skill		usr/bin/skill
+BCOPY @SRCTOPDIR@/usr.bin/tail/tail		usr/bin/tail
+BCOPY @SRCTOPDIR@/usr.bin/telnet/telnet		usr/bin/telnet
+BCOPY @SRCTOPDIR@/usr.bin/tload/tload		usr/bin/tload
+BCOPY @SRCTOPDIR@/usr.bin/top/top		usr/bin/top
+BCOPY @SRCTOPDIR@/usr.bin/w/w			usr/bin/w
+BCOPY @SRCTOPDIR@/usr.bin/watch/watch		usr/bin/watch
+BCOPY @SRCTOPDIR@/usr.sbin/vmstat/vmstat	usr/sbin/vmstat
+SCOPY @SRCTOPDIR@/usr.bin/gzip/zdiff		usr/bin/zdiff
+SYMLINK zdiff					usr/bin/zcmp
+SCOPY @SRCTOPDIR@/usr.bin/gzip/zforce		usr/bin/zforce
+SCOPY @SRCTOPDIR@/usr.bin/gzip/zgrep		usr/bin/zgrep
+SYMLINK zgrep					usr/bin/zegrep
+SYMLINK zgrep					usr/bin/zfgrep
+SCOPY @SRCTOPDIR@/usr.bin/gzip/zmore		usr/bin/zmore
+SCOPY @SRCTOPDIR@/usr.bin/gzip/znew		usr/bin/znew
+
+# shared libraies
+BCOPY @SRCTOPDIR@/lib/glibc/build/hesiod/libnss_hesiod.so.2	lib/libnss_hesiod.so.2
+BCOPY @SRCTOPDIR@/lib/glibc/build/linuxthreads_db/libthread_db.so.1	lib/libthread_db.so.1
+BCOPY @SRCTOPDIR@/lib/glibc/build/locale/libBrokenLocale.so.1	lib/libBrokenLocale.so.1
+BCOPY @SRCTOPDIR@/lib/glibc/build/nis/libnss_compat.so.2	lib/libnss_compat.so.2
+BCOPY @SRCTOPDIR@/lib/glibc/build/resolv/libanl.so.1		lib/libanl.so.1

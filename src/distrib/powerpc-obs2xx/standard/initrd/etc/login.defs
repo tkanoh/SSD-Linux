@@ -1,0 +1,44 @@
+#	$ssdlinux: login.defs,v 1.1 2004/12/02 01:54:31 todoroki Exp $
+# /etc/login.defs - Configuration control definitions for the login package.
+#
+FAIL_DELAY		5
+FAILLOG_ENAB		yes
+LOG_UNKFAIL_ENAB	yes
+LASTLOG_ENAB		yes
+MAIL_CHECK_ENAB		yes
+OBSCURE_CHECKS_ENAB	yes
+PORTTIME_CHECKS_ENAB	yes
+QUOTAS_ENAB		yes
+SYSLOG_SU_ENAB		no
+SYSLOG_SG_ENAB		no
+CONSOLE	console:ttyS0:ttyS1
+SULOG_FILE	/usr/adm/sulog
+MOTD_FILE	/etc/motd
+#ISSUE_FILE	/etc/issue
+#TTYTYPE_FILE	/etc/ttytype
+FTMP_FILE	/etc/ftmp
+NOLOGINS_FILE	/etc/nologins
+SU_NAME		su
+#MAILDIR	Maildir
+MAIL_DIR	/var/mail
+#MAIL_FILE	.mail
+HUSHLOGIN_FILE	/etc/hushlogins
+NOLOGIN_STR	NOLOGIN
+#@@ENV_HZ		HZ=50
+ENV_SUPATH	PATH=/usr/local/sbin:/usr/local/bin:/sbin:/usr/sbin:/bin:/usr/bin
+ENV_PATH	PATH=/usr/local/bin:/bin:/usr/bin
+# TTYPERM to 0620.  Otherwise leave TTYGROUP commented out and assign
+# TTYPERM to either 622 or 600.
+#TTYGROUP	7
+#TTYPERM	0620
+TTYPERM		0622
+ERASECHAR	010
+KILLCHAR	025
+UMASK		022
+#ULIMIT		2097152
+PASS_MAX_DAYS	99999
+PASS_MIN_DAYS	0
+PASS_MIN_LEN	5
+PASS_WARN_AGE	7
+SU_WHEEL_ONLY	no
+#CRACKLIB_DICTPATH	/usr/share/lib/pw_dict

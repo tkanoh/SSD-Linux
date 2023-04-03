@@ -1,0 +1,18 @@
+#	$ssdlinux: ppp,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+BCOPY	@SRCTOPDIR@/usr.sbin/ppp/chat/chat			usr/sbin/chat
+BCOPY	@SRCTOPDIR@/usr.sbin/ppp/pppd/pppd			usr/sbin/pppd
+BCOPY	@SRCTOPDIR@/usr.sbin/ppp/pppstats/pppstats		usr/sbin/pppstats
+#COPY	@SRCTOPDIR@/usr.sbin/ppp/plugins/minconn.so		usr/libexec/ppp/minconn.so
+#COPY	@SRCTOPDIR@/usr.sbin/ppp/plugins/passprompt.so		usr/libexec/ppp/passprompt.so
+#COPY	@SRCTOPDIR@/usr.sbin/ppp/plugins/passwordfd.so		usr/libexec/ppp/passwordfd.so
+#COPY	@SRCTOPDIR@/usr.sbin/ppp/plugins/radius/radattr.so	usr/libexec/ppp/radattr.so
+#COPY	@SRCTOPDIR@/usr.sbin/ppp/plugins/radius/radius.so	usr/libexec/ppp/radius.so
+#COPY	@SRCTOPDIR@/usr.sbin/ppp/plugins/radius/radrealms.o	usr/libexec/ppp/radrealms.o
+COPY	@SRCTOPDIR@/usr.sbin/ppp/plugins/rp-pppoe/rp-pppoe.so	usr/libexec/ppp/rp-pppoe.so
+ECOPY	644 @SRCTOPDIR@/dist/ppp/etc.ppp/options		etc/ppp/options
+ECOPY	600 @SRCTOPDIR@/dist/ppp/etc.ppp/chap-secrets		etc/ppp/chap-secrets
+ECOPY	600 @SRCTOPDIR@/dist/ppp/etc.ppp/pap-secrets		etc/ppp/pap-secrets
+ECOPY	555 @SRCTOPDIR@/dist/ppp/scripts/ppp-on			etc/ppp/ppp-on
+ECOPY	555 @SRCTOPDIR@/dist/ppp/scripts/ppp-off		etc/ppp/ppp-off
+ECOPY	555 @SRCTOPDIR@/dist/ppp/scripts/ppp-on-dialer		etc/ppp/ppp-on-dialer

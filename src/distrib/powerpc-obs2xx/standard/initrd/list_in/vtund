@@ -1,0 +1,4 @@
+#	$ssdlinux: vtund,v 1.1 2004/12/02 01:54:33 todoroki Exp $
+
+BCOPY	@UTILSDIR@/x_vtund/vtund		usr/sbin/vtund
+ECOPY	600 @SRCTOPDIR@/etc/common/vtund.conf	etc/vtund.conf

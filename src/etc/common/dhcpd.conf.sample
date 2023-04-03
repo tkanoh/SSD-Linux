@@ -1,0 +1,13 @@
+#	$ssdlinux: dhcpd.conf.sample,v 1.1 2002/07/24 02:40:20 kanoh Exp $
+ddns-update-style none;
+default-lease-time 600;
+max-lease-time 7200;
+option subnet-mask 255.255.255.0;
+option broadcast-address 192.168.253.255;
+option routers 192.168.253.254;
+option domain-name-servers 192.168.253.254;
+option domain-name "localdomain.co.jp";
+
+subnet 192.168.253.0 netmask 255.255.255.0 {
+	range 192.168.253.10 192.168.253.132;
+}

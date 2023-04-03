@@ -1,0 +1,5 @@
+#	$ssdlinux: sendmail,v 1.1 2004/12/02 01:54:34 todoroki Exp $
+./etc/mail
+./var/mail
+./var/spool/mqueue
+./var/spool/clientmqueue

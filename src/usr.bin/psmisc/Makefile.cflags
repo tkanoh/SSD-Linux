@@ -1,0 +1,9 @@
+#	$ssdlinux: Makefile.cflags,v 1.2 2004/05/26 03:51:38 yamagata Exp $
+
+DIST=	${.CURDIR}/../../../dist/psmisc
+.PATH:	${DIST}/src ${DIST}/doc
+
+CPPFLAGS=	-DHAVE_CONFIG_H
+CPPFLAGS+=	-DLOCALEDIR=\"/usr/share/locale\"
+CPPFLAGS+=	-I${.CURDIR}/.. -I${DIST}/src
+CPPFLAGS+=	-I${.CURDIR}

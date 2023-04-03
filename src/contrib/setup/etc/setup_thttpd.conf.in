@@ -1,0 +1,6 @@
+dir=/usr/contrib/etc/setup
+port=%HTTPD_PORT%
+cgipat=**.cgi
+logfile=/dev/null
+pidfile=/var/run/setup_thttpd.pid
+charset=euc-jp

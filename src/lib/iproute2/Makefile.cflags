@@ -1,0 +1,8 @@
+#	$ssdlinux: Makefile.cflags,v 1.3 2004/06/16 22:56:50 kanoh Exp $
+CPPFLAGS+=	-D_GNU_SOURCE -Wstrict-prototypes -Wall
+CPPFLAGS+=	-I${DIST}/../include-glibc
+CPPFLAGS+=	-include ${DIST}/../include-glibc/glibc-bugs.h
+CPPFLAGS+=	-I${DIST}/../../../../../linux/include
+CPPFLAGS+=	-I${DIST}/../include
+CPPFLAGS+=	-DRESOLVE_HOSTNAMES
+NOGCCERROR=	yes

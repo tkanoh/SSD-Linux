@@ -1,0 +1,4 @@
+#	$ssdlinux: Makefile.ldflags,v 1.1 2003/07/04 02:13:40 yamagata Exp $
+
+LDADD+=		-L${LIBCUDIR} -lfetish
+DPADD+=		${LIBCUDIR}/libfetish.a

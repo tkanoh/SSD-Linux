@@ -1,0 +1,9 @@
+#	$ssdlinux: pcmcia-cs.net,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+# Cardbus
+COPY	@MODULESDIR@/pcmcia/tulip_cb.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/tulip_cb.o.gz
+
+# NetworkCards
+COPY	@MODULESDIR@/pcmcia/3c574_cs.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/3c574_cs.o.gz
+COPY	@MODULESDIR@/pcmcia/3c589_cs.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/3c589_cs.o.gz
+COPY	@MODULESDIR@/pcmcia/axnet_cs.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/axnet_cs.o.gz

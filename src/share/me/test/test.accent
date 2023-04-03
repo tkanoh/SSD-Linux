@@ -1,0 +1,10 @@
+.\"	$ssdlinux: test.accent,v 1.1.1.1 2002/05/02 13:37:09 kanoh Exp $
+.\"     $NetBSD: $
+.\"
+.sc
+.sp 4
+.b e\\*'migre
+.sp 4
+.b emigre\\*`
+.sp 4
+.b e\\*'migre\\*`

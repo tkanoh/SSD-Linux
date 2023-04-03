@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+
+open H, ">sym.h";
+open C, ">sym.c";
+
+while(<>){
+  if(/^\#/){
+    next;
+  }
+  chomp;
+  $__ = $_;
+  tr/a-z/A-Z/;
+  print C qq'const char *$_ = "$__";\n';
+  print H qq'extern const char *$_;\n';
+}

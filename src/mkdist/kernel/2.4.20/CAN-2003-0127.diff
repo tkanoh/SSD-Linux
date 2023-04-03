@@ -1,0 +1,575 @@
+#	$ssdlinux: CAN-2003-0127.diff,v 1.1 2004/11/02 17:06:12 kanoh Exp $
+# patch file for Vulnerability: CAN-2003-0127
+diff -Naru linux-2.4.20.orig/arch/alpha/kernel/entry.S linux-2.4.20/arch/alpha/kernel/entry.S
+--- linux-2.4.20.orig/arch/alpha/kernel/entry.S	2002-12-11 11:37:14.000000000 +0900
++++ linux-2.4.20/arch/alpha/kernel/entry.S	2003-03-19 18:39:48.000000000 +0900
+@@ -231,12 +231,12 @@
+ .end	kernel_clone
+ 
+ /*
+- * kernel_thread(fn, arg, clone_flags)
++ * arch_kernel_thread(fn, arg, clone_flags)
+  */
+ .align 3
+-.globl	kernel_thread
+-.ent	kernel_thread
+-kernel_thread:
++.globl	arch_kernel_thread
++.ent	arch_kernel_thread
++arch_kernel_thread:
+ 	ldgp	$29,0($27)	/* we can be called from a module */
+ 	.frame $30, 4*8, $26
+ 	subq	$30,4*8,$30
+@@ -265,7 +265,7 @@
+ 	mov	$0,$16
+ 	mov	$31,$26
+ 	jsr	$31,sys_exit
+-.end	kernel_thread
++.end	arch_kernel_thread
+ 
+ /*
+  * __kernel_execve(path, argv, envp, regs)
+diff -Naru linux-2.4.20.orig/arch/arm/kernel/process.c linux-2.4.20/arch/arm/kernel/process.c
+--- linux-2.4.20.orig/arch/arm/kernel/process.c	2002-12-11 11:37:05.000000000 +0900
++++ linux-2.4.20/arch/arm/kernel/process.c	2003-03-19 18:37:31.000000000 +0900
+@@ -366,7 +366,7 @@
+  * a system call from a "real" process, but the process memory space will
+  * not be free'd until both the parent and the child have exited.
+  */
+-pid_t kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
++pid_t arch_kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
+ {
+ 	pid_t __ret;
+ 
+diff -Naru linux-2.4.20.orig/arch/cris/kernel/entry.S linux-2.4.20/arch/cris/kernel/entry.S
+--- linux-2.4.20.orig/arch/cris/kernel/entry.S	2002-12-11 11:39:12.000000000 +0900
++++ linux-2.4.20/arch/cris/kernel/entry.S	2003-03-19 18:38:18.000000000 +0900
+@@ -736,12 +736,12 @@
+  * the grosser the code, at least with the gcc version in cris-dist-1.13.
+  */
+ 
+-/* int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags) */
++/* int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags) */
+ /*                   r10                r11         r12  */
+ 
+ 	.text
+-	.global kernel_thread
+-kernel_thread:
++	.global arch_kernel_thread
++arch_kernel_thread:
+ 
+ 	/* Save ARG for later.  */
+ 	move.d $r11, $r13
+diff -Naru linux-2.4.20.orig/arch/i386/kernel/process.c linux-2.4.20/arch/i386/kernel/process.c
+--- linux-2.4.20.orig/arch/i386/kernel/process.c	2002-12-11 11:39:24.000000000 +0900
++++ linux-2.4.20/arch/i386/kernel/process.c	2003-03-19 18:41:15.000000000 +0900
+@@ -485,7 +485,7 @@
+ /*
+  * Create a kernel thread
+  */
+-int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
++int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+ {
+ 	long retval, d0;
+ 
+diff -Naru linux-2.4.20.orig/arch/ia64/kernel/process.c linux-2.4.20/arch/ia64/kernel/process.c
+--- linux-2.4.20.orig/arch/ia64/kernel/process.c	2002-12-11 11:37:51.000000000 +0900
++++ linux-2.4.20/arch/ia64/kernel/process.c	2003-03-19 18:42:07.000000000 +0900
+@@ -224,7 +224,7 @@
+  *	|                     | <-- sp (lowest addr)
+  *	+---------------------+
+  *
+- * Note: if we get called through kernel_thread() then the memory
++ * Note: if we get called through arch_kernel_thread() then the memory
+  * above "(highest addr)" is valid kernel stack memory that needs to
+  * be copied as well.
+  *
+@@ -479,7 +479,7 @@
+ }
+ 
+ pid_t
+-kernel_thread (int (*fn)(void *), void *arg, unsigned long flags)
++arch_kernel_thread (int (*fn)(void *), void *arg, unsigned long flags)
+ {
+ 	struct task_struct *parent = current;
+ 	int result, tid;
+diff -Naru linux-2.4.20.orig/arch/m68k/kernel/process.c linux-2.4.20/arch/m68k/kernel/process.c
+--- linux-2.4.20.orig/arch/m68k/kernel/process.c	2002-12-11 11:38:37.000000000 +0900
++++ linux-2.4.20/arch/m68k/kernel/process.c	2003-03-19 18:42:35.000000000 +0900
+@@ -124,7 +124,7 @@
+ /*
+  * Create a kernel thread
+  */
+-int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
++int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+ {
+ 	int pid;
+ 	mm_segment_t fs;
+diff -Naru linux-2.4.20.orig/arch/mips/kernel/process.c linux-2.4.20/arch/mips/kernel/process.c
+--- linux-2.4.20.orig/arch/mips/kernel/process.c	2002-12-11 11:38:16.000000000 +0900
++++ linux-2.4.20/arch/mips/kernel/process.c	2003-03-19 18:43:31.000000000 +0900
+@@ -152,7 +152,7 @@
+ /*
+  * Create a kernel thread
+  */
+-int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
++int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+ {
+ 	long retval;
+ 
+diff -Naru linux-2.4.20.orig/arch/mips64/kernel/process.c linux-2.4.20/arch/mips64/kernel/process.c
+--- linux-2.4.20.orig/arch/mips64/kernel/process.c	2002-12-11 11:40:49.000000000 +0900
++++ linux-2.4.20/arch/mips64/kernel/process.c	2003-03-19 18:44:02.000000000 +0900
+@@ -151,7 +151,7 @@
+ /*
+  * Create a kernel thread
+  */
+-int kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
++int arch_kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
+ {
+ 	int retval;
+ 
+diff -Naru linux-2.4.20.orig/arch/parisc/kernel/process.c linux-2.4.20/arch/parisc/kernel/process.c
+--- linux-2.4.20.orig/arch/parisc/kernel/process.c	2002-12-11 11:39:06.000000000 +0900
++++ linux-2.4.20/arch/parisc/kernel/process.c	2003-03-19 18:44:57.000000000 +0900
+@@ -163,7 +163,7 @@
+  */
+ 
+ extern pid_t __kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
+-pid_t kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
++pid_t arch_kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
+ {
+ 
+ 	/*
+diff -Naru linux-2.4.20.orig/arch/ppc/kernel/misc.S linux-2.4.20/arch/ppc/kernel/misc.S
+--- linux-2.4.20.orig/arch/ppc/kernel/misc.S	2002-12-11 11:38:36.000000000 +0900
++++ linux-2.4.20/arch/ppc/kernel/misc.S	2003-03-19 18:45:29.000000000 +0900
+@@ -1007,9 +1007,9 @@
+ 
+ /*
+  * Create a kernel thread
+- *   kernel_thread(fn, arg, flags)
++ *   arch_kernel_thread(fn, arg, flags)
+  */
+-_GLOBAL(kernel_thread)
++_GLOBAL(arch_kernel_thread)
+ 	mr	r6,r3		/* function */
+ 	ori	r3,r5,CLONE_VM	/* flags */
+ 	li	r0,__NR_clone
+diff -Naru linux-2.4.20.orig/arch/ppc64/kernel/misc.S linux-2.4.20/arch/ppc64/kernel/misc.S
+--- linux-2.4.20.orig/arch/ppc64/kernel/misc.S	2002-12-11 11:39:28.000000000 +0900
++++ linux-2.4.20/arch/ppc64/kernel/misc.S	2003-03-19 18:46:00.000000000 +0900
+@@ -493,9 +493,9 @@
+ 
+ /*
+  * Create a kernel thread
+- *   kernel_thread(fn, arg, flags)
++ *   arch_kernel_thread(fn, arg, flags)
+  */
+-_GLOBAL(kernel_thread)
++_GLOBAL(arch_kernel_thread)
+ 	mr	r6,r3		/* function */
+ 	ori	r3,r5,CLONE_VM	/* flags */
+ 	li	r0,__NR_clone
+diff -Naru linux-2.4.20.orig/arch/s390/kernel/process.c linux-2.4.20/arch/s390/kernel/process.c
+--- linux-2.4.20.orig/arch/s390/kernel/process.c	2002-12-11 11:38:06.000000000 +0900
++++ linux-2.4.20/arch/s390/kernel/process.c	2003-03-19 18:46:34.000000000 +0900
+@@ -105,7 +105,7 @@
+ 		show_trace((unsigned long *) regs->gprs[15]);
+ }
+ 
+-int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
++int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+ {
+         int clone_arg = flags | CLONE_VM;
+         int retval;
+diff -Naru linux-2.4.20.orig/arch/s390x/kernel/process.c linux-2.4.20/arch/s390x/kernel/process.c
+--- linux-2.4.20.orig/arch/s390x/kernel/process.c	2002-12-11 11:38:22.000000000 +0900
++++ linux-2.4.20/arch/s390x/kernel/process.c	2003-03-19 18:47:09.000000000 +0900
+@@ -102,7 +102,7 @@
+ 		show_trace((unsigned long *) regs->gprs[15]);
+ }
+ 
+-int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
++int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+ {
+         int clone_arg = flags | CLONE_VM;
+         int retval;
+diff -Naru linux-2.4.20.orig/arch/sh/kernel/process.c linux-2.4.20/arch/sh/kernel/process.c
+--- linux-2.4.20.orig/arch/sh/kernel/process.c	2002-12-11 11:40:17.000000000 +0900
++++ linux-2.4.20/arch/sh/kernel/process.c	2003-03-19 18:47:34.000000000 +0900
+@@ -118,7 +118,7 @@
+  * This is the mechanism for creating a new kernel thread.
+  *
+  */
+-int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
++int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+ {	/* Don't use this in BL=1(cli).  Or else, CPU resets! */
+ 	register unsigned long __sc0 __asm__ ("r0");
+ 	register unsigned long __sc3 __asm__ ("r3") = __NR_clone;
+diff -Naru linux-2.4.20.orig/arch/sparc/kernel/process.c linux-2.4.20/arch/sparc/kernel/process.c
+--- linux-2.4.20.orig/arch/sparc/kernel/process.c	2002-12-11 11:39:11.000000000 +0900
++++ linux-2.4.20/arch/sparc/kernel/process.c	2003-03-19 18:48:05.000000000 +0900
+@@ -676,7 +676,7 @@
+  * a system call from a "real" process, but the process memory space will
+  * not be free'd until both the parent and the child have exited.
+  */
+-pid_t kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
++pid_t arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+ {
+ 	long retval;
+ 
+diff -Naru linux-2.4.20.orig/arch/sparc64/kernel/process.c linux-2.4.20/arch/sparc64/kernel/process.c
+--- linux-2.4.20.orig/arch/sparc64/kernel/process.c	2002-12-11 11:40:21.000000000 +0900
++++ linux-2.4.20/arch/sparc64/kernel/process.c	2003-03-19 18:48:33.000000000 +0900
+@@ -673,7 +673,7 @@
+  * a system call from a "real" process, but the process memory space will
+  * not be free'd until both the parent and the child have exited.
+  */
+-pid_t kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
++pid_t arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+ {
+ 	long retval;
+ 
+diff -Naru linux-2.4.20.orig/fs/exec.c linux-2.4.20/fs/exec.c
+--- linux-2.4.20.orig/fs/exec.c	2002-12-11 11:39:17.000000000 +0900
++++ linux-2.4.20/fs/exec.c	2003-03-19 18:51:44.000000000 +0900
+@@ -572,8 +572,10 @@
+ 
+ 	current->sas_ss_sp = current->sas_ss_size = 0;
+ 
+-	if (current->euid == current->uid && current->egid == current->gid)
++	if (current->euid == current->uid && current->egid == current->gid) {
+ 		current->mm->dumpable = 1;
++		current->task_dumpable = 1;
++	}
+ 	name = bprm->filename;
+ 	for (i=0; (ch = *(name++)) != '\0';) {
+ 		if (ch == '/')
+@@ -965,7 +967,7 @@
+ 	binfmt = current->binfmt;
+ 	if (!binfmt || !binfmt->core_dump)
+ 		goto fail;
+-	if (!current->mm->dumpable)
++	if (!is_dumpable(current))
+ 		goto fail;
+ 	current->mm->dumpable = 0;
+ 	if (current->rlim[RLIMIT_CORE].rlim_cur < binfmt->min_coredump)
+diff -Naru linux-2.4.20.orig/include/asm-alpha/processor.h linux-2.4.20/include/asm-alpha/processor.h
+--- linux-2.4.20.orig/include/asm-alpha/processor.h	2002-12-11 11:40:25.000000000 +0900
++++ linux-2.4.20/include/asm-alpha/processor.h	2003-03-19 18:52:23.000000000 +0900
+@@ -119,7 +119,7 @@
+ extern void release_thread(struct task_struct *);
+ 
+ /* Create a kernel thread without removing it from tasklists.  */
+-extern long kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
++extern long arch_kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
+ 
+ #define copy_segments(tsk, mm)		do { } while (0)
+ #define release_segments(mm)		do { } while (0)
+diff -Naru linux-2.4.20.orig/include/asm-arm/processor.h linux-2.4.20/include/asm-arm/processor.h
+--- linux-2.4.20.orig/include/asm-arm/processor.h	2002-12-11 11:37:00.000000000 +0900
++++ linux-2.4.20/include/asm-arm/processor.h	2003-03-19 19:17:21.000000000 +0900
+@@ -117,7 +117,7 @@
+ /*
+  * Create a new kernel thread
+  */
+-extern int kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
++extern int arch_kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
+ 
+ #endif
+ 
+diff -Naru linux-2.4.20.orig/include/asm-cris/processor.h linux-2.4.20/include/asm-cris/processor.h
+--- linux-2.4.20.orig/include/asm-cris/processor.h	2002-12-11 11:40:56.000000000 +0900
++++ linux-2.4.20/include/asm-cris/processor.h	2003-03-19 19:18:51.000000000 +0900
+@@ -81,7 +81,7 @@
+ #define INIT_THREAD  { \
+    0, 0, 0x20 }  /* ccr = int enable, nothing else */
+ 
+-extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++extern int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+ /* give the thread a program location
+  * set user-mode (The 'U' flag (User mode flag) is CCR/DCCR bit 8) 
+diff -Naru linux-2.4.20.orig/include/asm-i386/processor.h linux-2.4.20/include/asm-i386/processor.h
+--- linux-2.4.20.orig/include/asm-i386/processor.h	2002-12-11 11:38:55.000000000 +0900
++++ linux-2.4.20/include/asm-i386/processor.h	2003-03-19 19:19:18.000000000 +0900
+@@ -433,7 +433,7 @@
+ /*
+  * create a kernel thread without removing it from tasklists
+  */
+-extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++extern int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+ /* Copy and release all segment info associated with a VM */
+ extern void copy_segments(struct task_struct *p, struct mm_struct * mm);
+diff -Naru linux-2.4.20.orig/include/asm-ia64/processor.h linux-2.4.20/include/asm-ia64/processor.h
+--- linux-2.4.20.orig/include/asm-ia64/processor.h	2002-12-11 11:37:20.000000000 +0900
++++ linux-2.4.20/include/asm-ia64/processor.h	2003-03-19 19:19:51.000000000 +0900
+@@ -373,7 +373,7 @@
+  * do_basic_setup() and the timing is such that free_initmem() has
+  * been called already.
+  */
+-extern int kernel_thread (int (*fn)(void *), void *arg, unsigned long flags);
++extern int arch_kernel_thread (int (*fn)(void *), void *arg, unsigned long flags);
+ 
+ /* Copy and release all segment info associated with a VM */
+ #define copy_segments(tsk, mm)			do { } while (0)
+diff -Naru linux-2.4.20.orig/include/asm-m68k/processor.h linux-2.4.20/include/asm-m68k/processor.h
+--- linux-2.4.20.orig/include/asm-m68k/processor.h	2002-12-11 11:40:44.000000000 +0900
++++ linux-2.4.20/include/asm-m68k/processor.h	2003-03-19 19:20:17.000000000 +0900
+@@ -105,7 +105,7 @@
+ {
+ }
+ 
+-extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++extern int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+ #define copy_segments(tsk, mm)		do { } while (0)
+ #define release_segments(mm)		do { } while (0)
+diff -Naru linux-2.4.20.orig/include/asm-mips/processor.h linux-2.4.20/include/asm-mips/processor.h
+--- linux-2.4.20.orig/include/asm-mips/processor.h	2002-12-11 11:40:00.000000000 +0900
++++ linux-2.4.20/include/asm-mips/processor.h	2003-03-19 19:20:46.000000000 +0900
+@@ -188,7 +188,7 @@
+ /* Free all resources held by a thread. */
+ #define release_thread(thread) do { } while(0)
+ 
+-extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++extern int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+ /* Copy and release all segment info associated with a VM */
+ #define copy_segments(p, mm) do { } while(0)
+diff -Naru linux-2.4.20.orig/include/asm-mips64/processor.h linux-2.4.20/include/asm-mips64/processor.h
+--- linux-2.4.20.orig/include/asm-mips64/processor.h	2002-12-11 11:39:37.000000000 +0900
++++ linux-2.4.20/include/asm-mips64/processor.h	2003-03-19 19:21:13.000000000 +0900
+@@ -231,7 +231,7 @@
+ /* Free all resources held by a thread. */
+ #define release_thread(thread) do { } while(0)
+ 
+-extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++extern int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+ /* Copy and release all segment info associated with a VM */
+ #define copy_segments(p, mm) do { } while(0)
+diff -Naru linux-2.4.20.orig/include/asm-parisc/processor.h linux-2.4.20/include/asm-parisc/processor.h
+--- linux-2.4.20.orig/include/asm-parisc/processor.h	2002-12-11 11:40:16.000000000 +0900
++++ linux-2.4.20/include/asm-parisc/processor.h	2003-03-19 19:21:47.000000000 +0900
+@@ -289,7 +289,7 @@
+ 
+ /* Free all resources held by a thread. */
+ extern void release_thread(struct task_struct *);
+-extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++extern int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+ extern void map_hpux_gateway_page(struct task_struct *tsk, struct mm_struct *mm);
+ 
+diff -Naru linux-2.4.20.orig/include/asm-ppc/processor.h linux-2.4.20/include/asm-ppc/processor.h
+--- linux-2.4.20.orig/include/asm-ppc/processor.h	2002-12-11 11:38:05.000000000 +0900
++++ linux-2.4.20/include/asm-ppc/processor.h	2003-03-19 19:22:12.000000000 +0900
+@@ -808,7 +808,7 @@
+ /*
+  * Create a new kernel thread.
+  */
+-extern long kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
++extern long arch_kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
+ 
+ /*
+  * Bus types
+diff -Naru linux-2.4.20.orig/include/asm-ppc64/processor.h linux-2.4.20/include/asm-ppc64/processor.h
+--- linux-2.4.20.orig/include/asm-ppc64/processor.h	2002-12-11 11:40:33.000000000 +0900
++++ linux-2.4.20/include/asm-ppc64/processor.h	2003-03-19 19:22:43.000000000 +0900
+@@ -609,7 +609,7 @@
+ /*
+  * Create a new kernel thread.
+  */
+-extern long kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
++extern long arch_kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
+ 
+ /*
+  * Bus types
+diff -Naru linux-2.4.20.orig/include/asm-s390/processor.h linux-2.4.20/include/asm-s390/processor.h
+--- linux-2.4.20.orig/include/asm-s390/processor.h	2002-12-11 11:40:08.000000000 +0900
++++ linux-2.4.20/include/asm-s390/processor.h	2003-03-19 19:23:08.000000000 +0900
+@@ -113,7 +113,7 @@
+ 
+ /* Free all resources held by a thread. */
+ extern void release_thread(struct task_struct *);
+-extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++extern int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+ /* Copy and release all segment info associated with a VM */
+ #define copy_segments(nr, mm)           do { } while (0)
+diff -Naru linux-2.4.20.orig/include/asm-s390x/processor.h linux-2.4.20/include/asm-s390x/processor.h
+--- linux-2.4.20.orig/include/asm-s390x/processor.h	2002-12-11 11:39:05.000000000 +0900
++++ linux-2.4.20/include/asm-s390x/processor.h	2003-03-19 19:23:45.000000000 +0900
+@@ -128,7 +128,7 @@
+ 
+ /* Free all resources held by a thread. */
+ extern void release_thread(struct task_struct *);
+-extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++extern int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+ /* Copy and release all segment info associated with a VM */
+ #define copy_segments(nr, mm)           do { } while (0)
+diff -Naru linux-2.4.20.orig/include/asm-sh/processor.h linux-2.4.20/include/asm-sh/processor.h
+--- linux-2.4.20.orig/include/asm-sh/processor.h	2002-12-11 11:39:03.000000000 +0900
++++ linux-2.4.20/include/asm-sh/processor.h	2003-03-19 19:24:01.000000000 +0900
+@@ -137,7 +137,7 @@
+ /*
+  * create a kernel thread without removing it from tasklists
+  */
+-extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++extern int arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+ /*
+  * Bus types
+diff -Naru linux-2.4.20.orig/include/asm-sparc/processor.h linux-2.4.20/include/asm-sparc/processor.h
+--- linux-2.4.20.orig/include/asm-sparc/processor.h	2002-12-11 11:37:10.000000000 +0900
++++ linux-2.4.20/include/asm-sparc/processor.h	2003-03-19 19:24:29.000000000 +0900
+@@ -146,7 +146,7 @@
+ 
+ /* Free all resources held by a thread. */
+ #define release_thread(tsk)		do { } while(0)
+-extern pid_t kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++extern pid_t arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+ 
+ #define copy_segments(tsk, mm)		do { } while (0)
+diff -Naru linux-2.4.20.orig/include/asm-sparc64/processor.h linux-2.4.20/include/asm-sparc64/processor.h
+--- linux-2.4.20.orig/include/asm-sparc64/processor.h	2002-12-11 11:38:57.000000000 +0900
++++ linux-2.4.20/include/asm-sparc64/processor.h	2003-03-19 19:25:07.000000000 +0900
+@@ -270,7 +270,7 @@
+ /* Free all resources held by a thread. */
+ #define release_thread(tsk)		do { } while(0)
+ 
+-extern pid_t kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++extern pid_t arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+ #define copy_segments(tsk, mm)		do { } while (0)
+ #define release_segments(mm)		do { } while (0)
+diff -Naru linux-2.4.20.orig/include/linux/sched.h linux-2.4.20/include/linux/sched.h
+--- linux-2.4.20.orig/include/linux/sched.h	2002-12-11 11:39:22.000000000 +0900
++++ linux-2.4.20/include/linux/sched.h	2003-03-19 19:29:33.000000000 +0900
+@@ -339,6 +339,7 @@
+ 	/* ??? */
+ 	unsigned long personality;
+ 	int did_exec:1;
++	unsigned task_dumpable:1;
+ 	pid_t pid;
+ 	pid_t pgrp;
+ 	pid_t tty_old_pgrp;
+@@ -448,6 +449,8 @@
+ #define PT_TRACESYSGOOD	0x00000008
+ #define PT_PTRACE_CAP	0x00000010	/* ptracer can follow suid-exec */
+ 
++#define is_dumpable(tsk) ((tsk)->task_dumpable && (tsk)->mm->dumpable)
++
+ /*
+  * Limit the stack by to some sane default: root can always
+  * increase this limit if needed..  8MB seems reasonable.
+@@ -803,6 +806,8 @@
+ extern void FASTCALL(add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t * wait));
+ extern void FASTCALL(remove_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
+ 
++extern long kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++
+ #define __wait_event(wq, condition) 					\
+ do {									\
+ 	wait_queue_t __wait;						\
+diff -Naru linux-2.4.20.orig/kernel/fork.c linux-2.4.20/kernel/fork.c
+--- linux-2.4.20.orig/kernel/fork.c	2002-12-11 11:39:44.000000000 +0900
++++ linux-2.4.20/kernel/fork.c	2003-03-19 19:32:24.000000000 +0900
+@@ -27,6 +27,7 @@
+ #include <asm/pgalloc.h>
+ #include <asm/uaccess.h>
+ #include <asm/mmu_context.h>
++#include <asm/processor.h>
+ 
+ /* The idle threads do not count.. */
+ int nr_threads;
+@@ -565,6 +566,31 @@
+ 	p->flags = new_flags;
+ }
+ 
++long kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
++{
++	struct task_struct *task = current;
++	unsigned old_task_dumpable;
++	long ret;
++
++	/* lock out any potential ptracer */
++	task_lock(task);
++	if (task->ptrace) {
++		task_unlock(task);
++		return -EPERM;
++	}
++
++	old_task_dumpable = task->task_dumpable;
++	task->task_dumpable = 0;
++	task_unlock(task);
++
++	ret = arch_kernel_thread(fn, arg, flags);
++
++	/* never reached in child process, only in parent */
++	current->task_dumpable = old_task_dumpable;
++
++	return ret;
++}
++
+ /*
+  *  Ok, this is the main fork-routine. It copies the system process
+  * information (task[nr]) and sets up the necessary registers. It also
+diff -Naru linux-2.4.20.orig/kernel/ptrace.c linux-2.4.20/kernel/ptrace.c
+--- linux-2.4.20.orig/kernel/ptrace.c	2002-12-11 11:39:18.000000000 +0900
++++ linux-2.4.20/kernel/ptrace.c	2003-03-19 19:35:07.000000000 +0900
+@@ -21,6 +21,10 @@
+  */
+ int ptrace_check_attach(struct task_struct *child, int kill)
+ {
++	mb();
++	if (!is_dumpable(child))
++		return -EPERM;
++
+ 	if (!(child->ptrace & PT_PTRACED))
+ 		return -ESRCH;
+ 
+@@ -70,7 +74,7 @@
+  	    (current->gid != task->gid)) && !capable(CAP_SYS_PTRACE))
+ 		goto bad;
+ 	rmb();
+-	if (!task->mm->dumpable && !capable(CAP_SYS_PTRACE))
++	if (!is_dumpable(task) && !capable(CAP_SYS_PTRACE))
+ 		goto bad;
+ 	/* the same process cannot be attached many times */
+ 	if (task->ptrace & PT_PTRACED)
+@@ -136,6 +140,8 @@
+ 	/* Worry about races with exit() */
+ 	task_lock(tsk);
+ 	mm = tsk->mm;
++	if (!is_dumpable(tsk) || (&init_mm == mm))
++		mm = NULL;
+ 	if (mm)
+ 		atomic_inc(&mm->mm_users);
+ 	task_unlock(tsk);
+diff -Naru linux-2.4.20.orig/kernel/sys.c linux-2.4.20/kernel/sys.c
+--- linux-2.4.20.orig/kernel/sys.c	2002-12-11 11:39:24.000000000 +0900
++++ linux-2.4.20/kernel/sys.c	2003-03-19 19:38:13.000000000 +0900
+@@ -1219,7 +1219,7 @@
+ 			error = put_user(current->pdeath_signal, (int *)arg2);
+ 			break;
+ 		case PR_GET_DUMPABLE:
+-			if (current->mm->dumpable)
++			if (is_dumpable(current))
+ 				error = 1;
+ 			break;
+ 		case PR_SET_DUMPABLE:
+@@ -1227,7 +1227,8 @@
+ 				error = -EINVAL;
+ 				break;
+ 			}
+-			current->mm->dumpable = arg2;
++			if (is_dumpable(current))
++				current->mm->dumpable = arg2;
+ 			break;
+ 	        case PR_SET_UNALIGN:
+ #ifdef SET_UNALIGN_CTL

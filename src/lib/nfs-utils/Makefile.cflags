@@ -1,0 +1,8 @@
+#	$ssdlinux: Makefile.cflags,v 1.4 2004/12/20 09:24:50 yamagata Exp $
+
+CPPFLAGS+=	-D_GNU_SOURCE -Wall -pipe
+CPPFLAGS+=	-DHAVE_TCP_WRAPPER
+CPPFLAGS+=	-DVERSION="\"nfs-utils 1.0.7\""
+CPPFLAGS+=	-DNFS3_SUPPORTED
+CPPFLAGS+=	-I${DIST}/../../lib/nfs-utils/include
+CPPFLAGS+=	-I${DIST}/support/include

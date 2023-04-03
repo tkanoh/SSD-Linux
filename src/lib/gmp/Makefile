@@ -1,0 +1,15 @@
+#	$ssdlinux: Makefile,v 1.2 2003/06/09 09:10:05 todoroki Exp $
+
+.include <bsd.own.mk>
+
+DISTNAME=	gmp
+HAVE_DESTDIR= 1
+CONFIGURE_FULL_PREFIX= 1
+CONFIGURE_ENV=
+CONFIGURE_OPTIONS=
+GMAKE_ENV=
+GMAKE_OPTIONS=
+GMAKE_INSTALL_OPTIONS=	DESTDIR=${DESTDIR}
+INSTALL_STRIP=  no
+
+.include <bsd.gnu.mk>

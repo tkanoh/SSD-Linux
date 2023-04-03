@@ -1,0 +1,29 @@
+#	$ssdlinux: Makefile.cflags,v 1.1 2002/11/01 07:35:52 yamagata Exp $
+
+DIST=		${.CURDIR}/../../../dist/pcmcia-cs
+
+.if ${PROG} == "ide_info" || ${PROG} == "ifport" || ${PROG} == "ifuser" || ${PROG} == "scsi_info"
+.PATH:		${DIST}/cardmgr ${DIST}/man
+
+CPPFLAGS=	-Wall -Wstrict-prototypes -pipe \
+		-I${.CURDIR}/../../../lib/modules/pcmcia/include \
+		-I${.CURDIR}/../../../linux/include \
+		-I${DIST}/modules
+
+.elif ${PROG} == "dump_cardbus" || ${PROG} == "dump_cis" || ${PROG} == "dump_tcic" || ${PROG} == "pack_cis"
+.PATH:          ${DIST}/debug-tools ${DIST}/man
+
+CPPFLAGS+=      -Wall -Wstrict-prototypes -pipe \
+                -I${.CURDIR}/../../../lib/modules/pcmcia/include \
+                -I${.CURDIR}/../../../linux/include \
+                -I${DIST}/modules
+
+.elif ${PROG} == "ftl_check" || ${PROG} == "ftl_format"
+CLEANFILES=     ${PROG}.d
+
+.PATH:          ${DIST}/flash ${DIST}/man
+
+CPPFLAGS+=      -MD -Wall -Wstrict-prototypes -pipe \
+                -I${.CURDIR}/../../../lib/modules/pcmcia/include \
+                -I${.CURDIR}/../../../linux/include
+.endif

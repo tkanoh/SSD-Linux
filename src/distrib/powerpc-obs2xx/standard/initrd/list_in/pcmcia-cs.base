@@ -1,0 +1,26 @@
+#	$ssdlinux: pcmcia-cs.base,v 1.2 2005/03/08 06:56:02 todoroki Exp $
+
+# Base config
+BCOPY	@SRCTOPDIR@/sbin/cardctl/cardctl			sbin/cardctl
+BCOPY	@SRCTOPDIR@/sbin/cardmgr/cardmgr			sbin/cardmgr
+ECOPY	555 @SRCTOPDIR@/etc/common/rc.pcmcia			etc/rc.pcmcia
+ECOPY	644 @SRCTOPDIR@/dist/pcmcia-cs/etc/config		etc/pcmcia/config
+ECOPY	644 @SRCTOPDIR@/etc/pcmcia/config.opts.powerpc-obs2xx	etc/pcmcia/config.opts
+COPY	@MODULESDIR@/pcmcia/ds.o.gz		lib/modules/@KERNEL_VERSION@/pcmcia/ds.o.gz
+COPY	@MODULESDIR@/pcmcia/i82365.o.gz		lib/modules/@KERNEL_VERSION@/pcmcia/i82365.o.gz
+COPY	@MODULESDIR@/pcmcia/pcmcia_core.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/pcmcia_core.o.gz
+COPY	@MODULESDIR@/pcmcia/cb_enabler.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/cb_enabler.o.gz
+ECOPY	555 @SRCTOPDIR@/etc/pcmcia/network			etc/pcmcia/network
+ECOPY	644 @SRCTOPDIR@/dist/pcmcia-cs/etc/network.opts		etc/pcmcia/network.opts
+ECOPY	555 @SRCTOPDIR@/dist/pcmcia-cs/etc/shared		etc/pcmcia/shared
+ECOPY	644 @SRCTOPDIR@/etc/pcmcia/wireless			etc/pcmcia/wireless
+ECOPY	644 @SRCTOPDIR@/dist/pcmcia-cs/etc/wireless.opts	etc/pcmcia/wireless.opts
+SPECIAL touch etc/pcmcia/addon.conf
+ECOPY	644 @SRCTOPDIR@/etc/pcmcia/cis/DP83903.dat	etc/pcmcia/cis/DP83903.dat
+COPY	@MODULESDIR@/net/8390.o.gz			lib/modules/@KERNEL_VERSION@/net/8390.o.gz
+BCOPY	@SRCTOPDIR@/usr.bin/pcmcia-cs/ifuser/ifuser	usr/bin/ifuser
+BCOPY	@SRCTOPDIR@/usr.bin/pcmcia-cs/ifport/ifport	usr/bin/ifport
+BCOPY	@SRCTOPDIR@/usr.bin/psmisc/fuser/fuser		usr/bin/fuser
+
+# NetworkCards
+COPY	@MODULESDIR@/pcmcia/pcnet_cs.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/pcnet_cs.o.gz

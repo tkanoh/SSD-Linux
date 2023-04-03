@@ -1,0 +1,10 @@
+#	$ssdlinux: samba,v 1.1 2004/12/02 01:54:34 todoroki Exp $
+./usr/contrib/samba/bin
+./usr/contrib/samba/lib/codepages
+./usr/contrib/samba/private
+./usr/contrib/samba/sbin
+./usr/contrib/samba/share/locale/en/LC_MESSAGES
+./usr/contrib/samba/share/locale/ja/LC_MESSAGES
+#./usr/contrib/samba/swat/ja
+#./usr/contrib/samba/swat/using_samba/ja
+./usr/contrib/samba/var/locks

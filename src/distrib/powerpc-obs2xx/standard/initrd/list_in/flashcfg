@@ -1,0 +1,3 @@
+#	$ssdlinux: flashcfg,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+ECOPY	644 @CURDIR@/flashcfg					etc/flashcfg

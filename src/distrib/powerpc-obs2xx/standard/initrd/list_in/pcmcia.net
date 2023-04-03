@@ -1,0 +1,14 @@
+#       $ssdlinux: pcmcia.net,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+# All modules below is tested. It works on OpenBlockS266.
+
+# CardbusNetworkCards
+# Tulib driver & 8139too & mii driver is build into kernel
+
+# Gigabit ether
+COPY	@MODULESDIR@/kernel/drivers/net/r8169.o.gz		lib/modules/@KERNEL_VERSION@/pcmcia/r8169.o.gz
+
+# NetworkCards
+COPY	@MODULESDIR@/kernel/drivers/net/pcmcia/3c574_cs.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/3c574_cs.o.gz
+COPY	@MODULESDIR@/kernel/drivers/net/pcmcia/3c589_cs.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/3c589_cs.o.gz
+COPY	@MODULESDIR@/kernel/drivers/net/pcmcia/axnet_cs.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/axnet_cs.o.gz

@@ -1,0 +1,13 @@
+--- pidentd-3.0.18/src/main.c.orig	2003-01-09 06:57:05.000000000 +0900
++++ pidentd-3.0.18/src/main.c	2004-06-15 12:34:26.000000000 +0900
+@@ -102,8 +102,10 @@
+ 	    server_uid = ROOT_UID;
+     }
+     
++#ifndef NOSETGROUPS
+     if (setgroups(1, &server_gid) < 0)
+ 	goto Error;
++#endif
+     
+     if (server_gid != ROOT_GID)
+ 	if (setgid(server_gid) < 0)

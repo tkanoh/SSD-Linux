@@ -1,0 +1,4 @@
+#!/bin/sh
+#	$ssdlinux: lilo,v 1.1.1.1 2002/05/02 13:37:08 kanoh Exp $
+echo This system installed GRUB.
+exit

@@ -1,0 +1,698 @@
+diff -Naru pcmcia-cs.orig/clients/tulip_cb.c pcmcia-cs/clients/tulip_cb.c
+--- pcmcia-cs.orig/clients/tulip_cb.c	2002-11-06 14:51:16.000000000 +0900
++++ pcmcia-cs/clients/tulip_cb.c	2004-02-02 12:52:25.000000000 +0900
+@@ -1,5 +1,9 @@
+ /* tulip.c: A DEC 21040-family ethernet driver for Linux. */
+ /*
++    Modified 2003/06/17
++        Plat'C2,Inc.
++        Special thanks to Mr.Umeno
++
+ 	Written/copyright 1994-1999 by Donald Becker.
+ 
+ 	This software may be used and distributed according to the terms
+@@ -89,6 +93,7 @@
+ #error You must compile this driver with "-O".
+ #endif
+ 
++#include <linux/config.h>
+ #include <linux/version.h>
+ #ifdef MODULE
+ #ifdef MODVERSIONS
+@@ -422,16 +427,20 @@
+ 	char devname[8];			/* Used only for kernel debugging. */
+ 	const char *product_name;
+ 	struct net_device *next_module;
+-	struct tulip_rx_desc rx_ring[RX_RING_SIZE];
+-	struct tulip_tx_desc tx_ring[TX_RING_SIZE];
++	struct tulip_rx_desc *rx_ring;
++	struct tulip_tx_desc *tx_ring;
++	dma_addr_t rx_ring_dma;
++    dma_addr_t tx_ring_dma;
+ 	/* The saved address of a sent-in-place packet/buffer, for skfree(). */
+ 	struct sk_buff* tx_skbuff[TX_RING_SIZE];
++	dma_addr_t		tx_mapping[TX_RING_SIZE];
+ #ifdef CARDBUS
+ 	/* The X3201-3 requires double word aligned tx bufs */
+ 	struct sk_buff* tx_aligned_skbuff[TX_RING_SIZE];
+ #endif
+ 	/* The addresses of receive-in-place skbuffs. */
+ 	struct sk_buff* rx_skbuff[RX_RING_SIZE];
++	dma_addr_t		rx_mapping[RX_RING_SIZE];
+ 	void *priv_addr;
+ 	char *rx_buffs;				/* Address of temporary Rx buffers. */
+ 	u8 setup_buf[96*sizeof(u16) + 7];
+@@ -441,6 +450,7 @@
+ 	int flags;
+ 	struct net_device_stats stats;
+ 	struct timer_list timer;	/* Media selection timer. */
++	spinlock_t lock;
+ 	unsigned int cur_rx, cur_tx;		/* The next free ring entry */
+ 	unsigned int dirty_rx, dirty_tx;	/* The ring entries to be free()ed. */
+ 	unsigned int tx_full:1;				/* The Tx queue is full. */
+@@ -466,6 +476,7 @@
+ 	int cur_index;						/* Current media index. */
+ 	int saved_if_port;
+ 	unsigned char pci_bus, pci_devfn;
++	struct pci_dev *pdev;
+ 	int ttimer;
+ 	int susp_rx;
+ 	unsigned long nir;
+@@ -587,7 +598,7 @@
+ 	root_tulip_dev = dev;
+ 
+ 	pcibios_read_config_byte(pci_bus, pci_devfn, PCI_REVISION_ID, &chip_rev);
+-
++	
+ 	/* Bring the 21041/21143 out of sleep mode.
+ 	   Caution: Snooze mode does not work with some boards! */
+ 	if (tulip_tbl[chip_idx].flags & HAS_PWRDWN)
+@@ -598,6 +609,8 @@
+ 
+ 	/* Stop the chip's Tx and Rx processes. */
+ 	outl_CSR6(inl(ioaddr + CSR6) & ~0x2002, ioaddr, chip_idx);
++	barrier();
++	(void) inl(ioaddr + CSR6); /* mmio sync */
+ 	/* Clear the missed-packet counter. */
+ 	(volatile int)inl(ioaddr + CSR8);
+ 
+@@ -633,8 +646,16 @@
+ 		}
+ 	} else if (chip_idx == COMET || chip_idx == CENTAUR) {
+ 		/* No need to read the EEPROM. */
++#ifndef CONFIG_OPENBLOCKS
+ 		put_unaligned(inl(ioaddr + 0xA4), (u32 *)dev->dev_addr);
+ 		put_unaligned(inl(ioaddr + 0xA8), (u16 *)(dev->dev_addr + 4));
++#else
++		unsigned long hi, lo;
++		hi = le32_to_cpu(inl(ioaddr + 0xA4));
++		lo = le16_to_cpu(inl(ioaddr + 0xA8));
++		put_unaligned(hi, (u32 *)dev->dev_addr);
++		put_unaligned(lo, (u16 *)(dev->dev_addr + 4));
++#endif
+ 		for (i = 0; i < 6; i ++)
+ 			sum += dev->dev_addr[i];
+ 	} else if (chip_idx == X3201_3) {
+@@ -699,7 +720,7 @@
+ 		}
+ 	}
+ 	/* Lite-On boards have the address byte-swapped. */
+-	if ((dev->dev_addr[0] == 0xA0  ||  dev->dev_addr[0] == 0xC0)
++	if ((dev->dev_addr[0] == 0xA0  ||  dev->dev_addr[0] == 0xC0 /*|| dev->dev_addr[0] == 0x90*/)
+ 		&&  dev->dev_addr[1] == 0x00)
+ 		for (i = 0; i < 6; i+=2) {
+ 			char tmp = dev->dev_addr[i];
+@@ -736,11 +757,13 @@
+ 
+ 	tp->pci_bus = pci_bus;
+ 	tp->pci_devfn = pci_devfn;
++	tp->pdev = pci_find_slot(pci_bus, pci_devfn);
+ 	tp->chip_id = chip_idx;
+ 	tp->revision = chip_rev;
+ 	tp->flags = tulip_tbl[chip_idx].flags;
+ 	tp->csr0 = csr0;
+ 	tp->setup_frame = (u16 *)(((unsigned long)tp->setup_buf + 7) & ~7);
++	spin_lock_init(&tp->lock);
+ 
+ 	/* BugFixes: The 21143-TD hangs with PCI Write-and-Invalidate cycles.
+ 	   And the ASIX must have a burst limit or horrible things happen. */
+@@ -1358,19 +1381,25 @@
+ 
+ 	/* Reset the chip, holding bit 0 set at least 50 PCI cycles. */
+ 	outl(0x00000001, ioaddr + CSR0);
+-
++	udelay(100);
++	
+ 	/* Deassert reset.
+ 	   Wait the specified 50 PCI cycles after a reset by initializing
+ 	   Tx and Rx queues and the address filter list. */
+ 	outl(tp->csr0, ioaddr + CSR0);
+-
++	udelay(100);
++	
+ 	if (tulip_debug > 1)
+ 		printk(KERN_DEBUG "%s: tulip_open() irq %d.\n", dev->name, dev->irq);
+ 
++	outl(tp->rx_ring_dma, ioaddr + CSR3);
++	outl(tp->tx_ring_dma, ioaddr + CSR4);
++	
+ 	/* Clear the rx, tx rings */
+ 	tp->tx_full = 0;
+ 	tp->cur_rx = tp->cur_tx = 0;
+ 	tp->dirty_rx = tp->dirty_tx = 0;
++	
+ 	for (i = 0; i < RX_RING_SIZE; i++)
+ 		tp->rx_ring[i].status = cpu_to_le32(DescOwned);
+ 	for (i = 0; i < TX_RING_SIZE; i++) {
+@@ -1390,16 +1419,20 @@
+ 	}
+ #endif
+ 	if (tp->flags & MC_HASH_ONLY) {
++
+ 		u32 addr_low = cpu_to_le32(get_unaligned((u32 *)dev->dev_addr));
+ 		u32 addr_high = cpu_to_le32(get_unaligned((u16 *)(dev->dev_addr+4)));
++
+ 		if (tp->chip_id == AX88140) {
+ 			outl(0, ioaddr + CSR13);
+ 			outl(addr_low,  ioaddr + CSR14);
+ 			outl(1, ioaddr + CSR13);
+ 			outl(addr_high, ioaddr + CSR14);
+ 		} else if (tp->chip_id == COMET || tp->chip_id == CENTAUR) {
++#ifndef CONFIG_OPENBLOCKS
+ 			outl(addr_low,  ioaddr + 0xA4);
+ 			outl(addr_high, ioaddr + 0xA8);
++#endif
+ 			outl(0, ioaddr + 0xAC);
+ 			outl(0, ioaddr + 0xB0);
+ 		}
+@@ -1407,6 +1440,7 @@
+ 		/* This is set_rx_mode(), but without starting the transmitter. */
+ 		u16 *eaddrs = (u16 *)dev->dev_addr;
+ 		u16 *setup_frm = &tp->setup_frame[15*6];
++		dma_addr_t mapping;
+ 
+ 		/* 21140 bug: you must add the broadcast address. */
+ 		memset(tp->setup_frame, 0xff, 96*sizeof(u16));
+@@ -1414,19 +1448,22 @@
+ 		*setup_frm++ = eaddrs[0]; *setup_frm++ = eaddrs[0];
+ 		*setup_frm++ = eaddrs[1]; *setup_frm++ = eaddrs[1];
+ 		*setup_frm++ = eaddrs[2]; *setup_frm++ = eaddrs[2];
++		
++		mapping = pci_map_single(tp->pdev, tp->setup_frame,
++					 			 sizeof(tp->setup_frame),
++					 			 PCI_DMA_TODEVICE);
++		tp->tx_skbuff[0] = 0;
++		tp->tx_mapping[0] = mapping;
+ 		/* Put the setup frame on the Tx list. */
+ 		tp->tx_ring[0].length = cpu_to_le32(0x08000000 | 192);
+ 		if (tp->chip_id == X3201_3)
+ 			tp->tx_ring[0].length |= cpu_to_le32(0x60000000);
+-		tp->tx_ring[0].buffer1 = virt_to_le32desc(tp->setup_frame);
++		tp->tx_ring[0].buffer1 = cpu_to_le32(mapping);
+ 		tp->tx_ring[0].status = cpu_to_le32(DescOwned);
+ 
+ 		tp->cur_tx++;
+ 	}
+ 
+-	outl(virt_to_bus(tp->rx_ring), ioaddr + CSR3);
+-	outl(virt_to_bus(tp->tx_ring), ioaddr + CSR4);
+-
+ 	tp->saved_if_port = dev->if_port;
+ 	if (dev->if_port == 0)
+ 		dev->if_port = tp->default_port;
+@@ -1532,12 +1569,16 @@
+ 
+ 	/* Start the chip's Tx to process setup frame. */
+ 	outl_CSR6(tp->csr6, ioaddr, tp->chip_id);
++	barrier();
++	udelay(5);
+ 	outl_CSR6(tp->csr6 | 0x2000, ioaddr, tp->chip_id);
+ 
+ 	/* Enable interrupts by setting the interrupt mask. */
+ 	outl(tulip_tbl[tp->chip_id].valid_intrs, ioaddr + CSR5);
+ 	outl(tulip_tbl[tp->chip_id].valid_intrs, ioaddr + CSR7);
+ 	outl_CSR6(tp->csr6 | 0x2002, ioaddr, tp->chip_id);
++	barrier();
++	(void) inl(ioaddr + CSR6); /* mmio sync */
+ 	outl(0, ioaddr + CSR2);		/* Rx poll demand */
+ 
+ 	if (tulip_debug > 2) {
+@@ -1567,6 +1608,18 @@
+ 	if (request_irq(dev->irq, &tulip_interrupt, SA_SHIRQ, dev->name, dev))
+ 		return -EAGAIN;
+ 
++	tp->rx_ring = pci_alloc_consistent(tp->pdev,
++									   sizeof(struct tulip_rx_desc) * RX_RING_SIZE +
++					   				   sizeof(struct tulip_tx_desc) * TX_RING_SIZE,
++					   				   &tp->rx_ring_dma);
++	if (!tp->rx_ring) {
++		printk(KERN_ERR "DMA alloc failed\n");
++		return -ENODEV;
++	}
++	
++	tp->tx_ring = (struct tulip_tx_desc *)(tp->rx_ring + RX_RING_SIZE);
++	tp->tx_ring_dma = tp->rx_ring_dma + sizeof(struct tulip_rx_desc) * RX_RING_SIZE;
++	
+ 	tulip_init_ring(dev);
+ 
+ 	tulip_up(dev);
+@@ -1991,7 +2044,11 @@
+ 			select_media(dev, 0);
+ 			/* Restart the transmit process. */
+ 			outl_CSR6(tp->csr6 | 0x0002, ioaddr, tp->chip_id);
++			barrier();
++			(void) inl(ioaddr + CSR6); /* mmio sync */
+ 			outl_CSR6(tp->csr6 | 0x2002, ioaddr, tp->chip_id);
++			barrier();
++			(void) inl(ioaddr + CSR6); /* mmio sync */
+ 			next_tick = (24*HZ)/10;
+ 			break;
+ 		}
+@@ -2380,7 +2437,7 @@
+ {
+ 	struct tulip_private *tp = (struct tulip_private *)dev->priv;
+ 	long ioaddr = dev->base_addr;
+-
++	
+ 	if (media_cap[dev->if_port] & MediaIsMII) {
+ 		/* Do nothing -- the media monitor should handle this. */
+ 		if (tulip_debug > 1)
+@@ -2470,7 +2527,11 @@
+ 
+ 	/* Stop and restart the chip's Tx processes . */
+ 	outl_CSR6(tp->csr6 | 0x0002, ioaddr, tp->chip_id);
++	barrier();
++	(void) inl(ioaddr + CSR6); /* mmio sync */
+ 	outl_CSR6(tp->csr6 | 0x2002, ioaddr, tp->chip_id);
++	barrier();
++	(void) inl(ioaddr + CSR6); /* mmio sync */
+ 	/* Trigger an immediate transmit demand. */
+ 	outl(0, ioaddr + CSR1);
+ 
+@@ -2489,14 +2550,16 @@
+ 	for (i = 0; i < RX_RING_SIZE; i++) {
+ 		tp->rx_ring[i].status = 0x00000000;
+ 		tp->rx_ring[i].length = cpu_to_le32(PKT_BUF_SZ);
+-		tp->rx_ring[i].buffer2 = virt_to_le32desc(&tp->rx_ring[i+1]);
++		tp->rx_ring[i].buffer2 = cpu_to_le32(tp->rx_ring_dma + sizeof(struct tulip_rx_desc) * (i + 1));
+ 		tp->rx_skbuff[i] = NULL;
++		tp->rx_mapping[i] = 0;
+ 	}
+ 	/* Mark the last entry as wrapping the ring. */
+ 	tp->rx_ring[i-1].length = cpu_to_le32(PKT_BUF_SZ | DESC_RING_WRAP);
+-	tp->rx_ring[i-1].buffer2 = virt_to_le32desc(&tp->rx_ring[0]);
++	tp->rx_ring[i-1].buffer2 = cpu_to_le32(tp->rx_ring_dma);
+ 
+ 	for (i = 0; i < RX_RING_SIZE; i++) {
++		dma_addr_t mapping;
+ 		/* Note the receive buffer must be longword aligned.
+ 		   dev_alloc_skb() provides 16 byte alignment.  But do *not*
+ 		   use skb_reserve() to align the IP header! */
+@@ -2504,9 +2567,12 @@
+ 		tp->rx_skbuff[i] = skb;
+ 		if (skb == NULL)
+ 			break;
++		mapping = pci_map_single(tp->pdev, skb->tail,
++					 PKT_BUF_SZ, PCI_DMA_FROMDEVICE);
++		tp->rx_mapping[i] = mapping;
+ 		skb->dev = dev;			/* Mark as being used by this device. */
+ 		tp->rx_ring[i].status = cpu_to_le32(DescOwned);	/* Owned by Tulip chip */
+-		tp->rx_ring[i].buffer1 = virt_to_le32desc(skb->tail);
++		tp->rx_ring[i].buffer1 = cpu_to_le32(mapping);
+ 	}
+ 	tp->dirty_rx = (unsigned int)(i - RX_RING_SIZE);
+ 
+@@ -2514,14 +2580,17 @@
+ 	   do need to clear the ownership bit. */
+ 	for (i = 0; i < TX_RING_SIZE; i++) {
+ 		tp->tx_skbuff[i] = 0;
++		tp->tx_mapping[i] = 0;
+ 		tp->tx_ring[i].status = 0x00000000;
+-		tp->tx_ring[i].buffer2 = virt_to_le32desc(&tp->tx_ring[i+1]);
++		tp->tx_ring[i].buffer2 = cpu_to_le32(tp->tx_ring_dma + sizeof(struct tulip_tx_desc) * (i + 1));
+ #ifdef CARDBUS
++#ifndef CONFIG_OPENBLOCKS
+ 		if (tp->chip_id == X3201_3)
++#endif
+ 			tp->tx_aligned_skbuff[i] = dev_alloc_skb(PKT_BUF_SZ);
+ #endif
+ 	}
+-	tp->tx_ring[i-1].buffer2 = virt_to_le32desc(&tp->tx_ring[0]);
++	tp->tx_ring[i-1].buffer2 = cpu_to_le32(tp->tx_ring_dma);
+ }
+ 
+ static int
+@@ -2530,23 +2599,38 @@
+ 	struct tulip_private *tp = (struct tulip_private *)dev->priv;
+ 	int entry;
+ 	u32 flag;
++	dma_addr_t mapping;
++	unsigned long eflags;
+ 
+ 	tx_timeout_check(dev, tulip_tx_timeout);
+ 
+ 	/* Caution: the write order is important here, set the field
+ 	   with the ownership bits last. */
++	   
++	spin_lock_irqsave(&tp->lock, eflags);
+ 
+ 	/* Calculate the next Tx descriptor entry. */
+ 	entry = tp->cur_tx % TX_RING_SIZE;
+ 
+ 	tp->tx_skbuff[entry] = skb;
++	
++#ifdef CONFIG_OPENBLOCKS
++	memcpy(tp->tx_aligned_skbuff[entry]->data, skb->data, skb->len);
++	mapping = pci_map_single(tp->pdev, tp->tx_aligned_skbuff[entry]->data,
++							 skb->len, PCI_DMA_TODEVICE);
++#else
+ #ifdef CARDBUS
+ 	if (tp->chip_id == X3201_3) {
+-		memcpy(tp->tx_aligned_skbuff[entry]->data,skb->data,skb->len);
+-		tp->tx_ring[entry].buffer1 = virt_to_le32desc(tp->tx_aligned_skbuff[entry]->data);
++		memcpy(tp->tx_aligned_skbuff[entry]->data, skb->data, skb->len);
++		mapping = pci_map_single(tp->pdev, tp->tx_aligned_skbuff[entry]->data,
++							 	 skb->len, PCI_DMA_TODEVICE);
+ 	} else
+ #endif
+-	tp->tx_ring[entry].buffer1 = virt_to_le32desc(skb->data);
++	mapping = pci_map_single(tp->pdev, skb->data,
++							 skb->len, PCI_DMA_TODEVICE);
++#endif
++	tp->tx_ring[entry].buffer1 = cpu_to_le32(mapping);
++	tp->tx_mapping[entry] = mapping;
+ 
+ 	if (tp->cur_tx - tp->dirty_tx < TX_RING_SIZE/2) {/* Typical path */
+ 		flag = 0x60000000; /* No interrupt */
+@@ -2563,14 +2647,19 @@
+ 
+ 	tp->tx_ring[entry].length = cpu_to_le32(skb->len | flag);
+ 	tp->tx_ring[entry].status = cpu_to_le32(DescOwned);
++	wmb();
++	
+ 	tp->cur_tx++;
+ 	if ( ! tp->tx_full)
+ 		netif_start_queue(dev);
+ 
+-	dev->trans_start = jiffies;
+ 	/* Trigger an immediate transmit demand. */
+ 	outl(0, dev->base_addr + CSR1);
+ 
++	spin_unlock_irqrestore(&tp->lock, eflags);
++	
++	dev->trans_start = jiffies;
++	
+ 	return 0;
+ }
+ 
+@@ -2615,6 +2704,8 @@
+ 
+ 		if (csr5 & (TxNoBuf | TxDied | TxIntr | TimerInt)) {
+ 			unsigned int dirty_tx;
++			
++			spin_lock(&tp->lock);
+ 
+ 			for (dirty_tx = tp->dirty_tx; tp->cur_tx - dirty_tx > 0;
+ 				 dirty_tx++) {
+@@ -2624,9 +2715,15 @@
+ 				if (status < 0)
+ 					break;			/* It still has not been Txed */
+ 				/* Check for Rx filter setup frames. */
+-				if (tp->tx_skbuff[entry] == NULL)
+-				  continue;
+-
++				if (tp->tx_skbuff[entry] == NULL) {
++					if (tp->tx_mapping[entry])
++						pci_unmap_single(tp->pdev,
++							 tp->tx_mapping[entry],
++							 sizeof(tp->setup_frame),
++							 PCI_DMA_TODEVICE);
++				  	continue;
++				}
++				
+ 				if ((tp->chip_id == X3201_3) && tp->full_duplex &&
+ 					((status & 0xcf86) == 0x8800))
+ 					status &= ~0x8800;
+@@ -2658,9 +2755,14 @@
+ 					tp->stats.tx_packets++;
+ 				}
+ 
++				pci_unmap_single(tp->pdev, tp->tx_mapping[entry],
++						 tp->tx_skbuff[entry]->len,
++						 PCI_DMA_TODEVICE);
++						 
+ 				/* Free the original skb. */
+ 				dev_kfree_skb_irq(tp->tx_skbuff[entry]);
+ 				tp->tx_skbuff[entry] = 0;
++				tp->tx_mapping[entry] = 0;
+ 				tx++;
+ 			}
+ 
+@@ -2685,8 +2787,13 @@
+ 						   "  CSR5 is %x, CSR6 %x, new CSR6 %x.\n",
+ 						   dev->name, csr5, inl(ioaddr + CSR6), tp->csr6);
+ 				outl_CSR6(tp->csr6 | 0x0002, ioaddr, tp->chip_id);
++				barrier();
++				(void) inl(ioaddr + CSR6); /* mmio sync */
+ 				outl_CSR6(tp->csr6 | 0x2002, ioaddr, tp->chip_id);
++				barrier();
++				(void) inl(ioaddr + CSR6); /* mmio sync */
+ 			}
++			spin_unlock(&tp->lock);
+ 		}
+ 
+ 		/* Log errors. */
+@@ -2701,13 +2808,19 @@
+ 					tp->csr6 |= 0x00200000;  /* Store-n-forward. */
+ 				/* Restart the transmit process. */
+ 				outl_CSR6(tp->csr6 | 0x0002, ioaddr, tp->chip_id);
++				barrier();
++				(void) inl(ioaddr + CSR6); /* mmio sync */
+ 				outl_CSR6(tp->csr6 | 0x2002, ioaddr, tp->chip_id);
++				barrier();
++				(void) inl(ioaddr + CSR6); /* mmio sync */
+ 				outl(0, ioaddr + CSR1);
+ 			}
+ 			if (csr5 & RxDied) {		/* Missed a Rx frame. */
+ 				tp->stats.rx_errors++;
+ 				tp->stats.rx_missed_errors += inl(ioaddr + CSR8) & 0xffff;
+ 				outl_CSR6(tp->csr6 | 0x2002, ioaddr, tp->chip_id);
++				barrier();
++				(void) inl(ioaddr + CSR6); /* mmio sync */
+ 			}
+ 			if (csr5 & (TPLnkPass | TPLnkFail | 0x08000000)) {
+ 				if (tp->link_change)
+@@ -2786,11 +2899,18 @@
+ 		entry = tp->dirty_rx % RX_RING_SIZE;
+ 		if (tp->rx_skbuff[entry] == NULL) {
+ 			struct sk_buff *skb;
++			dma_addr_t mapping;
++			
+ 			skb = tp->rx_skbuff[entry] = dev_alloc_skb(PKT_BUF_SZ);
+ 			if (skb == NULL)
+ 				break;
++				
++			mapping = pci_map_single(tp->pdev, skb->tail, PKT_BUF_SZ,
++						 PCI_DMA_FROMDEVICE);
++			tp->rx_mapping[entry] = mapping;
++			
+ 			skb->dev = dev;			/* Mark as being used by this device. */
+-			tp->rx_ring[entry].buffer1 = virt_to_le32desc(skb->tail);
++			tp->rx_ring[entry].buffer1 = cpu_to_le32(mapping);
+ 			refilled++;
+ 		}
+ 		tp->rx_ring[entry].status = cpu_to_le32(DescOwned);
+@@ -2857,6 +2977,10 @@
+ 				&& (skb = dev_alloc_skb(pkt_len + 2)) != NULL) {
+ 				skb->dev = dev;
+ 				skb_reserve(skb, 2);	/* 16 byte align the IP header */
++				pci_dma_sync_single(tp->pdev,
++						    tp->rx_mapping[entry],
++						    pkt_len, PCI_DMA_FROMDEVICE);
++
+ #if ! defined(__alpha__)
+ 				eth_copy_and_sum(skb, tp->rx_skbuff[entry]->tail, pkt_len, 0);
+ 				skb_put(skb, pkt_len);
+@@ -2866,15 +2990,21 @@
+ #endif
+ 			} else { 	/* Pass up the skb already on the Rx ring. */
+ 				char *temp = skb_put(skb = tp->rx_skbuff[entry], pkt_len);
+-				tp->rx_skbuff[entry] = NULL;
++				
+ #ifndef final_version
+-				if (le32desc_to_virt(tp->rx_ring[entry].buffer1) != temp)
++				if (le32_to_cpu(tp->rx_ring[entry].buffer1) !=
++					tp->rx_mapping[entry])
+ 					printk(KERN_ERR "%s: Internal fault: The skbuff addresses "
+ 						   "do not match in tulip_rx: %p vs. %p / %p.\n",
+ 						   dev->name,
+-						   le32desc_to_virt(tp->rx_ring[entry].buffer1),
++						   tp->rx_mapping[entry],
+ 						   skb->head, temp);
+ #endif
++				pci_unmap_single(tp->pdev, tp->rx_mapping[entry],
++						 PKT_BUF_SZ, PCI_DMA_FROMDEVICE);
++						 
++				tp->rx_skbuff[entry] = NULL;
++				tp->rx_mapping[entry] = 0;
+ 			}
+ 			skb->protocol = eth_type_trans(skb, dev);
+ 			netif_rx(skb);
+@@ -2896,11 +3026,16 @@
+ {
+ 	long ioaddr = dev->base_addr;
+ 	struct tulip_private *tp = (struct tulip_private *)dev->priv;
++	unsigned long flags;
+ 
++	spin_lock_irqsave (&tp->lock, flags);
++	
+ 	/* Disable interrupts by clearing the interrupt mask. */
+ 	outl(0x00000000, ioaddr + CSR7);
+ 	/* Stop the chip's Tx and Rx processes. */
+ 	outl_CSR6(inl(ioaddr + CSR6) & ~0x2002, ioaddr, tp->chip_id);
++	barrier();
++	(void) inl(ioaddr + CSR6); /* mmio sync */
+ 	/* 21040 -- Leave the card in 10baseT state. */
+ 	if (tp->chip_id == DC21040)
+ 		outl(0x00000004, ioaddr + CSR13);
+@@ -2908,6 +3043,8 @@
+ 	if (inl(ioaddr + CSR6) != 0xffffffff)
+ 		tp->stats.rx_missed_errors += inl(ioaddr + CSR8) & 0xffff;
+ 
++	spin_unlock_irqrestore (&tp->lock, flags);
++	
+ 	del_timer(&tp->timer);
+ 
+ 	dev->if_port = tp->saved_if_port;
+@@ -2940,21 +3077,33 @@
+ 	/* Free all the skbuffs in the Rx queue. */
+ 	for (i = 0; i < RX_RING_SIZE; i++) {
+ 		struct sk_buff *skb = tp->rx_skbuff[i];
++		dma_addr_t mapping = tp->rx_mapping[i];
++		
+ 		tp->rx_skbuff[i] = 0;
++		tp->rx_mapping[i] = 0;
+ 		tp->rx_ring[i].status = 0;		/* Not owned by Tulip chip. */
+ 		tp->rx_ring[i].length = 0;
+ 		tp->rx_ring[i].buffer1 = 0xBADF00D0; /* An invalid address. */
++
+ 		if (skb) {
+ #if LINUX_VERSION_CODE < 0x20100
+ 			skb->free = 1;
+ #endif
++			pci_unmap_single(tp->pdev, mapping, PKT_BUF_SZ,
++					 PCI_DMA_FROMDEVICE);
+ 			dev_free_skb(skb);
+ 		}
+ 	}
+ 	for (i = 0; i < TX_RING_SIZE; i++) {
+-		if (tp->tx_skbuff[i])
++		struct sk_buff *skb = tp->tx_skbuff[i];
++		
++		if (skb) {
++			pci_unmap_single(tp->pdev, tp->tx_mapping[i],
++					 skb->len, PCI_DMA_TODEVICE);
+ 			dev_free_skb(tp->tx_skbuff[i]);
++		}
+ 		tp->tx_skbuff[i] = 0;
++		tp->tx_mapping[i] = 0;
+ #ifdef CARDBUS
+ 		if (tp->tx_aligned_skbuff[i])
+ 			dev_free_skb(tp->tx_aligned_skbuff[i]);
+@@ -2962,6 +3111,11 @@
+ #endif
+ 	}
+ 
++	pci_free_consistent (tp->pdev,
++			     		 sizeof (struct tulip_rx_desc) * RX_RING_SIZE +
++			     		 sizeof (struct tulip_tx_desc) * TX_RING_SIZE,
++			     		 tp->rx_ring, tp->rx_ring_dma);
++			     
+ 	MOD_DEC_USE_COUNT;
+ 	tp->open = 0;
+ 	return 0;
+@@ -2972,8 +3126,15 @@
+ 	struct tulip_private *tp = (struct tulip_private *)dev->priv;
+ 	long ioaddr = dev->base_addr;
+ 
+-	if (netif_device_present(dev))
++	if (netif_device_present(dev)) {
++		unsigned long flags;
++
++		spin_lock_irqsave (&tp->lock, flags);
++		
+ 		tp->stats.rx_missed_errors += inl(ioaddr + CSR8) & 0xffff;
++		
++		spin_unlock_irqrestore(&tp->lock, flags);
++	}
+ 
+ 	return &tp->stats;
+ }
+@@ -3141,12 +3302,13 @@
+ 			unsigned long flags;
+ 			unsigned int entry, dummy = -1;
+ 
+-			save_flags(flags); cli();
++			spin_lock_irqsave(&tp->lock, flags);
+ 			entry = tp->cur_tx++ % TX_RING_SIZE;
+ 
+ 			if (entry != 0) {
+ 				/* Avoid a chip errata by prefixing a dummy entry. */
+ 				tp->tx_skbuff[entry] = 0;
++				tp->tx_mapping[entry] = 0;
+ 				tp->tx_ring[entry].length =
+ 					(entry == TX_RING_SIZE-1) ? cpu_to_le32(DESC_RING_WRAP) : 0;
+ 				tp->tx_ring[entry].buffer1 = 0;
+@@ -3156,11 +3318,16 @@
+ 			}
+ 
+ 			tp->tx_skbuff[entry] = 0;
++			tp->tx_mapping[entry] =
++				pci_map_single(tp->pdev, tp->setup_frame,
++					       sizeof(tp->setup_frame),
++					       PCI_DMA_TODEVICE);
+ 			/* Put the setup frame on the Tx list. */
+ 			if (entry == TX_RING_SIZE-1)
+ 				tx_flags |= DESC_RING_WRAP;		/* Wrap ring. */
+ 			tp->tx_ring[entry].length = cpu_to_le32(tx_flags);
+-			tp->tx_ring[entry].buffer1 = virt_to_le32desc(tp->setup_frame);
++			tp->tx_ring[entry].buffer1 =
++				cpu_to_le32(tp->tx_mapping[entry]);
+ 			tp->tx_ring[entry].status = cpu_to_le32(DescOwned);
+ 			if (tp->cur_tx - tp->dirty_tx >= TX_RING_SIZE - 2) {
+ 				netif_stop_queue(dev);
+@@ -3168,7 +3335,7 @@
+ 			}
+ 			if (dummy >= 0)
+ 				tp->tx_ring[dummy].status = cpu_to_le32(DescOwned);
+-			restore_flags(flags);
++			spin_unlock_irqrestore(&tp->lock, flags);
+ 			/* Trigger an immediate transmit demand. */
+ 			outl(0, ioaddr + CSR1);
+ 		}
+diff -Naru pcmcia-cs.orig/modules/cardbus.c pcmcia-cs/modules/cardbus.c
+--- pcmcia-cs.orig/modules/cardbus.c	2003-12-13 02:13:39.000000000 +0900
++++ pcmcia-cs/modules/cardbus.c	2004-02-02 12:52:25.000000000 +0900
+@@ -1,6 +1,10 @@
+ /*======================================================================
+   
+     Cardbus device configuration
++
++    Modified 2003/06/17
++        Plat'C2,Inc.
++        Special thanks to Mr.Umeno
+     
+     cardbus.c 1.90 2003/12/12 17:13:39
+ 
+@@ -325,16 +329,18 @@
+     cb_config_t *c;
+     struct pci_dev tmp;
+     int i;
+-
+     if (s->cb_config)
+ 	return CS_SUCCESS;
++	
+     tmp.bus = s->cap.cb_bus; tmp.devfn = 0;
++#ifdef CONFIG_PPC
++    tmp.sysdata = (void *)pci_bus_to_hose(s->cap.cb_bus->number);
++#endif
+ #ifdef NEWER_LINUX_PCI
+     list_add(&tmp.global_list, &pci_devices);
+ #else
+     tmp.next = pci_devices; pci_devices = &tmp;
+ #endif
+-
+     /* The APA1480 did not like reading the vendor ID first */
+     pci_readw(&tmp, PCI_DEVICE_ID, &dev);
+     pci_readw(&tmp, PCI_VENDOR_ID, &vend);
+@@ -360,6 +366,10 @@
+     for (i = 0; i < fn; i++) {
+ 	c[i].dev.bus = s->cap.cb_bus;
+ 	c[i].dev.devfn = i;
++#ifdef CONFIG_PPC
++	c[i].dev.sysdata = (void *)pci_bus_to_hose(s->cap.cb_bus->number);
++	c[i].dev.dma_mask = 0xffffffff;
++#endif
+ #ifdef NEWER_LINUX_PCI
+ 	list_add_tail(&c[i].dev.bus_list, &s->cap.cb_bus->devices); 
+ 	list_add_tail(&c[i].dev.global_list, &pci_devices);

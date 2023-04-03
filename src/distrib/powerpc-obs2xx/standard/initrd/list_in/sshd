@@ -1,0 +1,7 @@
+#	$ssdlinux: sshd,v 1.1 2004/12/02 01:54:33 todoroki Exp $
+
+BCOPY	@UTILSDIR@/x_sshd/sshd				usr/sbin/sshd
+BCOPY	@SRCTOPDIR@/usr.bin/ssh/ssh-keygen/ssh-keygen	usr/bin/ssh-keygen
+BCOPY	@SRCTOPDIR@/lib/ssl/libcrypto/libcrypto.so.0	usr/lib/libcrypto.so.0
+ECOPY	600 @SRCTOPDIR@/etc/common/ssh/sshd_config	etc/ssh/sshd_config
+ECOPY	444 @SRCTOPDIR@/dist/openssh/moduli		etc/ssh/moduli

@@ -1,0 +1,16 @@
+#	$ssdlinux: zebra,v 1.1 2004/12/02 01:54:33 todoroki Exp $
+
+BCOPY	@SRCTOPDIR@/usr.sbin/zebra/bgpd/bgpd		usr/sbin/bgpd
+BCOPY	@SRCTOPDIR@/usr.sbin/zebra/ospf6d/ospf6d	usr/sbin/ospf6d
+BCOPY	@SRCTOPDIR@/usr.sbin/zebra/ospfd/ospfd		usr/sbin/ospfd
+BCOPY	@SRCTOPDIR@/usr.sbin/zebra/ripd/ripd		usr/sbin/ripd
+BCOPY	@SRCTOPDIR@/usr.sbin/zebra/ripngd/ripngd	usr/sbin/ripngd
+BCOPY	@SRCTOPDIR@/usr.sbin/zebra/vtysh/vtysh		usr/sbin/vtysh
+BCOPY	@SRCTOPDIR@/usr.sbin/zebra/zebra/zebra		usr/sbin/zebra
+ECOPY	600 @SRCTOPDIR@/dist/zebra/bgpd/bgpd.conf.sample	etc/bgpd.conf
+ECOPY	600 @SRCTOPDIR@/dist/zebra/ospf6d/ospf6d.conf.sample	etc/ospf6d.conf
+ECOPY	600 @SRCTOPDIR@/dist/zebra/ospfd/ospfd.conf.sample	etc/ospfd.conf
+ECOPY	600 @SRCTOPDIR@/dist/zebra/ripd/ripd.conf.sample	etc/ripd.conf
+ECOPY	600 @SRCTOPDIR@/dist/zebra/ripngd/ripngd.conf.sample	etc/ripngd.conf
+ECOPY	600 @SRCTOPDIR@/dist/zebra/vtysh/vtysh.conf.sample	etc/vtysh.conf
+ECOPY	600 @SRCTOPDIR@/dist/zebra/zebra/zebra.conf.sample	etc/zebra.conf

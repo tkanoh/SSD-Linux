@@ -1,0 +1,7 @@
+#	$ssdlinux: Makefile.ldflags,v 1.1 2004/10/18 05:33:08 yamagata Exp $
+
+LIBFINDDIR=	${.CURDIR}/../../lib/findutils
+LDADD+=		-L${LIBFINDDIR}/lib -lfind
+LDADD+=		-L${LIBFINDDIR}/gnulib -lgnulib
+DPADD+=		${LIBFINDDIR}/lib/libfind.a
+DPADD+=		${LIBFINDDIR}/gnulib/libgnulib.a

@@ -1,0 +1,12 @@
+diff -Naru madwifi-20041029.orig/ath/if_ath_pci.c madwifi-20041029/ath/if_ath_pci.c
+--- madwifi-20041029.orig/ath/if_ath_pci.c	2004-10-23 04:58:09.000000000 +0900
++++ madwifi-20041029/ath/if_ath_pci.c	2004-11-06 05:19:26.000000000 +0900
+@@ -177,7 +177,7 @@
+ 	sc->aps_sc.sc_invalid = 1;
+ 
+ 	dev = &sc->aps_sc.sc_dev;	/* XXX blech, violate layering */
+-	memcpy(dev->name, "ath%d", sizeof("ath%d"));
++	memcpy(dev->name, "eth%d", sizeof("eth%d"));
+ 
+ 	dev->irq = pdev->irq;
+ 	dev->mem_start = mem;

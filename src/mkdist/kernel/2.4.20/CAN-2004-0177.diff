@@ -1,0 +1,10 @@
+--- linux/fs/jbd/journal.c.orig	2002-12-11 11:39:34.000000000 +0900
++++ linux/fs/jbd/journal.c	2004-04-16 15:31:41.000000000 +0900
+@@ -671,6 +671,7 @@
+ 
+ 	bh = getblk(journal->j_dev, blocknr, journal->j_blocksize);
+ 	lock_buffer(bh);
++	memset(bh->b_data, 0, journal->j_blocksize);
+ 	BUFFER_TRACE(bh, "return this buffer");
+ 	return journal_add_journal_head(bh);
+ }

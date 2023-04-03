@@ -1,0 +1,35 @@
+#!/bin/sh
+#	$ssdlinux: rc.in,v 1.7 2004/08/17 01:56:51 todoroki Exp $
+
+/bin/hostname SSD-Linux
+/sbin/mount -n -o remount,rw /
+>/etc/mtab
+/sbin/mount -f /
+/sbin/mount -a
+/sbin/ifconfig lo 127.0.0.1
+/usr/sbin/portmap
+/sbin/depmod -a
+/sbin/ifconfig -a | /usr/bin/grep -q eth0
+if [ $? -ne 0 ] ; then
+  /sbin/modprobe pcmcia_core
+  /sbin/modprobe i82365
+  if [ ! $? = 0 ]; then
+    /sbin/modprobe tcic
+  fi
+  if [ ! $? = 0 ]; then
+    /sbin/modprobe yenta_socket
+  fi
+  /sbin/modprobe ds
+  /sbin/cardmgr
+fi
+
+echo
+echo "SSD/Linux Ver.@SSDRELEASENAME@ kernel @KERNEL_VERSION@" 
+echo
+echo "Install instruction"
+echo "  Step.1  Login 'root'."
+echo "  Step.2  Run 'fdisk' and setup disk partition."
+echo "  Step.3  Run 'sysinst'"
+echo
+
+#exec /bin/sh

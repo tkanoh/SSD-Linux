@@ -1,0 +1,13 @@
+diff -Naru glibc.orig/sysdeps/unix/sysv/linux/getdents.c glibc/sysdeps/unix/sysv/linux/getdents.c
+--- glibc.orig/sysdeps/unix/sysv/linux/getdents.c	2002-06-22 14:40:19.000000000 +0900
++++ glibc/sysdeps/unix/sysv/linux/getdents.c	2004-04-06 16:02:50.000000000 +0900
+@@ -171,6 +171,9 @@
+ 		      __lseek64 (fd, last_offset, SEEK_SET);
+ 		      return (char *) dp - buf;
+ 		    }
++                  if ((sizeof (dp->d_ino) != sizeof (kdp->d_ino)
++                       && dp->d_ino != d_ino))
++                        __set_errno (d_ino);
+ 		  __set_errno (EOVERFLOW);
+ 		  return -1;
+ 		}

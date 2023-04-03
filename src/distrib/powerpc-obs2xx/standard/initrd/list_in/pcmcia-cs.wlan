@@ -1,0 +1,14 @@
+#	$ssdlinux: pcmcia-cs.wlan,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+# 802.11b
+COPY	@MODULESDIR@/pcmcia/hermes.o.gz		lib/modules/@KERNEL_VERSION@/pcmcia/hermes.o.gz
+COPY	@MODULESDIR@/pcmcia/orinoco.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/orinoco.o.gz
+COPY	@MODULESDIR@/pcmcia/orinoco_cs.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/orinoco_cs.o.gz
+BCOPY	@SRCTOPDIR@/sbin/iwconfig/iwconfig	sbin/iwconfig
+BCOPY	@SRCTOPDIR@/lib/libiw/libiw.so.27	usr/lib/libiw.so.27
+BCOPY	@SRCTOPDIR@/usr.sbin/ifrename/ifrename	usr/sbin/ifrename
+BCOPY	@SRCTOPDIR@/usr.sbin/iwevent/iwevent	usr/sbin/iwevent
+BCOPY	@SRCTOPDIR@/usr.sbin/iwgetid/iwgetid	usr/sbin/iwgetid
+BCOPY	@SRCTOPDIR@/usr.sbin/iwlist/iwlist	usr/sbin/iwlist
+BCOPY	@SRCTOPDIR@/usr.sbin/iwpriv/iwpriv	usr/sbin/iwpriv
+BCOPY	@SRCTOPDIR@/usr.sbin/iwspy/iwspy	usr/sbin/iwspy

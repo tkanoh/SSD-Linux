@@ -1,0 +1,8 @@
+#	$ssdlinux: Src-common,v 1.1.1.1 2002/05/02 13:37:05 kanoh Exp $
+#	$NetBSD: Src-common,v 1.6 2001/04/06 06:39:54 simonb Exp $
+
+COMSRCS= parse.c dispatch.c conflex.c bpf.c socket.c packet.c \
+	 ethernet.c memory.c print.c options.c inet.c convert.c \
+	 tree.c tables.c alloc.c dns.c execute.c discover.c fddi.c \
+	 comapi.c
+COMSRCS+= lpf.c upf.c tr.c ctrace.c

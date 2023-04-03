@@ -1,0 +1,4 @@
+#	$ssdlinux: httpd,v 1.2 2004/12/06 09:50:40 todoroki Exp $
+
+BCOPY	@SRCTOPDIR@/contrib/thttpd/thttpd/thttpd		usr/contrib/sbin/thttpd
+BCOPY	@SRCTOPDIR@/contrib/thttpd/htpasswd/htpasswd		usr/contrib/sbin/htpasswd

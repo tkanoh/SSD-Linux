@@ -1,0 +1,23 @@
+#	$ssdlinux: Makefile.cflags,v 1.2 2004/06/17 14:40:23 kanoh Exp $
+
+DIST=		${.CURDIR}/../../../dist/usagi-tool/src/radvd
+.PATH:		${DIST}
+
+# See ${DIST}/VERSION
+VERSION=	0.7.1
+
+LOG_FACILITY=		LOG_DAEMON
+PATH_RADVD_CONF=	/etc/radvd.conf
+PATH_RADVD_LOG=		/var/log/radvd.log
+PATH_RADVD_PID=		/var/run/radvd.pid
+
+CPPFLAGS+=	-DPATH_RADVD_CONF=\"${PATH_RADVD_CONF}\"
+CPPFLAGS+=	-DPATH_RADVD_LOG=\"${PATH_RADVD_LOG}\"
+CPPFLAGS+=	-DLOG_FACILITY=${LOG_FACILITY}
+CPPFLAGS+=	-DPATH_RADVD_PID=\"${PATH_RADVD_PID}\"
+CPPFLAGS+=	-DVERSION=\"${VERSION}\"
+CPPFLAGS+=	-DINET6=1
+CPPFLAGS+=	-I${.CURDIR}/../common
+CPPFLAGS+=	-I${DIST}
+
+NOGCCERROR=	yes

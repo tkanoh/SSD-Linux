@@ -1,0 +1,71 @@
+#!/bin/sh
+#	$ssdlinux: rc.reboot,v 1.2 2003/07/01 06:17:40 yamagata Exp $
+
+if [ -f /etc/rc.conf ]; then
+	. /etc/rc.conf
+fi
+
+# insert a line for each network card you use here. This is an example for
+#  a single network card set-up (configured as eth0):
+#
+# echo "Bringing down network interface eth0..."
+# /sbin/ifconfig eth0 down
+
+echo "Unmounting remote filesystems..."
+/sbin/umount -a -f -tnfs
+
+echo "Sending all processes the TERM signal..."
+/sbin/killall5 -15
+sleep 1
+
+echo "Sending all processes the KILL signal..."
+/sbin/killall5 -9
+sleep 1
+
+case "$0" in
+	*.single)
+		exit
+esac
+
+echo "Deactivating swap partitions..."
+/sbin/swapoff -a
+
+echo "Saving random seed to a temporary file..."
+/bin/dd if=/dev/urandom of=/tmp/random-seed count=1 bs=512 2>/dev/null
+
+if [ -x /sbin/hwclock ]; then
+	if [ -z "$hardwareclock" -a -f /etc/hardwareclock ]; then
+		hardwareclock=`cat /etc/hardwareclock`
+	fi
+	echo "Saving the system time to hardware clock..."
+	/sbin/hwclock --$hardwareclock --systohc
+fi
+
+case "$0" in
+	*.reboot)
+		/sbin/reboot -w
+		;;
+	*.shutdown)
+		/sbin/halt -w
+		;;
+esac
+
+echo "Remounting root filesystem read-only..."
+/sbin/mount -n -o remount,ro /
+
+echo "Unmounting local filesystems..."
+/sbin/umount -a -tnonfs
+
+echo "Flushing filesystem buffers..."
+/bin/sync
+
+case "$0" in
+	*.reboot)
+		echo "Please stand by while rebooting..."
+		/sbin/reboot -d -i
+		;;
+	*.shutdown)
+		echo "Bye..."
+		/sbin/halt -d -i
+		;;
+esac

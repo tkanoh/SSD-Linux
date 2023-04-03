@@ -1,0 +1,29 @@
+#	$ssdlinux: menu.lst.in,v 1.1.1.1 2002/05/02 13:37:05 kanoh Exp $
+
+timeout		10
+default		@DEFALT_INDEX@
+
+title		SSD/Linux Ver.@SSDRELEASENAME@ kernel @KERNEL_VERSION@ Install Boot from CD
+root		(fd0)
+kernel		/@BZIMAGE@ root=/dev/ram
+initrd		/@INITRD_FS_GZ@
+
+title		SSD/Linux Ver.@SSDRELEASENAME@ kernel @KERNEL_VERSION@ Install Boot from floppy
+root		(fd0)
+kernel		/@BZIMAGE@ root=/dev/ram
+pause		Insert instfs floppy disk and type any key.
+initrd		/@INITRD_FS_GZ@
+
+title		SSD/Linux Ver.@SSDRELEASENAME@ kernel @KERNEL_VERSION@ Install Boot from net
+dhcp
+tftpserver 	@TFTPSERVER@
+root		(nd)
+kernel		@TFTPBOOTDIR@/@BZIMAGE@ root=/dev/ram
+initrd		@TFTPBOOTDIR@/@INITRD_FS_GZ@
+
+# Neowork parameters for netboot
+#
+# 	ifconfig --address=@TARGETHOST@ --mask=@NETMASK@ --gateway=@GATEWAY@ --server=@TFTPSERVER@
+# 	bootp
+# 	dhcp
+# 	tftpserver @TFTPSERVER@

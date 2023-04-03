@@ -1,0 +1,6 @@
+#	$ssdlinux: Makefile.cflags,v 1.1 2005/01/06 03:34:10 yamagata Exp $
+
+.if ${KERNEL_PATCHLEVEL} == "26" || ${KERNEL_PATCHLEVEL} == "28"
+CPPFLAGS+=	-DHAVE_FUTIMES=1
+CPPFLAGS+=	-DHAVE_ST_MTIM=1
+.endif

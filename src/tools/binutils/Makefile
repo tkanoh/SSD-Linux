@@ -1,0 +1,18 @@
+#	$ssdlinux: Makefile,v 1.11 2004/06/29 15:56:38 kanoh Exp $
+TOOLCHAIN= yes
+
+.include <bsd.own.mk>
+
+DISTNAME=		binutils
+HAVE_DESTDIR=		1
+CONFIGURE_FULL_PREFIX=	1
+CONFIGURE_ENV=		CFLAGS="-Wall -O2" CXXFLAGS="-Wall -O2" LDFLAGS=-s
+CONFIGURE_OPTIONS=	--enable-threads --verbose
+GMAKE_ENV=
+GMAKE_OPTIONS=
+INSTALL_STRIP=		no
+
+GNU_TARGET=		${TARGET_MACHTYPE}${NEW_GLIBC}
+GNU_WITH_HEADER=	${NEW_GLIBC_HEADER}
+
+.include <bsd.gnu.mk>

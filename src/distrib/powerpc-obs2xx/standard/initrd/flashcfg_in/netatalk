@@ -1,0 +1,5 @@
+#	$ssdlinux: netatalk,v 1.1 2004/12/02 01:54:31 todoroki Exp $
+/usr/contrib/netatalk/etc/afpd.conf
+/usr/contrib/netatalk/etc/atalkd.conf
+/usr/contrib/netatalk/etc/AppleVolumes.default
+/usr/contrib/netatalk/etc/AppleVolumes.system

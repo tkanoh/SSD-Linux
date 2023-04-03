@@ -1,0 +1,61 @@
+#
+# /etc/login.defs - for installer.
+#
+#	$ssdlinux: login.defs,v 1.4 2004/02/25 08:32:35 yamagata Exp $
+#
+FAIL_DELAY		3
+FAILLOG_ENAB		no
+LOG_UNKFAIL_ENAB	no
+LOG_OK_LOGINS		no
+LASTLOG_ENAB		no
+MAIL_CHECK_ENAB		no
+OBSCURE_CHECKS_ENAB	no
+PORTTIME_CHECKS_ENAB	no
+QUOTAS_ENAB		no
+SYSLOG_SU_ENAB		no
+SYSLOG_SG_ENAB		no
+CONSOLE	console:tty1:tty2:tty3:tty4:tty5:tty6
+#SULOG_FILE	/var/log/sulog
+MOTD_FILE	/etc/motd
+#ISSUE_FILE	/etc/issue
+#TTYTYPE_FILE	/etc/ttytype
+FTMP_FILE	/var/log/btmp
+NOLOGINS_FILE	/etc/nologin
+SU_NAME		su
+MAIL_DIR	/var/mail
+HUSHLOGIN_FILE	.hushlogin
+ENV_HZ		HZ=100
+ENV_SUPATH	PATH=/usr/local/sbin:/usr/local/bin:/sbin:/usr/sbin:/bin:/usr/bin
+ENV_PATH	PATH=/usr/local/bin:/bin:/usr/bin
+TTYGROUP	tty
+TTYPERM		0620
+ERASECHAR	0177
+KILLCHAR	025
+UMASK		022
+#ULIMIT		2097152
+PASS_MAX_DAYS	99999
+PASS_MIN_DAYS	0
+PASS_MIN_LEN	5
+PASS_WARN_AGE	7
+SU_WHEEL_ONLY	yes
+#CRACKLIB_DICTPATH	/var/cache/cracklib/cracklib_dict
+UID_MIN			 1000
+UID_MAX			60000
+GID_MIN			  100
+GID_MAX			60000
+LOGIN_RETRIES		5
+LOGIN_TIMEOUT		60
+PASS_CHANGE_TRIES	5
+PASS_ALWAYS_WARN	yes
+#PASS_MAX_LEN		8
+CHFN_AUTH		yes
+CHFN_RESTRICT		frwh
+#LOGIN_STRING		"%s's Password: "
+MD5_CRYPT_ENAB	yes
+#CONSOLE_GROUPS		floppy:audio:cdrom
+DEFAULT_HOME	yes
+ENVIRON_FILE	/etc/environment
+#USERDEL_CMD	/usr/sbin/userdel_local
+#GETPASS_ASTERISKS 1
+USERGROUPS_ENAB yes
+

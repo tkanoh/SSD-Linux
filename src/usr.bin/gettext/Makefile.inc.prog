@@ -1,0 +1,20 @@
+#	$ssdlinux: Makefile.inc.prog,v 1.3 2003/06/03 05:17:09 yamagata Exp $
+
+.include <bsd.own.mk>
+
+.include "${.CURDIR}/../Makefile.inc"
+
+LIBDIR!=	cd ${.CURDIR}/../lib && ${PRINTOBJDIR}
+
+LDADD+=		-L${LIBDIR} -lgettextlib
+DPADD+=		${LIBDIR}/libgettextlib.a
+
+.PATH:		${DIST}/gettext/gettext-tools/src
+CPPFLAGS+=	-DLOCALEDIR=\"/usr/share/locale\" \
+		-DLOCALE_ALIAS_PATH=\"/usr/share/locale\" \
+		-DUSEJEXE=0 -DGETTEXTJEXEDIR=\"/usr/lib/gettext\" \
+		-DGETTEXTJAR=\"/usr/share/gettext/gettext.jar\" \
+		-DLIBDIR=\"/usr/lib\" -DGETTEXTDATADIR=\"/usr/share/gettext\" \
+		-DPROJECTSDIR=\"/usr/share/gettext/projects\"
+CPPFLAGS+=      -I${.CURDIR}/../include
+CPPFLAGS+=	-I${DIST}/gettext/gettext-tools/lib

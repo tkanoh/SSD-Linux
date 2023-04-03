@@ -1,0 +1,23 @@
+#	$ssdlinux: Makefile.cflags,v 1.4 2005/03/10 08:40:56 yamagata Exp $
+
+CPPFLAGS+=	-Wmissing-prototypes -Wformat -DLINUX2
+
+CPPFLAGS+=	-I${DIST}/src/util
+CPPFLAGS+=	-I${DIST}/src/global
+CPPFLAGS+=	-I${DIST}/src/dns
+CPPFLAGS+=	-I${DIST}/src/master
+CPPFLAGS+=	-I${DIST}/src/tls
+
+POSTFIXLIBDIR=	${.CURDIR}/../../../lib/postfix
+LDADD+=		-L${POSTFIXLIBDIR}/libmaster -lmaster
+LDADD+=		-L${POSTFIXLIBDIR}/libglobal -lglobal
+LDADD+=		-L${POSTFIXLIBDIR}/libdns -ldns
+LDADD+=		-L${POSTFIXLIBDIR}/libutil -lutil
+LDADD+=		-L${POSTFIXLIBDIR}/libtls -ltls
+LDADD+=		-L${POSTFIXLIBDIR}/../libdb -ldb
+LDADD+=		-lnsl -lresolv
+DPADD+=		${POSTFIXLIBDIR}/libmaster/libmaster.a
+DPADD+=		${POSTFIXLIBDIR}/libglobal/libglobal.a
+DPADD+=		${POSTFIXLIBDIR}/libdns/libdns.a
+DPADD+=		${POSTFIXLIBDIR}/libutil/libutil.a
+DPADD+=		${POSTFIXLIBDIR}/libtls/libtls.a

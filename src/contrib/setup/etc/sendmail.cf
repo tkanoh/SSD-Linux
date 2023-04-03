@@ -1,0 +1,904 @@
+##### SENDMAIL CONFIGURATION FILE for sendmail 8.9 or later
+# level 8 config file format
+V8/Berkeley
+#   Local Information   #
+# local domain name (defined automatically)
+Dmlocaldomain.co.jp
+# local host name without domain (defined automatically)
+#Dwmyname
+# my official SMTP hostname (defined automatically)
+Djmailto.localdomain.co.jp
+# my internet aliases
+#Fw/etc/mail/sendmail.cw
+#Cw myaliasnames
+Cw localhost local 
+# address which should be accepted
+#FZ/etc/mail/sendmail.aa
+CZ $m
+# users who require host.domain
+CS root daemon news usenet postmaster MAILER-DAEMON
+# default from-address (can be $j, $m or another generic address)
+DS$m
+
+# SMTP processing restrictions #
+## upon SMTP authentication
+# CONFIG: clients to be allowed to connect this server
+C{HostAllow} 127.0.0.1
+#C{HostAllow} 12.34.56
+#F{HostAllow} -o /etc/mail/sendmail.allow
+# CONFIG: clients to be rejected to connect this server
+#C{HostDeny} 23.45.67
+#F{HostDeny} -o /etc/mail/sendmail.deny
+# CONFIG: acceptable (no further checking) clients
+C{LocalIP} 127.0.0.1
+#C{LocalIP} 34.56.78
+#F{LocalIP} -o /etc/mail/sendmail.localip
+C{localDom} localhost
+#C{LocalDom} my.local.domain
+#F{LocalDom} -o /etc/mail/sendmail.localdomain
+# CONFIG: acceptable clients (with sender address check)
+#C{ClientIP} 127.0.0.1
+#C{ClientIP} 34.56.78
+#F{ClientIP} -o /etc/mail/sendmail.clientip
+#C{ClientDom} localhost
+#C{ClientDom} my.client.domain
+#F{ClientDom} -o /etc/mail/sendmail.clientdomain
+# CONFIG: acceptable roaming hosts (with sender address check)
+#C{RoamIP} 34.56.78
+#F{RoamIP} -o /etc/mail/sendmail.roamip
+#C{RoamDom} my.romaing.domain
+#F{RoamDom} -o /etc/mail/sendmail.roamdomain
+
+## upon MAIL FROM response
+# CONFIG: list of spammers/spamming domains to be rejected
+Kspamlist null -a@rej@ -o /etc/mail/sendmail.spamlist
+# CONFIG: acceptable MAIL FROM domains (from ClientIP/ClientDom area)
+#C{ClientFrom} local.domain
+#F{ClientFrom} -o /etc/mail/sendmail.clientfrom
+# CONFIG: acceptable users for relaying (from RoamIP/RoamDom area)
+#C{RoamUsers} user1@domain user2@domain
+#F{RoamUsers} -o /etc/mail/sendmail.roamusers
+
+## upon RCPT TO response
+# CONFIG: acceptable destination addresses
+#C{AcceptDom} local.domain
+#F{AcceptDom} -o /etc/mail/sendmail.acceptdomain
+# CONFIG: acceptable addresses to relay from
+#C{RelayFrom} relay.from.domain
+#F{RelayFrom} -o /etc/mail/sendmail.relay.from
+# CONFIG: acceptable addresses to relay to
+#C{RelayTo} relay.to.domain
+#F{RelayTo} -o /etc/mail/sendmail.relay.to
+# CONFIG: list of relay pair (sender!recipient) to be allowed/rejected
+#Krelay  -o /etc/mail/sendmail.relay.map
+
+#C{ClientDenyTo} client.deny.to.domain
+#F{ClientDenyTo} -o /etc/mail/sendmail.deny.to
+# CONFIG: list of inside relay pair (sender!recipient) to be allowed/rejected
+#Krelayinside  -o /etc/mail/sendmail.inside.relay.map
+Krejrcpt null -a@rej@ -o /etc/mail/sendmail.rejrcpt
+# Dequoting map
+Kdeq dequote
+# operators that cannot be in local usernames (i.e., network indicators)
+C@ @ % !
+# dequoting map
+Kdequote dequote
+
+###   Setup Information   ###
+#   General Macros   #
+
+# BITNET relay host/domain name for MX lookup
+DYbitnetjp.ad.jp
+#DYdom.bitnetjp.ad.jp
+
+# need trailing dot for MX lookup
+DX.
+
+#   Classes   #
+
+# Internal ("fake") domains that we use in rewriting
+CX UUCP
+CX BITNET
+# and special terminators
+CX ] .
+
+#   Version Number   #
+
+DZ3.7W1.0
+
+#   Special macros   #
+
+# my name
+DnMAILER-DAEMON
+# format of a total name
+Dq$?x$x <$g>$|$g$.
+
+#   Options   #
+
+# strip message body to 7 bits on input?
+O SevenBitInput=False
+# 8-bit data handling
+O EightBitMode=pass8
+# location of alias file
+O AliasFile=/etc/mail/aliases
+# wait for alias file rebuild (default units: minutes)
+O AliasWait=10
+# maximum message size
+#O MaxMessageSize=1000000
+# substitution for space (blank) characters
+O BlankSub=.
+# minimum number of free blocks on filesystem
+O MinFreeBlocks=100
+# checkpoint queue runs after every N successful deliveries
+O CheckpointInterval=10
+# avoid connecting to "expensive" mailers on initial submission?
+O HoldExpensive=False
+# automatically rebuild the alias database?
+O AutoRebuildAliases=False
+# default delivery mode
+O DeliveryMode=background
+# error message header/file
+#O ErrorHeader=/etc/mail/sendmail.oE
+# error mode
+#O ErrorMode=print
+# temporary file mode
+O TempFileMode=0600
+# save Unix-style "From_" lines at top of header?
+O SaveFromLine=False
+# match recipients against GCOS field?
+O MatchGECOS=False
+# location of help file
+O HelpFile=/usr/lib/sendmail.hf
+# maximum hop count
+O MaxHopCount=25
+# name resolver options
+O ResolverOptions=
+# ignore dots as terminators in incoming messages?
+O IgnoreDots=False
+# Forward file search path
+#O ForwardPath=/var/forward/$u:$z/.forward.$w:$z/.forward
+# deliver MIME-encapsulated error messages?
+O SendMimeErrors=True
+# open connection cache timeout
+O ConnectionCacheTimeout=5m
+# open connection cache size
+O ConnectionCacheSize=2
+# log level
+O LogLevel=9
+# use Errors-To: header?
+O UseErrorsTo=False
+# send to me too, even in an alias expansion?
+O MeToo=True
+# verify RHS in newaliases?
+O CheckAliases=True
+# SMTP daemon options
+#O DaemonPortOptions=Port=esmtp
+# default messages to old style headers if no special punctuation?
+O OldStyleHeaders=True
+# who (if anyone) should get extra copies of error messages
+#O PostMasterCopy=postmaster
+# privacy flags
+O PrivacyOptions=goaway
+# queue directory
+O QueueDirectory=/var/spool/mqueue
+# slope of queue-only function
+#O QueueFactor=600000
+# should we not prune routes in route-addr syntax addresses?
+#O DontPruneRoutes=False
+# timeouts (many of these)
+#O Timeout.initial=5m
+#O Timeout.helo=5m
+#O Timeout.mail=10m
+#O Timeout.rcpt=1h
+#O Timeout.datainit=5m
+#O Timeout.datablock=1h
+#O Timeout.datafinal=1h
+#O Timeout.connect=5m
+#O Timeout.iconnect=5m
+#O Timeout.rset=5m
+#O Timeout.quit=2m
+#O Timeout.misc=2m
+#O Timeout.command=1h
+#O Timeout.ident=30s
+#O Timeout.fileopen=60s
+O Timeout.queuereturn=5d
+#O Timeout.queuereturn.normal=5d
+#O Timeout.queuereturn.urgent=2d
+#O Timeout.queuereturn.non-urgent=7d
+#O Timeout.queuewarn=4h
+#O Timeout.queuewarn.normal=4h
+#O Timeout.queuewarn.urgent=1h
+#O Timeout.queuewarn.non-urgent=12h
+#O Timeout.hoststatus=12h
+# status file
+O StatusFile=/etc/mail/sendmail.st
+# queue up everything before forking?
+O SuperSafe=True
+# time zone handling:
+#  if undefined, use system default
+#  if defined but null, use TZ envariable passed in
+#  if defined and non-null, use that info
+#O TimeZoneSpec=
+# list of locations of user database file (null means no lookup)
+O UserDatabaseSpec=
+# default UID (can be username or userid:groupid)
+O DefaultUser=1:1
+# fallback MX host
+#O FallbackMXhost=fall.back.host.net
+# if we are the best MX host for a site, try it directly instead of config err
+O TryNullMXList=False
+# load average at which we refuse connections
+O RefuseLA=12
+# load average at which we just queue messages
+O QueueLA=8
+# deliver each queued job in a separate process?
+O ForkEachJob=False
+# work recipient factor
+#O RecipientFactor=30000
+# work time factor
+#O RetryFactor=90000
+# work class factor
+#O ClassFactor=1800
+# shall we sort the queue by hostname first?
+#O QueueSortOrder=priority
+# minimum time in queue before retry
+O MinQueueAge=10m
+# default character set
+#O DefaultCharSet=iso-8859-1
+# service switch file (ignored on Solaris, Ultrix, OSF/1, others)
+#O ServiceSwitchFile=/etc/mail/service.switch
+# hosts file (normally /etc/mail/hosts)
+#O HostsFile=/etc/mail/hosts
+# dialup line delay on connection failure
+#O DialDelay=10s
+# action to take if there are no recipients in the message
+#O NoRecipientAction=10s
+# chrooted environment for writing to files
+#O SafeFileEnvironment=/arch
+# are colons OK in addresses?
+O ColonOkInAddr=False
+# how many jobs can you process in the queue?
+#O MaxQueueRunSize=10000
+# shall I avoid expanding CNAMEs (violates protocols)?
+O DontExpandCnames=False
+# SMTP initial login message (old $e macro)
+O SmtpGreetingMessage=$j Sendmail $v/$Z; $b
+# UNIX initial From header format (old $l macro)
+O UnixFromLine=From $g  $d
+# delimiter (operator) characters (old $o macro)
+O OperatorChars=.:%@!^=/[]|+
+# shall I avoid calling initgroups(3) because of high NIS costs?
+O DontInitGroups=False
+# make sure from fits on one line
+#O SingleLineFromHeader=False
+# allow HELO commands with syntax errors
+#O AllowBogusHELO=False
+# connection rate throttle
+#O ConnectionRateThrottle=3
+# group writable files are unsafe
+#O UnsafeGroupWrites=False
+# address to which to send double bounces
+#O DoubleBounceAddress=postmaster
+# persistent host status directory
+#O HostStatusDirectory=.hoststat
+# single thread deliveries (requires hsdir)
+#O SingleThreadDelivery=False
+# run bulk of code as this user
+#O RunAsUser=postmaster
+# maximum number of children we allow at one time
+#O MaxDaemonChildren=12
+# Characters to be quoted in a full name phrase (@,;:\()[] are automatic)
+#O MustQuoteChars=.
+# override file safeties - setting this option compromises system security
+# need to set this now for the sake of class files
+#O DontBlameSendmail=safe
+# shall we get local names from our installed interfaces?
+#O DontProbeInterfaces=False
+# maximum number of recipients per SMTP envelope
+#O MaxRecipientsPerMessage=100
+
+#   Message precedences   #
+Pfirst-class=0
+Pspecial-delivery=100
+Plist=-30
+Pbulk=-60
+Pjunk=-100
+
+#   Trusted users   #
+# this is equivalent to setting class "t"
+T root daemon uucp
+#Ft /etc/mail/sendmail.ct
+
+#   Format of headers   #
+H?P?Return-Path: <$g>
+HReceived: $?sfrom $s $.$?_($?s$|from $.$_)
+	$.by $j ($v/$Z)$?r with $r$. id $i$?u
+	for $u; $|;
+	$.$b
+H?D?Resent-Date: $a
+H?D?Date: $a
+H?F?Resent-From: $q
+H?F?From: $q
+# H?x?Full-Name: $x
+HSubject:
+# HPosted-Date: $a
+# H?l?Received-Date: $b
+H?M?Resent-Message-Id: <$t.$i@$j>
+H?M?Message-Id: <$t.$i@$j>
+
+###  Rulset 1 -- Sender Field Pre-rewriting  ###
+S1
+###  Rulset 2 -- Recipient Field Pre-rewriting  ###
+S2
+###  Rulset 3 -- Name Canonicalization  ###
+S3
+# handle null input and list syntax (translate to <@> special case)
+R$@			$@<@>
+
+# strip group: syntax (not inside angle brackets!) and trailing semicolon
+R$*			$:$1<@>				mark addresses
+R$*<$*>$*<@>		$:$1<$2>$3			unmark <addr>
+R:include:$*<@>		$::include:$1			unmark :include:
+R$*[$*:$*]<@>		$:$1[$2:$3]			unmark IPv6 addrs
+R$*::$*<@>		$:$1::$2			unmark host::addr
+#R$*:;<@>		$:$1:;				unmark list:;
+R$*:;<@>		$@				list:; special case
+R$*:<@>			$:$1:				unmark something: (bad)
+R$*:$*;<@>		$:$2				strip group:; if marked
+R@$*:$*<@>		$:@$1:$2			unmark @route:addr
+R$*:$*<@>		$:$2				strip group: if marked
+R$*;<@>			$:$1				strip semi if marked
+R$*<@>			$:$1				unmark
+
+# basic textual canonicalization -- note RFC733 heuristic here
+R$*<$*>$*<$*>$*		$2$3<$4>$5			strip multiple <> <>
+R$*<$*<$*<$+>$*>$*>$*	$4				3-level <> nesting
+R$*<$*<$+>$*>$*		$3				2-level <> nesting
+R$*<>$*			$@<@>				MAIL FROM: <> case
+R$*<$+>$*		$2				basic RFC821/822 parsing
+
+
+# make sure <@a,@b,@c:user@d> syntax is easy to parse -- undone later
+R@$+,@$+		@$1:@$2				change all "," to ":"
+
+# localize and dispose of route-based addresses
+R@$+:$+			$@$>96 <@$1>:$2			handle <route-addr>
+
+# find focus for list syntax
+R$+:$*;@$+		$@$1:$2;<@$3>			list syntax
+R$+:$*;			$@$1:$2;<@>			list syntax
+
+# find focus for @ syntax addresses
+R$+@$+			$:$1<@$2>			focus on domain
+R$+<$+@$+>		$1$2<@$3>			move gaze right
+R$+<@$+>		$@$>96 $1<@$2>			already canonical
+
+# convert old-style addresses to a domain-based address
+R$-!$+			$@$>96 $2<@$1.UUCP>		resolve uucp names
+R$+.$-!$+		$@$>96 $3<@$1.$2>		domain uucps
+R$+.!$+			$@$>96 $2<@$1>			extended domain uucps
+R$*!$*			$@$>96 $2<@$1.UUCP>		uucp subdomains
+
+# if we have % signs, take the rightmost one
+R$+%$+			$1@$2				First make them all @s.
+R$+@$+@$+		$1%$2@$3			Undo all but the last.
+R$+@$+			$@$>96 $1<@$2>			Insert < > and finish
+
+# trap invalid address
+R@$*			$@<@$1>
+
+###  Ruleset 96 -- bottom half of ruleset 3  ###
+#  At this point, everything should be in a "local_part<@domain>extra" format.
+S96
+
+# strip trailing dot off
+R$*<@$+.>$*		$1<@$2>$3
+
+# resolve numeric addresses to name if possible
+R$*<@[$+]>$*		$:$1<@$[[$2]$]>$3
+R$*<@$+.>$*		$1<@$2>$3			strip trailing dot off
+
+R$*<@$=w.UUCP>$*	$:$1<@$j>$3
+R$*<@$=w>$*		$:$1<@$j>$3
+
+# exit immidiately, if fake domains or numeric address spec
+R$*<@$*.$=X>$*		$@$1<@$2.$3>$4
+
+# acceptable domains are OK
+R$*<@$=Z>$*		$@$1<@$2>$3
+# lowers are OK
+R$*<@$*.$m>$*		$@$1<@$2.$m>$3
+# official name is OK
+R$*<@$=w>$*		$@$1<@$2>$3
+# more than one token is OK
+R$*<@$-.$+>$*		$@$1<@$2.$3>$4
+# canonicalize with nameserver lookup
+R$*<@$*>$*		$:$1<@$[$2$]>$3
+# strip trailing dot off possibly canonical name
+R$*<@$+.>$*		$1<@$2>$3
+
+###  Ruleset 4 -- Final Output Post-rewriting  ###
+S4
+
+R<>			$@<>				handle <> for uucp
+R<@>			$@				catch invalid address
+R$*<@>			$@$1				handle <> and list:;
+
+# strip trailing dot off possibly canonical name
+R$*<@$+.>$*		$1<@$2>$3
+
+# externalize local domain info
+R$*<$+>$*		$1$2$3				defocus
+R@$+:@$+:$+		@$1,@$2:$3			<route-addr> canonical
+R@$*			$@@$1				... and exit
+
+# UUCP must always be presented in old form
+R$+@$+.UUCP		$2!$1				u@h.UUCP => h!u
+
+# delete duplicate local names
+R$+%$=w@$=w		$1@$2				u%host@host => u@host
+
+R$+%$=w@$=Z		$1@$j				u%host@dom => u@host
+R$+%$=Z@$=w		$1@$2				u%dom@host => u@dom
+R$+%$=Z@$=Z		$1@$2				u%dom@dom => u@dom
+
+###  Ruleset 97 -- recanonicalize and call ruleset zero  ###
+
+S97
+
+R$*<$-.$+>$*		$:$1$2.$3$4			defocus
+R$*			$:$>3 $1			canonicalize
+
+# do not relay source routed mails
+R$*<@$+>$*		$#error$@5.4.3$: Source Routing Rejected
+R$*			$:$>0 $1			and try again
+
+S87
+
+R$*<$-.$+>$*		$:$1$2.$3$4			defocus
+R$*			$:$>3 $1			canonicalize
+R$*			$:$>0 $1			and try again
+
+###  Ruleset 0 -- Parse Address  ###
+
+S0
+
+R$*:;<@>		$#error$@5.1.3$: List:; syntax illegal for recipient addresses
+R$*<@>			$#local$:<@>			special case error msgs
+R<@$+>			$#error$@5.1.1$: User address required
+R$*<$*:$*>$*		$#error$@5.1.1$: Illegal colon in host name part
+R$*<$*,$*>$*		$#error$@5.1.1$: Illegal comma in host name part
+R$*<@.$*>$*		$#error$@5.1.2$: Illegal address spec
+R$*<@$*..$*>$*		$#error$@5.1.2$: Illegal address spec
+R$*<@$*[$*>$*		$:<[]>$1<@$2[$3>$4		mark if with [
+R<[]>$*<@$*[$*]$*>$*	$:$1<@$2[$3]$4>$5		unmark if with [ ]
+R$*<@$*]$*>$*		$:<[]>$1<@$2]$3>$4		mark if with ]
+R<[]>$*<@$*[$*]$*>$*	$:$1<@$2[$3]$4>$5		unmark if with [ ]
+R<[]>$*<@$*>$*		$#error$@4.1.2$: Unballanced [ ]
+
+#R$*<@$=w>$*		$:$1<@$j>$3
+
+# handle numeric address spec
+R$*<@[$+]>$*		$:$>88 <smtp:[$2]>.$1<@[$2]>$3	numeric internet spec
+
+# now delete the local info
+R$*<@>$*		$@$>97 $1			user@ => user
+
+R<@$=w>:$*		$@$>97 $2			@here:... -> ...
+R$*<@$=w>		$@$>97 $1			...@here -> ...
+
+R<@$=Z>:$*		$@$>97 $2			@here:... -> ...
+R$*<@$=Z>		$@$>97 $1			...@here -> ...
+
+R<@$*.$m>:$*		$@$>97 $2			@here:... -> ...
+R$*<@$*.$m>		$@$>97 $1			...@here -> ...
+
+# resolve BITNET traffic
+R$*<@$+.BITNET>$*	$:$>88 <smtp:$2.$Y>.$1<@$2.BITNET>$3	with MX lookup
+
+# resolve SMTP traffic
+R$*<@$-.UUCP>$*		$#error$@5.3.3$: UUCP addressing is not supported
+R$*<@$*>$*		$:$>88 <smtp:$2>.$1<@$2>$3
+
+# if this is quoted, strip the quotes and try again
+R$+			$:$(dequote $1 $)		strip quotes
+R$+$=@$+		$@$>97 $1$2$3			try again
+
+# remaining names must be local
+R$*			$#local$:$1			regular names
+
+###  Ruleset 5 -- special rewriting after aliases have been expanded  ###
+
+S5
+
+###  Ruleset 88 -- dispatching to mailers  ###
+
+S88
+
+R<>.$*			$@$1				strip off null relay
+R<$-:>.$*		$@$2				strip off null relay
+R<error:deliver>.$*<@$*>$*	$#error$@5.1.1$: can not deliver to $2
+R<error:lower>.$*<@$-.$*>$*	$#error$@5.1.2$: never heard of $2 in domain $3
+R<error:$-.$-.$-:$*>.$*		$#error$@$1.$2.$3$: $4
+R<error:$*>.$*			$#error$@5.1.0$: $1
+R<local>.<@$*>:$*	$@$>97 $2			local address, retry
+R<local>.$*<@$*>	$@$>97 $1			local address, retry
+R<local:$+>.$*		$@$>97 $1			special case local
+
+R<$=w>.$*<$*>$*		$@$>97 $2$3$4			delete local host
+R<$-:$=w>.$*<$*>$*	$@$>97 $3$4$5			delete local host
+R<$-:$=w>.$*		$#local$:@$3			local
+R<$=Z>.$*<$*>$*	$@$>97 $2$3$4			delete local host
+R<$-:$=Z>.$*<$*>$*	$@$>97 $3$4$5			delete local host
+R<$*.$m>.$*<$*>$*	$@$>97 $2$3$4			delete local host
+R<$-:$*.$m>.$*<$*>$*	$@$>97 $3$4$5			delete local host
+R<discard>.$*		$#discard$:discard		no deliver/no bounce
+R<smtp-ignmx>.$*<@$*>$*	$:<smtp:[$2]>.$1<@$2>$3		deliver w/o MX lookup
+R<$-:ignmx>.$*<@$*>$*	$:<$1:[$3]>.$2<@$3>$4		deliver w/o MX lookup
+R<smtp-ignmx:$*>.$*	$:<smtp:[$1]>.$2		deliver w/o MX lookup
+R<$-:ignmx:$*>.$*	$:<$1:[$2]>.$3			deliver w/o MX lookup
+R<smtp-mx>.$*<@$*>$*	$:<smtp:$2$X>.$1<@$2>$3		deliver with MX lookup
+R<$-:mx>.$*<@$*>$*	$:<$1:$3$X>.$2<@$3>$4		deliver with MX lookup
+R<smtp-mx:$*>.$*<@$*>$*	$:<smtp:$3$X:$1>.$2<@$3>$4	deliver with MX, static
+R<$-:mx:$*>.$*<@$*>$*	$:<$1:$4$X:$2>.$3<@$4>$5	deliver with MX, static
+R<$-:$+@$+>.$*		$:<$1:$3>.$2<@$3>		special case deliver
+R<relay:$*$~X>.$*	$#relay$@$1$2$X$:$3		send to relay
+R<smtp:$*$~X>.$*	$#smtp$@$1$2$X$:$3		send to destination
+R<esmtp:$*$~X>.$*	$#esmtp$@$1$2$X$:$3		send to destination
+R<smtp8:$*$~X>.$*	$#smtp8$@$1$2$X$:$3		send to destination
+R<$-:$+>.$*		$#$1$@$2$:$3			with specific mailer
+R<$*$~X>.$*		$#smtp$@$1$2$X$:$3		multi-token: smtp
+R<$+>.$*		$#smtp$@$1$:$2			multi-token: smtp
+
+
+#####			MAILER DEFINITIONS
+
+Mlocal,   P=/usr/bin/procmail,	F=lsDFMAw5:/|@qrmn,	S=10, R=20/0,
+	  T=DNS/RFC822/X-Unix,
+	  A=procmail -Y -a $h -d $u
+Mprog,    P=/bin/sh,	F=lsDFMoqeuP,	S=10, R=20/0,
+	  T=X-Unix, D=$z:/,
+	  A=sh -c $u
+
+Msmtp,    P=[IPC],	F=mDFMuX,	S=31/11, R=41/21,
+	  T=DNS/RFC822/SMTP, E=\r\n, L=990,
+	  A=IPC $h
+Mesmtp,   P=[IPC],	F=mDFMuXa,	S=31/11, R=41/21,
+	  T=DNS/RFC822/SMTP, E=\r\n, L=990,
+	  A=IPC $h
+Msmtp8,   P=[IPC],	F=mDFMuX8,	S=31/11, R=41/21,
+	  T=DNS/RFC822/SMTP, E=\r\n, L=990,
+	  A=IPC $h
+Mrelay,   P=[IPC],	F=mDFMuX8,	S=11, R=29,
+	  T=DNS/RFC822/SMTP, E=\r\n, L=2040,
+	  A=IPC $h
+
+#   Sender field rewriting   #
+S10
+R<@>			$n				errors to mailer-daemon
+
+S31
+#R$*<@$=w>$*		$:$1<@$j>$3
+R$*			$@$>11 $1
+
+S11
+R$*<@$*>$*		$@$1<@$2>$3			already qualified
+
+# output local host as user@host.domain
+R$=S			$@$1<@$j>			show exposed names
+R$+			$@$1<@$S>			user w/o host
+
+#   Receipient field rewriting   #
+
+S20
+R$+<@$*>		$:$1				strip host part
+
+S41
+#R$*<@$=w>$*		$:$1<@$j>$3
+R$*			$@$>21 $1
+
+S21
+R$+<@$+.UUCP>		$@$2!$1				user@host.UUCP
+R$*<@$*>$*		$@$1<@$2>$3			already qualified
+
+# output local host as user@host.domain
+R$=S			$@$1<@$j>			show exposed names
+R$+			$@$1<@$j>			user w/o host
+
+
+
+##
+## MAIL FROM validation
+##
+
+Scheck_mail
+
+R<$+>			$:$1				strip angle brackets
+R$+.			$:$1				strip trailing dot
+
+# reject specific spammers
+R$+			$:$>Check_reject $1
+
+R$*			$: $>3 $1			canonicalize
+R<@>			$@ OK				null address is OK
+R$*<@$*.>$*		$1<@$2>$3			strip trailing dot
+
+# reject spamming domain
+R$*<@$+>$*		$: $>Check_reject_domain $1<@$2>$3 $| $2
+
+# client address check -- accept messages from hosts within allowed domain
+R$*			$: $&{client_name} $| $1
+R$*			$: $&{client_addr} $| $1
+# Now, we have "${client_addr} $| ${client_name} $| original_token"
+R0 $| $* $| $*		$@ $>Check_mail_local $2	no addr (may be -bs)
+R$={RoamIP}$* $| $* $| $*	$@ $>Check_mail_roam $4
+R$* $| $*$={RoamDom} $| $*	$@ $>Check_mail_roam $4
+R$={LocalIP}$* $| $* $| $*	$@ $>Check_mail_local $4
+R$* $| $*$={LocalDom} $| $*	$@ $>Check_mail_local $4
+R$={ClientIP}$* $| $* $| $*	$@ $>Check_mail_client $4
+R$* $| $*$={ClientDom} $| $*	$@ $>Check_mail_client $4
+R$* $| $* $| $*		$@ $>Check_mail_remote $3
+
+SCheck_mail_roam
+R$*<@$*>$*		$: $1<@$2>$3 $| $1@$2$3
+R$* $| $={RoamUsers}	$@ $>Check_mail_local $1
+R$* $| $*		$@ $>Check_mail_remote $1
+
+SCheck_mail_remote
+R$*<@$->$*		$#error $@ 5.7.1 $: 553 FQDN addressing required
+# the following rule should be disabled if some users send mail from outside
+R$*<@$*>$*		$@ $>Check_mail_dns $1<@$2>$3	user@domain
+#R$*<@$*>$*		$@ OK				user@domain
+R$*			$#error $@ 5.7.1 $: 553 Domain part missing
+
+SCheck_mail_dns
+R$*			$@ OK				no checking
+
+SCheck_mail_local
+# checking sender addresses (for hosts with forwarding feature)
+R$*			$@ OK				no checking
+
+SCheck_mail_client
+# checking sender addresses (for hosts just for sending)
+R$-			$@ OK				user
+R$-<@$=w>		$@ OK				user@localhost
+R$-<@$*$={ClientFrom}>	$@ OK				user@good.domain
+R$-<@$*>$*		$#error $@ 5.7.1 $: 553 Sorry, your address is not for this domain
+
+SCheck_reject
+# deny with spamlist DB
+R$+			$: $1 $| $(spamlist $1$)
+R$+ $| errmsg $* @rej@	$#error $@ 5.7.1 $: $2
+R$+ $| discard @rej@	$#discard $: discard
+R$+ $| $+ @rej@		$#error $@ 5.7.1 $: 553 Message from $1 rejected
+R$+ $| $*		$: $1
+
+SCheck_reject_domain
+# deny with spamlist DB
+R$* $| $+		$: $1 $| $(spamlist $2$)
+R$* $| errmsg $* @rej@	$#error $@ 5.7.1 $: $2
+R$* $| discard @rej@	$#discard $: discard
+R$* $| $+ @rej@		$#error $@ 5.7.1 $: 553 Message from $1 rejected
+R$* $| $-.$+		$: $> Check_reject_domain $1 $| $3
+R$* $| $*		$: $1				good address
+
+## RCPT TO validation
+Scheck_rcpt
+
+R<$+>			$:$1				strip angle brackets
+R$+.			$:$1				strip trailing dot
+
+
+# deny with recrcpt DB
+R$+			$: $1 $| $(rejrcpt $1$)
+R$+ $| errmsg $* @rej@	$#error $@ 5.7.1 $: $2
+R$+ $| discard @rej@	$#discard $: discard
+R$+ $| $+ @rej@		$#error $@ 5.7.1 $: 550 User unknown
+R$+ $| $*		$: $1 $| $>3 $1			canonicalize
+R$+ $| $*<@$+>$*	$: $1 $| $(rejrcpt $3$)
+R$+ $| errmsg $* @rej@	$#error $@ 5.7.1 $: $2
+R$+ $| discard @rej@	$#discard $: discard
+R$+ $| $+ @rej@		$#error $@ 5.7.1 $: 550 Host unknown
+R$+ $| $*		$: $1
+
+# prepending client address information
+R$*			$: $&{client_name} $| $1
+R$*			$: $&{client_addr} $| $1
+# Now, we have "${client_addr} $| ${client_name} $| original_token"
+R0 $| $* $| $*		$@ OK				no addr (may be -bs)
+
+# pairing with sender address
+R$* $| $* $| $*		$: $1 $| $2 $| $&f $| $3
+# now, we can check c_addr-c_name-sender-recipient quad
+
+# client address check -- accept messages from hosts within allowed domain
+R$={RoamIP}$* $| $* $| $* $| $*		$@ $>Check_rcpt_roam $4 $| $5
+R$* $| $*$={RoamDom} $| $* $| $*	$@ $>Check_rcpt_roam $4 $| $5
+R$={LocalIP}$* $| $* $| $* $| $*	$@ $>Check_rcpt_inside $4 $| $5
+R$* $| $*$={LocalDom} $| $* $| $*	$@ $>Check_rcpt_inside $4 $| $5
+R$={ClientIP}$* $| $* $| $* $| $*	$@ $>Check_rcpt_inside $4 $| $5
+R$* $| $*$={ClientDom} $| $* $| $*	$@ $>Check_rcpt_inside $4 $| $5
+R$* $| $* $| $* $| $*	$: $>Check_rcpt_local $3 $| $4	remove client info
+R<OK> 			$@ OK				destination is local
+R$* 			$@ $>Check_rcpt_outside $1
+
+SCheck_rcpt_roam
+# checking on sender-recipient pair (compatible with check_compat)
+R$={RoamUsers} $| $*	$@ $>Check_rcpt_inside $1 $| $2
+R$*			$: $>Check_rcpt_local $1
+R<OK> 			$@ OK				destination is local
+R$* 			$@ $>Check_rcpt_outside $1
+
+SCheck_rcpt_local
+# checking on sender-recipient pair (compatible with check_compat)
+R$* $| $*		$: $2 $| $>3 $1			canonicalize sender
+R$* $| $*<@$*.>$*	$1 $| $2<@$3>$4			strip trailing dot
+R$* $| $*		$: $2 $| $>3 $1			canonicalize recipient
+R$* $| $*<@$*.>$*	$1 $| $2<@$3>$4			strip trailing dot
+
+# destination address check (localization)
+R$* $| <@$=w>:$*	$1 $| $>3 $3			strip my acceptables
+R$* $| $*<@$=w>		$1 $| $>3 $2			strip my acceptables
+R$* $| <@$*$={AcceptDom}>:$*	$1 $| $>3 $4		strip my acceptables
+R$* $| $*<@$*$={AcceptDom}>	$1 $| $>3 $2		strip my acceptables
+R$* $| <@$=Z>:$*	$1 $| $>3 $3		strip my acceptables
+R$* $| $*<@$=Z>	$1 $| $>3 $2		strip my acceptables
+#R$* $| $*<@$+>$*	$@ $>Check_rcpt_outside $1 $| $2<@$3>$4
+R$* $| $*<@$+>$*	$@ $1 $| $2<@$3>$4		not local
+R$* $| $+		$: $1 $| $(deq $2 $)		strip quotes
+R$* $| $+$=@$+		$@ $>Check_rcpt_local $1 $| $2$3$4	try again
+R$*			$@ <OK>				local names are OK
+
+SCheck_rcpt_inside
+# checking on sender-recipient pair (compatible with check_compat)
+# will be canonicalized in Check_rcpt_local
+#R$* $| $*		$: $2 $| $>3 $1			canonicalize sender
+#R$* $| $*<@$*.>$*	$1 $| $2<@$3>$4			strip trailing dot
+#R$* $| $*		$: $2 $| $>3 $1			canonicalize recipient
+#R$* $| $*<@$*.>$*	$1 $| $2<@$3>$4			strip trailing dot
+R$*			$: $>Check_rcpt_local $1
+R<OK> 			$@ OK				destination is local
+
+# reject source routing
+#R$* $| $*@$*<@$*>$*	$#error $@ 5.7.1 $: 553 Source routing rejected
+#R$* $| $*%$*<@$*>$*	$#error $@ 5.7.1 $: 553 Source routing rejected
+#R$* $| <@$*>:$*@$*	$#error $@ 5.7.1 $: 553 Source routing rejected
+
+#R$- $| $*		$@ OK				from here is OK
+#R<@> $| $*		$@ OK				null address is OK
+
+# check address pair for relaying
+R$* $| $*<@$*$={ClientDenyTo}>$*	$#error $@ 5.7.1 $: 553 Relay operation rejected
+#R$* $| $*		$:$> Relay_map_check_inside $1 $| $2
+Rdeny			$#error $@ 5.7.1 $: 553 Relay operation rejected
+Rerrmsg $*		$#error $@ 5.7.1 $: $1
+Rdiscard		$# discard $: discard
+R$* 			$@ OK
+
+SCheck_rcpt_outside
+# checking on sender-recipient pair (compatible with check_compat)
+# already canonicalized
+#R$* $| $*		$: $2 $| $>3 $1			canonicalize sender
+#R$* $| $*<@$*.>$*	$1 $| $2<@$3>$4			strip trailing dot
+#R$* $| $*		$: $2 $| $>3 $1			canonicalize recipient
+#R$* $| $*<@$*.>$*	$1 $| $2<@$3>$4			strip trailing dot
+
+# reject source routing
+R$* $| $*@$*<@$*>$*	$#error $@ 5.7.1 $: 553 Source routing rejected
+R$* $| $*%$*<@$*>$*	$#error $@ 5.7.1 $: 553 Source routing rejected
+R$* $| <@$*>:$*@$*	$#error $@ 5.7.1 $: 553 Source routing rejected
+
+#R<@> $| $*		$@ OK				null address is OK
+
+# check address pair for relaying
+R$*<@$*$={RelayFrom}>$* $| $*	$@ OK		from check
+R$* $| $*<@$*$={RelayTo}>$*	$@ OK		to check
+#R$* $| $*		$:$> Relay_map_check_outside $1 $| $2
+Rallow			$@ OK
+Rerrmsg $*		$#error $@ 5.7.1 $: $1
+Rdiscard		$# discard $: discard
+# anything else should be rejected
+R$*			$#error $@ 5.7.1 $: 553 Relay operation rejected
+
+# sender-recipient domain pair checking with relay-map (from inside)
+SRelay_map_check_inside
+#R $* $| $*		$: $2 $| $> 3 $1		focus on sender
+#R $* $| $*		$: $2 $| $> 3 $1		focus on recipient
+#R $*. $| $*		$1 $| $2			strip trailing dot
+#R $* $| $*.		$1 $| $2			strip trailing dot
+R$*<@$*>$* $| $*<@$*>$*	$@ $> Relay_map_i_s $2 $| $5
+
+# sender matching
+SRelay_map_i_s
+R $* $| $*		$: $> Relay_map_i_r $1 $| $2
+R $* $| $*		$@ $> Relay_map_i_s_sub $1 $| $2
+R $*			$@ $1				found
+
+# sender sub-domain matching
+SRelay_map_i_s_sub
+R $-.$* $| $+		$: $> Relay_map_i_r .$2 $| $3
+R .$-.$* $| $+		$@ $> Relay_map_i_s_sub $1.$2 $| $3
+R .$- $| $+		$: $> Relay_map_i_r . $| $2	wildcard match
+R $* $| $*		$@ allow			default
+R $*			$@ $1				found
+
+# recipient matching
+SRelay_map_i_r
+R $* $| $*		$: $2 $| $(relayinside $1 ! $2 $: $1 $| $2 $)
+R $* $| $* $| $*	$@ $> Relay_map_i_r_sub $1 $| $2 $| $3
+R $* $| $*		$@ $2				found
+
+# recipient sub-domain matching
+SRelay_map_i_r_sub
+R $* $| $* $| $-.$+	$: $1 $| $(relayinside $2 ! .$4 $: $2 $| $4 $)
+R $* $| $* $| $-	$: $1 $| $(relayinside $2 ! . $: $2 $| . $)
+R $* $| $* $| $-.$+	$@ $> Relay_map_i_r_sub $1 $| $2 $| $3.$4
+R $* $| $* $| $*	$@ $2 $| $1			not found
+R $* $| $*		$@ $2				found
+
+# sender-recipient domain pair checking with relay-map (from outside)
+SRelay_map_check_outside
+#R $* $| $*		$: $2 $| $> 3 $1		focus on sender
+#R $* $| $*		$: $2 $| $> 3 $1		focus on recipient
+#R $*. $| $*		$1 $| $2			strip trailing dot
+#R $* $| $*.		$1 $| $2			strip trailing dot
+R$*<@$*>$* $| $*<@$*>$*	$@ $> Relay_map_o_s $2 $| $5
+
+# sender matching
+SRelay_map_o_s
+R $* $| $*		$: $> Relay_map_o_r $1 $| $2
+R $* $| $*		$@ $> Relay_map_o_s_sub $1 $| $2
+R $*			$@ $1				found
+
+# sender sub-domain matching
+SRelay_map_o_s_sub
+R $-.$* $| $+		$: $> Relay_map_o_r .$2 $| $3
+R .$-.$* $| $+		$@ $> Relay_map_o_s_sub $1.$2 $| $3
+R .$- $| $+		$: $> Relay_map_o_r . $| $2	wildcard match
+R $* $| $*		$@ deny				default
+R $*			$@ $1				found
+
+# recipient matching
+SRelay_map_o_r
+R $* $| $*		$: $2 $| $(relay $1 ! $2 $: $1 $| $2 $)
+R $* $| $* $| $*	$@ $> Relay_map_o_r_sub $1 $| $2 $| $3
+R $* $| $*		$@ $2				found
+
+# recipient sub-domain matching
+SRelay_map_o_r_sub
+R $* $| $* $| $-.$+	$: $1 $| $(relay $2 ! .$4 $: $2 $| $4 $)
+R $* $| $* $| $-	$: $1 $| $(relay $2 ! . $: $2 $| . $)	wildcard match
+R $* $| $* $| $-.$+	$@ $> Relay_map_o_r_sub $1 $| $2 $| $3.$4
+R $* $| $* $| $*	$@ $2 $| $1			not found
+R $* $| $*		$@ $2				found
+
+## SMTP authentication
+Scheck_relay
+
+# hostname $| IP address
+#R $* $| $*$={HostAllow}	$@ OK
+R $* $| $={HostAllow}$*	$@ OK
+R $*$={HostAllow} $|$*	$@ OK
+#R $={HostAllow}$* $|$*	$@ OK
+#R $* $| $*$={HostDeny}	$#error $@ 5.7.1 $: 550 Can not speak with you
+R $* $| $={HostDeny}$*	$#error $@ 5.7.1 $: 550 Can not speak with you
+R $*$={HostDeny} $|$*	$#error $@ 5.7.1 $: 550 Can not speak with you
+#R $={HostDeny}$* $|$*	$#error $@ 5.7.1 $: 550 Can not speak with you
+R$+ $| $+		$: $1 $| $> SpamIP $2
+R$+ $| errmsg $* @rej@	$#error $@ 5.7.1 $: $2
+R$+ $| discard @rej@	$#discard $: discard
+R$+ $| $*@rej@		$#error $@ 5.7.1 $: 550 Can not speak with you
+R $* 			$@ OK
+
+SSpamIP
+R$-.$-.$-.$-		$: $(spamlist $1.$2.$3.$4 $)
+R$+ @rej@		$@ $1 @rej@
+R$-.$-.$-.$-		$: $(spamlist $1.$2.$3 $: $1.$2.$3.$4 $)
+R$+ @rej@		$@ $1 @rej@
+R$-.$-.$-.$-		$: $(spamlist $1.$2 $: $1.$2.$3.$4 $)
+R$+ @rej@		$@ $1 @rej@
+R$-.$-.$-.$-		$: $(spamlist $1 $: $1.$2.$3.$4 $)
+
+SCheckDebug
+R$* $$ | $*		$1 $| $2
+

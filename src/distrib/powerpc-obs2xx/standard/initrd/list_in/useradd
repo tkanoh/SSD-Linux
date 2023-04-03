@@ -1,0 +1,7 @@
+#	$ssdlinux: useradd,v 1.1 2004/12/02 01:54:33 todoroki Exp $
+
+BCOPY	@SRCTOPDIR@/usr.sbin/useradd/useradd		usr/sbin/useradd
+BCOPY	@SRCTOPDIR@/usr.sbin/userdel/userdel		usr/sbin/userdel
+BCOPY	@SRCTOPDIR@/usr.sbin/groupadd/groupadd		usr/sbin/groupadd
+BCOPY	@SRCTOPDIR@/usr.sbin/groupdel/groupdel		usr/sbin/groupdel
+ECOPY	644 @SRCTOPDIR@/etc/common/usermgmt.conf	etc/usermgmt.conf

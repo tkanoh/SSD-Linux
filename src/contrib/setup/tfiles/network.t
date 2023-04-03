@@ -1,0 +1,95 @@
+<FORM <?def_formarg()?>>
+<?input_hidden("typ","network")?>
+<?input_hidden("op","$op")?>
+<?input_hidden("subop","$subop")?>
+<?input_hidden("i_login","$x_login")?>
+<?input_hidden("i_key","$x_key")?>
+<?head("ルーティング")?>
+<P>
+<TABLE>
+<TR>
+ <TD>&nbsp;</TD>
+ <TD><B>デフォルトルータ:</B></TD>
+ <TD><?input_text("i_defaultroute_adr","$x_defaultroute_adr")?></TD>
+</TR>
+<TR>
+ <TD>&nbsp;</TD>
+ <TD><B>インタフェース:</B></TD>
+ <TD><?input_select("i_defaultroute_interface","$x_defaultroute_interface","eth0","eth1")?></TD>
+</TR>
+</TABLE>
+<P>
+<?head("eth0")?>
+<P>
+<TABLE>
+<TR>
+ <TD><?input_radio("i_eth_typ__eth0","1","$x_eth_typ__eth0")?></TD>
+  <TD COLSPAN=2>DHCPを利用する</TD>
+</TR>
+<TR>
+ <TD><?input_radio("i_eth_typ__eth0","2","$x_eth_typ__eth0")?></TD>
+ <TD COLSPAN=2>手動で指定する</TD>
+</TR>
+<TR>
+ <TD>&nbsp;</TD>
+ <TD><B>アドレス:</B></TD>
+ <TD><?input_text("i_eth_adr__eth0","$x_eth_adr__eth0")?></TD>
+</TR>
+<TR>
+ <TD>&nbsp;</TD>
+ <TD><B>マスク:</B></TD>
+ <TD><?input_netmask("i_eth_subnet_mask__eth0","$x_eth_subnet_mask__eth0")?></TD>
+</TR>
+</TABLE>
+<P>
+<?head("eth1")?>
+<P>
+<TABLE>
+<TR>
+ <TD><?input_radio("i_eth_typ__eth1","1","$x_eth_typ__eth1")?></TD>
+  <TD COLSPAN=2>DHCPを利用する</TD>
+</TR>
+<TR>
+ <TD><?input_radio("i_eth_typ__eth1","2","$x_eth_typ__eth1")?></TD>
+ <TD COLSPAN=2>手動で指定する</TD>
+</TR>
+<TR>
+ <TD>&nbsp;</TD>
+ <TD><B>アドレス:</B></TD>
+ <TD><?input_text("i_eth_adr__eth1","$x_eth_adr__eth1")?></TD>
+</TR>
+<TR>
+ <TD>&nbsp;</TD>
+ <TD><B>マスク:</B></TD>
+ <TD><?input_netmask("i_eth_subnet_mask__eth1","$x_eth_subnet_mask__eth1")?></TD>
+</TR>
+</TABLE>
+<P>
+<?head("リゾルバ設定")?>
+<P>
+<TABLE>
+<TR>
+ <TD>&nbsp;</TD>
+ <TD><B>ネームサーバ:</B></TD>
+ <TD><?input_text("i_nameserver","$x_nameserver")?></TD>
+</TR>
+<TR>
+ <TD>&nbsp;</TD>
+ <TD><B>ネームサーバ2:</B></TD>
+ <TD><?input_text("i_nameserver2","$x_nameserver2")?></TD>
+</TR>
+<TR>
+ <TD>&nbsp;</TD>
+ <TD><B>ネームサーバ3:</B></TD>
+ <TD><?input_text("i_nameserver3","$x_nameserver3")?></TD>
+</TR>
+<TR>
+ <TD>&nbsp;</TD>
+ <TD><B>ドメイン名:</B></TD>
+ <TD><?input_text("i_domain","$x_domain")?></TD>
+</TR>
+</TABLE>
+<P>
+<INPUT TYPE=SUBMIT NAME=s_ok VALUE="変更">
+</FORM>
+<!-- $Id: network.t,v 1.3 2003/02/19 07:11:29 yamagata Exp $ -->

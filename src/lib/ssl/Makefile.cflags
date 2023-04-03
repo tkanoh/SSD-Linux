@@ -1,0 +1,17 @@
+#	$ssdlinux: Makefile.cflags,v 1.4 2003/08/13 13:00:40 kanoh Exp $
+
+CPPFLAGS+=	-DOPENSSL_THREADS
+CPPFLAGS+=	-D_REENTRANT
+#CPPFLAGS+=	-DDSO_DLFCN
+#CPPFLAGS+=	-DHAVE_DLFCN_H
+CPPFLAGS+=	-DOPENSSL_NO_KRB5
+CPPFLAGS+=	-DTERMIO
+CPPFLAGS+=	-fomit-frame-pointer
+
+.if ${TARGET_HOSTTYPE} == "i386"
+CPPFLAGS+=	-DL_ENDIAN
+CPPFLAGS+=	-mcpu=pentium
+.endif
+.if ${TARGET_HOSTTYPE} == "powerpc"
+CPPFLAGS+=	-DB_ENDIAN
+.endif

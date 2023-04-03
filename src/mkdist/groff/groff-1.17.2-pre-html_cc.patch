@@ -1,0 +1,24 @@
+--- groff-1.17.2/src/preproc/html/pre-html.cc.orig	2002-06-17 14:50:20.000000000 +0900
++++ groff-1.17.2/src/preproc/html/pre-html.cc	2002-06-17 16:04:12.000000000 +0900
+@@ -853,13 +853,21 @@
+   char buffer[4096];
+   char *s;
+   int retries = MAX_RETRIES;
++#ifdef HAVE_MKSTEMP
++  int fd;
++#endif
+ 
+   imagePageStem = xtmptemplate(PAGE_TEMPLATE);
+   strcpy(buffer, imagePageStem);
+ 
+   do {
++#ifndef HAVE_MKSTEMP
+     if (mktemp(imagePageStem) == NULL) {
+       sys_fatal("mktemp");
++#else
++    if ((fd = mkstemp(imagePageStem)) == -1) {
++      sys_fatal("mkstemp");
++#endif
+       return -1;
+     }
+     if (mkdir(imagePageStem, 0700) == 0) break;

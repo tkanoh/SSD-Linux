@@ -1,0 +1,6 @@
+#	$ssdlinux: Makefile.cflags,v 1.2 2005/01/31 02:22:26 yamagata Exp $
+
+CPPFLAGS+=	-DHAVE_CONFIG_H
+CPPFLAGS+=      -I${LIBFINDDIR} -I${DIST}/gnulib/lib -I${DIST}/lib
+CPPFLAGS+=	-DLOCATE_DB=\"/var/db/locatedb\"
+CPPFLAGS+=	-DLOCALEDIR=\"/usr/share/locale\"

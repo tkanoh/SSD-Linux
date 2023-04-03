@@ -1,0 +1,5 @@
+#	$ssdlinux: dhcpd,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+BCOPY	@SRCTOPDIR@/usr.sbin/dhcpd/dhcpd		usr/sbin/dhcpd
+BCOPY	@SRCTOPDIR@/usr.sbin/dhcrelay/dhcrelay		usr/sbin/dhcrelay
+ECOPY	644 @SRCTOPDIR@/etc/common/dhcpd.conf.sample	etc/dhcpd.conf

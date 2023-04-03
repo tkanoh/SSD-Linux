@@ -1,0 +1,6 @@
+#	$ssdlinux: Makefile.ldflags,v 1.1 2002/07/10 06:57:53 yamagata Exp $
+#	$NetBSD: Makefile.inc,v 1.5 2001/01/07 08:00:58 enami Exp $
+
+LIBCOMMON!=	cd ${.CURDIR}/../common_source && ${PRINTOBJDIR}
+DPADD+=		${LIBCOMMON}/libcommon.a
+LDADD+=		-L${LIBCOMMON} -lcommon

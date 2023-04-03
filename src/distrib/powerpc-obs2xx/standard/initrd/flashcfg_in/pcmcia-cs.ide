@@ -1,0 +1,2 @@
+#	$ssdlinux: pcmcia-cs.ide,v 1.2 2004/12/06 10:17:07 todoroki Exp $
+/etc/pcmcia/ide.opts

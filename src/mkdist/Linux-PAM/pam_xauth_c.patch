@@ -1,0 +1,11 @@
+--- Linux-PAM-0.78/modules/pam_xauth/pam_xauth.c.orig	2004-09-24 18:18:22.000000000 +0900
++++ Linux-PAM-0.78/modules/pam_xauth/pam_xauth.c	2004-11-22 16:10:16.000000000 +0900
+@@ -35,7 +35,7 @@
+ 
+ /* "$Id: pam_xauth_c.patch,v 1.1 2004/11/22 07:19:44 yamagata Exp $" */
+ 
+-#include "../../_pam_aconf.h"
++#include "security/_pam_aconf.h"
+ #include <sys/types.h>
+ #include <sys/fsuid.h>
+ #include <sys/wait.h>

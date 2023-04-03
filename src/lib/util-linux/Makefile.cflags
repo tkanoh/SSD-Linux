@@ -1,0 +1,35 @@
+#	$ssdlinux: Makefile.cflags,v 1.8 2004/12/06 05:41:08 yamagata Exp $
+
+CPU=		`uname -m`
+GCC_MAJOR_VERSION=	`gcc --version | cut -d . -f 1`
+
+.if ${TARGET_HOSTTYPE} == "i386"
+.if ${GCC_MAJOR_VERSION} == "2"
+CPUHEAD=	-m
+.else
+CPUHEAD=	-mcpu=i
+.endif
+.if ${CPU} == "i386"
+CPUTAIL=	386
+.else
+CPUTAIL=	486
+.endif
+CPPFLAGS+=	${CPUHEAD}${CPUTAIL}
+
+# defines.h
+CPPFLAGS+=	-DHAVE_sys_user_h
+CPPFLAGS+=	-DHAVE_sys_io_h
+.elif ${TARGET_HOSTTYPE} == "powerpc"
+# defines.h
+CPPFLAGS+=	-DHAVE_asm_page_h
+.endif
+
+CPPFLAGS+=	-fomit-frame-pointer \
+		-Wmissing-prototypes \
+		-Wstrict-prototypes \
+		-DNCH=1 -D_FILE_OFFSET_BITS=64 \
+		-DSBINDIR=\"/sbin\" \
+		-DUSRSBINDIR=\"/usr/sbin\" \
+		-DLOGDIR=\"/var/log\" \
+		-DVARPATH=\"/var\" \
+		-DLOCALEDIR=\"${LOCALEDIR}\"

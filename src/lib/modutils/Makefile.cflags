@@ -1,0 +1,22 @@
+#	$ssdlinux: Makefile.cflags,v 1.7 2004/07/03 08:58:45 yamagata Exp $
+
+CPPFLAGS+= -D_GNU_SOURCE
+CPPFLAGS+= -DCONFIG_USE_ZLIB=1
+CPPFLAGS+= -DCONFIG_ROOT_CHECK_OFF=0
+
+.if ${TARGET_HOSTTYPE} == "i386"
+CPPFLAGS+= -DELF_MACHINE_H='"elf_i386.h"'
+CPPFLAGS+= -DARCH_i386
+.elif ${TARGET_HOSTTYPE} == "powerpc"
+CPPFLAGS+= -DELF_MACHINE_H='"elf_ppc.h"'
+CPPFLAGS+= -DARCH_ppc
+.endif
+
+CPPFLAGS+= -I${DIST}/include
+.if defined(CROSS_BUILD) || defined(NEW_GLIBC)
+CPPFLAGS+= -I${DIST}/../zlib
+.endif
+
+NOGCCERROR= yes
+
+LIBMODU= ${DIST}/../../lib/modutils

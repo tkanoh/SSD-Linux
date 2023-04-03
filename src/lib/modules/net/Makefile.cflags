@@ -1,0 +1,29 @@
+#	$ssdlinux: Makefile.cflags,v 1.10 2004/04/08 06:16:47 todoroki Exp $
+
+SCRIPTS=	${MODULE}.o.gz
+CLEANFILES=	${SCRIPTS} *.o *.d
+
+DIST=		${.CURDIR}/../../../../dist/pcmcia-cs
+PCMCIAMODULES=	${DIST}/../../lib/modules/pcmcia
+KERNSRC=	${DIST}/../../linux
+DRIVERS=	${KERNSRC}/drivers/net
+.PATH:		${DRIVERS}
+
+.if ${TARGET_SSDHOSTTYPEX} == "powerpc-obs50" || ${TARGET_SSDHOSTTYPEX} == "powerpc-obs2xx"
+AFLAGS=		-fno-builtin -msoft-float -ffixed-r2
+.else
+AFLAGS=
+.endif
+
+MFLAG=		-DMODVERSIONS -include ${KERNSRC}/include/linux/modversions.h
+
+CPPFLAGS=	${AFLAGS} -MD -c -O2
+CPPFLAGS+=	-I${PCMCIAMODULES}/include -I${KERNSRC}/include
+CPPFLAGS+=	-D__KERNEL__ -DEXPORT_SYMTAB ${MFLAG} -DMODULE
+
+${SCRIPTS}: ${.TARGET:M*.o.gz:.o.gz=.c}
+	${CC} ${CPPFLAGS} ${DRIVERS}/${.TARGET:M*.o.gz:.o.gz=.c}
+	gzip -9 ${.TARGET:M*.o.gz:.o.gz=.o}
+
+scriptsinstall::
+	${INSTALL} -c -m ${SCRIPTSMODE} -o ${BINOWN} -g ${BINGRP} ${SCRIPTS} ${DESTDIR}${BINDIR}

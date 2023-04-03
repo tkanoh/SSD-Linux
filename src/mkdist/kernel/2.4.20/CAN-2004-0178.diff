@@ -1,0 +1,11 @@
+--- linux/drivers/sound/sb_audio.c.orig	2002-12-11 11:36:58.000000000 +0900
++++ linux/drivers/sound/sb_audio.c	2004-04-16 15:34:23.000000000 +0900
+@@ -879,7 +879,7 @@
+ 			c -= locallen; p += locallen;
+ 		}
+ 		/* used = ( samples * 16 bits size ) */
+-		*used = len << 1;
++		*used = (max_in > (max_out << 1)) ? (max_out << 1) : max_in;
+ 		/* returned = ( samples * 8 bits size ) */
+ 		*returned = len;
+ 	}

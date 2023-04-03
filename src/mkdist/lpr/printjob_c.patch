@@ -1,0 +1,11 @@
+--- lpr_2000.05.07-5/lpd/printjob.c.orig	2004-04-19 11:45:07.000000000 +0900
++++ lpr_2000.05.07-5/lpd/printjob.c	2004-06-15 18:14:16.000000000 +0900
+@@ -160,7 +160,7 @@
+ 	signal(SIGQUIT, abortpr);
+ 	signal(SIGTERM, abortpr);
+ 
+-	(void) mktemp(tempfile);
++	mkstemp(tempfile);
+ 
+ 	/*
+ 	 * uses short form file names

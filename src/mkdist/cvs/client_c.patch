@@ -1,0 +1,11 @@
+--- cvs-1.11.19-v6-20050205/src/client.c.orig	2005-02-07 11:00:29.000000000 +0900
++++ cvs-1.11.19-v6-20050205/src/client.c	2005-02-07 11:02:03.000000000 +0900
+@@ -3819,7 +3819,7 @@
+     sock = -1;
+     for (res = res0; res; res = res->ai_next) {
+ 	sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+-	getnameinfo(res->ai_addr, res->ai_addr->sa_len,
++	getnameinfo(res->ai_addr, res->ai_addrlen,
+ 		    aibuf, sizeof(aibuf), NULL, 0, NI_NUMERICHOST);
+ 	if (sock < 0)
+ 	    continue;

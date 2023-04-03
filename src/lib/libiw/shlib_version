@@ -1,0 +1,5 @@
+#	$ssdlinux: shlib_version,v 1.5 2004/11/08 03:30:54 yamagata Exp $
+
+major=27
+minor=0
+teeny=0

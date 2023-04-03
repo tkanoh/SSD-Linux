@@ -1,0 +1,11 @@
+--- gdb-6.3.orig/readline/configure	2003-05-28 08:29:47.000000000 +0900
++++ gdb-6.3/readline/configure	2004-11-10 11:31:09.000000000 +0900
+@@ -1864,7 +1864,7 @@
+ echo "$as_me: error: cannot run C compiled programs.
+ If you meant to cross compile, use \`--host'.
+ See \`config.log' for more details." >&2;}
+-   { (exit 1); exit 1; }; }
++   { (echo 1); echo 1; }; }
+     fi
+   fi
+ fi

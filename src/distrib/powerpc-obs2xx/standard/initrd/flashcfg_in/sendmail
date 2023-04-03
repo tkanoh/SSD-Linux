@@ -1,0 +1,4 @@
+#	$ssdlinux: sendmail,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+/etc/mail/aliases
+/etc/mail/local-host-names
+/etc/mail/relay-domains

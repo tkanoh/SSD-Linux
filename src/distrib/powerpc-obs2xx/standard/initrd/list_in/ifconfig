@@ -1,0 +1,6 @@
+#	$ssdlinux: ifconfig,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+ECOPY	644 @COMMON_ETCDIR@/ifconfig.eth0	etc/ifconfig.eth0
+ECOPY	644 @COMMON_ETCDIR@/ifconfig.eth1	etc/ifconfig.eth1
+ECOPY	644 @COMMON_ETCDIR@/myname		etc/myname
+ECOPY	644 @COMMON_ETCDIR@/mygate		etc/mygate

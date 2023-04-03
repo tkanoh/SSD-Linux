@@ -1,0 +1,135 @@
+#	$ssdlinux: list.in.kernel,v 1.2 2005/02/09 03:30:20 yamagata Exp $
+
+# copy the crunched binary, link to it, and kill it
+COPY	${OBJDIR}/ramdiskbin	ramdiskbin
+LINK	ramdiskbin		bin/cat
+LINK	ramdiskbin		bin/chmod
+LINK	ramdiskbin		bin/cp
+LINK	ramdiskbin		bin/date
+LINK	ramdiskbin		bin/df
+LINK	ramdiskbin		bin/expr
+LINK	ramdiskbin		bin/hostname
+LINK	ramdiskbin		bin/login
+LINK	ramdiskbin		bin/ln
+LINK	ramdiskbin		bin/ls
+LINK	ramdiskbin		bin/mkdir
+LINK	ramdiskbin		bin/mv
+LINK	ramdiskbin		bin/pwd
+LINK	ramdiskbin		bin/rm
+LINK	ramdiskbin		bin/sh
+LINK	ramdiskbin		bin/-sh
+LINK	ramdiskbin		bin/bash
+LINK	ramdiskbin		bin/-bash
+LINK	ramdiskbin		bin/sleep
+LINK	ramdiskbin		bin/stty
+LINK	ramdiskbin		bin/uname
+LINK	ramdiskbin		sbin/agetty
+LINK	ramdiskbin		sbin/cardmgr
+LINK	ramdiskbin		sbin/depmod
+LINK	ramdiskbin		sbin/dhclient
+#LINK	ramdiskbin		sbin/dump
+LINK	ramdiskbin		sbin/e2fsck
+LINK	ramdiskbin		sbin/fdisk
+LINK	ramdiskbin		sbin/fsck.ext2
+LINK	ramdiskbin		sbin/fsck.ext3
+LINK	ramdiskbin		sbin/halt
+LINK	ramdiskbin		sbin/ifconfig
+LINK	ramdiskbin		sbin/init
+LINK	ramdiskbin		sbin/insmod
+LINK	ramdiskbin		sbin/mknod
+LINK	ramdiskbin		sbin/mount
+LINK	ramdiskbin		sbin/modprobe
+LINK	ramdiskbin		sbin/mke2fs
+LINK	ramdiskbin		sbin/mkswap
+LINK	ramdiskbin		sbin/ping
+LINK	ramdiskbin		sbin/poweroff
+LINK	ramdiskbin		sbin/reboot
+#LINK	ramdiskbin		sbin/restore
+LINK	ramdiskbin		sbin/route
+LINK	ramdiskbin		sbin/sfdisk
+LINK	ramdiskbin		sbin/shutdown
+LINK	ramdiskbin		sbin/sysinst
+LINK	ramdiskbin		sbin/swapon
+LINK	ramdiskbin		sbin/swapoff
+LINK	ramdiskbin		sbin/telinit
+LINK	ramdiskbin		sbin/umount
+SYMLINK	/bin/cat		usr/bin/basename
+SYMLINK	/bin/cat		usr/bin/chgrp
+SYMLINK	/bin/cat		usr/bin/cmp
+SYMLINK	/bin/cat		usr/bin/ftp
+SYMLINK	/bin/cat		usr/bin/grep
+SYMLINK	/bin/cat		usr/bin/gzip
+SYMLINK	/bin/cat		usr/bin/passwd
+SYMLINK	/bin/cat		usr/bin/sed
+SYMLINK	/bin/cat		usr/bin/sort
+SYMLINK	/bin/cat		usr/bin/tar
+SYMLINK	/bin/cat		usr/bin/touch
+SYMLINK	/bin/cat		usr/bin/uniq
+SYMLINK	/bin/cat		usr/sbin/badblocks
+SYMLINK	/bin/cat		usr/sbin/chown
+SYMLINK	/bin/cat		usr/sbin/chroot
+SYMLINK	/bin/cat		usr/sbin/grub
+SYMLINK	/bin/cat		usr/sbin/portmap
+SPECIAL	/bin/rm ramdiskbin
+
+# various files that we need in /etc for the install
+COPY	${CURDIR}/etc/fstab			etc/fstab
+COPY	${CURDIR}/etc/group			etc/group
+COPY	${CURDIR}/etc/inittab			etc/inittab
+COPY	${CURDIR}/../../../etc/i386/passwd	etc/passwd
+COPY	${CURDIR}/../../../etc/i386/shadow	etc/shadow
+COPY	${CURDIR}/etc/login.defs		etc/login.defs
+COPY	${CURDIR}/etc/termcap			etc/termcap
+COPY	${CURDIR}/etc/profile			etc/profile
+COPY	${CURDIR}/etc/rc			etc/rc
+COPY	${CURDIR}/etc/services			etc/services
+COPY	${CURDIR}/../../../etc/common/protocols	etc/protocols
+#COPY	${CURDIR}/../../../etc/common/nsswitch.conf	etc/nsswitch.conf
+COPY	${CURDIR}/etc/nsswitch.conf		etc/nsswitch.conf
+
+# copy the MAKEDEV script and make some devices
+SCOPY		${CURDIR}/../../../etc/dev.i386/MAKEDEV	dev/MAKEDEV
+SPECIAL		cd dev;./MAKEDEV std ram console fd fd0 loop
+SPECIAL		cd dev;./MAKEDEV hda hdb hdc hdd hde hdf hdg hdh sda sdb sdc sdd  scd0 scd1
+SPECIAL		/bin/rm dev/MAKEDEV
+
+# we need the boot block in /usr/mdec + the MBR copy
+SCOPY	${CURDIR}/../../../usr.sbin/grub/util/grub-install usr/mdec/installboot
+SCOPY	${CURDIR}/../../../usr.sbin/grub/util/grub-set-default usr/sbin/grub-set-default
+COPY	${CURDIR}/../../../usr.sbin/grub/stage1/stage1 usr/mdec/grub/i386-ssd/stage1
+COPY	${CURDIR}/../../../usr.sbin/grub/stage2_initrd/stage2 usr/mdec/grub/i386-ssd/stage2
+COPY	${CURDIR}/../../../usr.sbin/grub/stage2/e2fs_stage1_5 usr/mdec/grub/i386-ssd/e2fs_stage1_5
+
+SCOPY	 ${CURDIR}/../../../sbin/dhclient/dhclient-script etc/dhclient-script
+SPECIAL		touch var/db/dhclient.leases
+
+# for PCCARD
+COPY	 ${CURDIR}/../../../dist/pcmcia-cs/etc/config etc/pcmcia/config
+COPY	 ${CURDIR}/../../../dist/pcmcia-cs/etc/config.opts etc/pcmcia/config.opts
+#COPY	 ${CURDIR}/../../../etc/pcmcia/ide etc/pcmcia/ide
+COPY	 ${CURDIR}/../../../etc/pcmcia/network etc/pcmcia/network
+SPECIAL		chmod 555 etc/pcmcia/network
+#COPY	 ${CURDIR}/../../../etc/pcmcia/scsi etc/pcmcia/scsi
+COPY	 ${CURDIR}/../../../etc/pcmcia/wireless etc/pcmcia/wireless
+COPY	 ${CURDIR}/../../../dist/pcmcia-cs/etc/network.opts etc/pcmcia/network.opts
+COPY	 ${CURDIR}/../../../dist/pcmcia-cs/etc/wireless.opts etc/pcmcia/wireless.opts
+COPY	 ${CURDIR}/../../../dist/pcmcia-cs/etc/shared	etc/pcmcia/shared
+COPY	 ${CURDIR}/../../../etc/pcmcia/cis/3CCFEM556.dat etc/pcmcia/cis/3CCFEM556.dat
+COPY	 ${CURDIR}/../../../etc/pcmcia/cis/3CXEM556.dat etc/pcmcia/cis/3CXEM556.dat
+COPY	 ${CURDIR}/../../../etc/pcmcia/cis/DP83903.dat etc/pcmcia/cis/DP83903.dat
+COPY	 ${CURDIR}/../../../etc/pcmcia/cis/LA-PCM.dat etc/pcmcia/cis/LA-PCM.dat
+COPY	 ${CURDIR}/../../../etc/pcmcia/cis/NE2K.dat etc/pcmcia/cis/NE2K.dat
+COPY	 ${CURDIR}/../../../etc/pcmcia/cis/PE-200.dat etc/pcmcia/cis/PE-200.dat
+COPY	 ${CURDIR}/../../../etc/pcmcia/cis/PE520.dat etc/pcmcia/cis/PE520.dat
+COPY	 ${CURDIR}/../../../etc/pcmcia/cis/tamarack.dat etc/pcmcia/cis/tamarack.dat
+
+COPY	@MODULESDIR@/kernel/drivers/net/8390.o.gz	lib/modules/@KERNEL_VERSION@/net/8390.o.gz
+COPY    @MODULESDIR@/kernel/drivers/net/pcmcia/3c574_cs.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/3c574_cs.o.gz
+COPY    @MODULESDIR@/kernel/drivers/net/pcmcia/3c589_cs.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/3c589_cs.o.gz
+COPY    @MODULESDIR@/kernel/drivers/net/pcmcia/fmvj18x_cs.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/fmvj18x_cs.o.gz
+COPY    @MODULESDIR@/kernel/drivers/net/pcmcia/pcnet_cs.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/pcnet_cs.o.gz
+COPY    @MODULESDIR@/kernel/drivers/pcmcia/ds.o.gz		lib/modules/@KERNEL_VERSION@/pcmcia/ds.o.gz
+COPY    @MODULESDIR@/kernel/drivers/pcmcia/i82365.o.gz		lib/modules/@KERNEL_VERSION@/pcmcia/i82365.o.gz
+COPY    @MODULESDIR@/kernel/drivers/pcmcia/pcmcia_core.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/pcmcia_core.o.gz
+COPY    @MODULESDIR@/kernel/drivers/pcmcia/tcic.o.gz		lib/modules/@KERNEL_VERSION@/pcmcia/tcic.o.gz
+COPY	@MODULESDIR@/kernel/drivers/pcmcia/yenta_socket.o.gz	lib/modules/@KERNEL_VERSION@/pcmcia/yenta_socket.o.gz

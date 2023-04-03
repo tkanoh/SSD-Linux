@@ -1,0 +1,6 @@
+#	$ssdlinux: profile,v 1.2 2005/01/18 08:40:25 todoroki Exp $
+PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
+TERM=linux
+PS1='# '
+export TERM PATH PS1 ignoreeof
+umask 022

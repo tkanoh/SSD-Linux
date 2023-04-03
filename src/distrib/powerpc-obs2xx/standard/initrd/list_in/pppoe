@@ -1,0 +1,12 @@
+#	$ssdlinux: pppoe,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+BCOPY	@SRCTOPDIR@/usr.sbin/pppoe/pppoe/pppoe				usr/sbin/pppoe
+SCOPY	@SRCTOPDIR@/usr.sbin/pppoe/scripts/adsl-connect			usr/sbin/adsl-connect
+SCOPY	@SRCTOPDIR@/usr.sbin/pppoe/scripts/adsl-init			usr/sbin/adsl-init
+SCOPY	@SRCTOPDIR@/usr.sbin/pppoe/scripts/adsl-setup			usr/sbin/adsl-setup
+SCOPY	@SRCTOPDIR@/usr.sbin/pppoe/scripts/adsl-start			usr/sbin/adsl-start
+SCOPY	@SRCTOPDIR@/usr.sbin/pppoe/scripts/adsl-status			usr/sbin/adsl-status
+SCOPY	@SRCTOPDIR@/usr.sbin/pppoe/scripts/adsl-stop			usr/sbin/adsl-stop
+ECOPY	644 @SRCTOPDIR@/usr.sbin/pppoe/configs/pppoe.conf		etc/ppp/pppoe.conf
+ECOPY	644 @SRCTOPDIR@/dist/rp-pppoe/configs/firewall-standalone	etc/ppp/firewall-standalone
+ECOPY	644 @SRCTOPDIR@/dist/rp-pppoe/configs/firewall-masq		etc/ppp/firewall-masq

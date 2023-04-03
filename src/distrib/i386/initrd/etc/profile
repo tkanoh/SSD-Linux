@@ -1,0 +1,6 @@
+#	$ssdlinux: profile,v 1.1.1.1 2002/05/02 13:37:05 kanoh Exp $
+PATH="/bin:/sbin:/usr/bin:/usr/sbin"
+TERM=linux
+PS1='# '
+export TERM PATH PS1 ignoreeof
+umask 022

@@ -1,0 +1,14 @@
+# $Id: glibc-2.3.2-sscanf_c.diff,v 1.1 2004/06/16 17:15:11 kanoh Exp $
+--- glibc-2.3.2/stdio-common/sscanf.c.orig	2004-06-16 16:17:19.000000000 +0000
++++ glibc-2.3.2/stdio-common/sscanf.c	2004-06-16 16:18:53.000000000 +0000
+@@ -27,9 +27,7 @@
+ /* Read formatted input from S, according to the format string FORMAT.  */
+ /* VARARGS2 */
+ int
+-sscanf (s, format)
+-     const char *s;
+-     const char *format;
++sscanf (const char* s, const char* format, ...)
+ {
+   va_list arg;
+   int done;

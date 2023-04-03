@@ -1,0 +1,10 @@
+#	$ssdlinux: Makefile.ldflags,v 1.1.1.1 2002/05/02 13:37:07 kanoh Exp $
+LIBNFSDIR=	${DIST}/../../lib/nfs-utils
+
+LDADD+=	-L${LIBNFSDIR}/libexport -lexport
+LDADD+=	-L${LIBNFSDIR}/libnfs -lnfs
+LDADD+=	-L${LIBNFSDIR}/libmisc -lmisc
+LDADD+=	-L${DIST}/../../lib/libwrap -lwrap -lnsl
+DPADD+=	${LIBNFSDIR}/libexport/libexport.a
+DPADD+=	${LIBNFSDIR}/libnfs/libnfs.a
+DPADD+=	${LIBNFSDIR}/libmisc/libmisc.a

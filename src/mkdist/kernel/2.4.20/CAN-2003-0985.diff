@@ -1,0 +1,18 @@
+# $ssdlinux: CAN-2003-0985.diff,v 1.1 2004/11/02 17:06:12 kanoh Exp $
+diff -Naru linux-2.4.20.orig/mm/mremap.c linux-2.4.20/mm/mremap.c
+--- linux-2.4.20.orig/mm/mremap.c	2002-12-11 11:37:17.000000000 +0900
++++ linux-2.4.20/mm/mremap.c	2004-01-07 00:21:30.000000000 +0900
+@@ -236,6 +236,13 @@
+ 
+ 		if (new_len > TASK_SIZE || new_addr > TASK_SIZE - new_len)
+ 			goto out;
++		/*
++		 * Allow new_len == 0 only if new_addr == addr
++		 * to preserve truncation in place (that was working
++		 * safe and some app may depend on it).
++		 */
++		if (unlikely(!new_len && new_addr != addr))
++			goto out;
+ 
+ 		/* Check if the location we're moving into overlaps the
+ 		 * old location at all, and fail if it does.

@@ -1,0 +1,25 @@
+# $Id: CAN-2004-0554.diff,v 1.1 2004/11/02 17:06:12 kanoh Exp $
+diff -Naur linux-2.4.20.orig/include/asm-i386/i387.h linux-2.4.20/include/asm-i386/i387.h
+--- linux-2.4.20.orig/include/asm-i386/i387.h	2004-06-16 14:49:00.000000000 +0000
++++ linux-2.4.20/include/asm-i386/i387.h	2004-06-16 14:51:23.000000000 +0000
+@@ -34,7 +34,7 @@
+ 
+ #define clear_fpu( tsk ) do { \
+ 	if ( tsk->flags & PF_USEDFPU ) { \
+-		asm volatile("fwait"); \
++		asm volatile("fnclex ; fwait"); \
+ 		tsk->flags &= ~PF_USEDFPU; \
+ 		stts(); \
+ 	} \
+diff -Naur linux-2.4.20.orig/include/asm-x86_64/i387.h linux-2.4.20/include/asm-x86_64/i387.h
+--- linux-2.4.20.orig/include/asm-x86_64/i387.h	2004-06-16 14:48:36.000000000 +0000
++++ linux-2.4.20/include/asm-x86_64/i387.h	2004-06-16 14:51:54.000000000 +0000
+@@ -33,7 +33,7 @@
+ 
+ #define clear_fpu( tsk ) do { \
+ 	if ( tsk->flags & PF_USEDFPU ) { \
+-		asm volatile("fwait"); \
++		asm volatile("fnclex ; fwait"); \
+ 		tsk->flags &= ~PF_USEDFPU; \
+ 		stts(); \
+ 	} \

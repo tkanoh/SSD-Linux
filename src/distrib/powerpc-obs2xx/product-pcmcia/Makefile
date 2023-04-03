@@ -1,0 +1,9 @@
+#	$ssdlinux: Makefile,v 1.1 2004/12/14 04:25:58 todoroki Exp $
+
+.include <bsd.own.mk>
+
+EXTENTION=	.pcmcia-product
+
+SUBDIR=  initrd	treeboot
+
+.include <bsd.subdir.mk>

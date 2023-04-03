@@ -1,0 +1,5 @@
+#	$ssdlinux: bash,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+# /bin
+BCOPY @SRCTOPDIR@/bin/bash/src/bash		bin/bash
+SYMLINK bash					bin/sh

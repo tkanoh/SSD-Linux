@@ -1,0 +1,11 @@
+--- gdb-6.3.orig/libiberty/configure	2004-09-03 15:53:15.000000000 +0900
++++ gdb-6.3/libiberty/configure	2004-11-10 11:31:26.000000000 +0900
+@@ -2195,7 +2195,7 @@
+ echo "$as_me: error: cannot run C compiled programs.
+ If you meant to cross compile, use \`--host'.
+ See \`config.log' for more details." >&2;}
+-   { (exit 1); exit 1; }; }
++   { (echo 1); echo 1; }; }
+     fi
+   fi
+ fi

@@ -1,0 +1,7 @@
+#	$ssdlinux: Makefile.cflags,v 1.1 2005/01/06 03:28:10 yamagata Exp $
+
+CPPFLAGS+=	-DHAVE_CONFIG_H
+.if ${KERNEL_PATCHLEVEL} == "26" || ${KERNEL_PATCHLEVEL} == "28"
+CPPFLAGS+=	-DHAVE_STRUCT_STAT_ST_ATIM_TV_NSEC=1
+CPPFLAGS+=	-DST_MTIM_NSEC="tv_nsec"
+.endif

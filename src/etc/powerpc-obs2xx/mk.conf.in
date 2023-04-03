@@ -1,0 +1,23 @@
+#       $ssdlinux: mk.conf.in,v 1.2 2004/05/18 08:46:53 yamagata Exp $
+#DESTDIR=	/home/dest
+#RELEASEDIR=	/home/release
+#RCS_LOCALID=	ssdlinux
+SSDCVSTAG=
+#SSDCVSDATE=	20020420
+
+# alternate kernel config which instead of 
+# mkdist/kernel/dot.config.* if required 
+#KERNEL_CONFIG=	/any_dir/my_kernel_config
+
+# OPENBLOCKS    'obs50','obs200','obs266' or 'none'
+OPENBLOCKS?=	@OPENBLOCKS@
+
+HAVE_CVS?=	yes
+DEVELOPTOOLS?=	yes
+USE_PAM?=	yes
+USE_PCMCIA?=	yes
+USE_EXT3FS?=	yes
+IPV6?=		yes
+
+# MTA		'sendmail' or 'postfix'
+MTA?=		sendmail

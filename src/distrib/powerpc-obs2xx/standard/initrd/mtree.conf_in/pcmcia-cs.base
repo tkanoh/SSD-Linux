@@ -1,0 +1,4 @@
+#	$ssdlinux: pcmcia-cs.base,v 1.1 2004/12/02 01:54:34 todoroki Exp $
+./etc/pcmcia/cis
+./lib/modules/@KERNEL_VERSION@/net
+./lib/modules/@KERNEL_VERSION@/pcmcia

@@ -1,0 +1,16 @@
+diff -Naru linux-2.4.27.orig/include/asm-ppc/param.h linux-2.4.27/include/asm-ppc/param.h
+--- linux-2.4.27.orig/include/asm-ppc/param.h	2003-06-13 23:51:38.000000000 +0900
++++ linux-2.4.27/include/asm-ppc/param.h	2004-11-12 11:54:50.000000000 +0900
+@@ -2,8 +2,12 @@
+ #define _ASM_PPC_PARAM_H
+ 
+ #ifndef HZ
++#if defined(CONFIG_OBS200) || defined(CONFIG_OBS50)
++#define HZ 50
++#else
+ #define HZ 100
+ #endif
++#endif
+ 
+ #define EXEC_PAGESIZE	4096
+ 

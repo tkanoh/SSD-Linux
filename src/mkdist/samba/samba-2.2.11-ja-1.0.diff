@@ -1,0 +1,85 @@
+diff -aruN samba-2.2.11-ja-1.0.orig/source/configure samba-2.2.11-ja-1.0/source/configure
+--- samba-2.2.11-ja-1.0.orig/source/configure	2004-01-22 20:20:31.000000000 +0900
++++ samba-2.2.11-ja-1.0/source/configure	2004-09-10 16:56:04.000000000 +0900
+@@ -26248,6 +26248,7 @@
+     posrcprefix="\$(top_srcdir)/"
+ 
+     rm -f $PODIR/POTFILES
++    mkdir -p $PODIR
+     sed -e "/^#/d" -e "/^\$/d" -e "s,.*,	$posrcprefix& \\\\," -e "\$s/\(.*\) \\\\/\1/" \
+ 	< $srcdir/$PODIR/POTFILES.in > $PODIR/POTFILES
+ 
+diff -aruN samba-2.2.11-ja-1.0.orig/source/intl/Makefile.in samba-2.2.11-ja-1.0/source/intl/Makefile.in
+--- samba-2.2.11-ja-1.0.orig/source/intl/Makefile.in	2003-08-22 17:46:06.000000000 +0900
++++ samba-2.2.11-ja-1.0/source/intl/Makefile.in	2004-09-10 16:56:04.000000000 +0900
+@@ -83,7 +83,7 @@
+ 	$(LIBTOOL) --mode=compile $(COMPILE) $<
+ 
+ # re-written by rkawa because config.h of samba is not in @top_srcdir@.
+-INCLUDES = -I.. -I. -I$(top_srcdir)/intl -I$(top_srcdir)/lib -I$(top_srcdir)/include
++INCLUDES = -I.. -I. -I$(top_srcdir)/intl -I$(top_srcdir)/lib -I$(top_builddir)/include -I$(top_srcdir)/include
+ 
+ all: all-@USE_INCLUDED_LIBINTL@
+ 
+@@ -155,7 +155,7 @@
+ info dvi:
+ 
+ # re-written by rkawa because config.h of samba is not in @top_srcdir@.
+-$(OBJECTS): $(top_srcdir)/include/config.h libgettext.h
++$(OBJECTS): $(top_builddir)/include/config.h libgettext.h
+ bindtextdom.$lo finddomain.$lo loadmsgcat.$lo: gettextP.h gettext.h loadinfo.h
+ dcgettext.$lo: gettextP.h gettext.h hash-string.h loadinfo.h
+ 
+diff -aruN samba-2.2.11-ja-1.0.orig/source/po/Makefile.in.in samba-2.2.11-ja-1.0/source/po/Makefile.in.in
+--- samba-2.2.11-ja-1.0.orig/source/po/Makefile.in.in	2001-12-04 11:14:01.000000000 +0900
++++ samba-2.2.11-ja-1.0/source/po/Makefile.in.in	2004-09-10 16:56:04.000000000 +0900
+@@ -14,6 +14,7 @@
+ 
+ srcdir = @srcdir@
+ top_srcdir = @top_srcdir@
++top_builddir = ..
+ VPATH = @srcdir@
+ 
+ prefix = @prefix@
+@@ -245,8 +246,8 @@
+ 	    && chmod a-w $@-t \
+ 	    && mv $@-t $@ )
+ 
+-Makefile: Makefile.in.in $(top_srcdir)/config.status POTFILES
+-	cd $(top_srcdir)/ \
++Makefile: Makefile.in.in $(top_builddir)/config.status POTFILES
++	cd $(top_builddir)/ \
+ 	  && CONFIG_FILES=$(subdir)/$@.in CONFIG_HEADERS= \
+ 	       $(SHELL) ./config.status
+ 
+diff -aruN samba-2.2.11-ja-1.0.orig/source/web/po/Makefile.in.in samba-2.2.11-ja-1.0/source/web/po/Makefile.in.in
+--- samba-2.2.11-ja-1.0.orig/source/web/po/Makefile.in.in	2001-12-03 20:32:30.000000000 +0900
++++ samba-2.2.11-ja-1.0/source/web/po/Makefile.in.in	2004-09-10 16:56:04.000000000 +0900
+@@ -14,6 +14,7 @@
+ 
+ srcdir = @srcdir@
+ top_srcdir = @top_srcdir@
++top_builddir = ../..
+ VPATH = @srcdir@
+ 
+ prefix = @prefix@
+@@ -42,7 +43,7 @@
+ CFLAGS = @CFLAGS@
+ CPPFLAGS = @CPPFLAGS@
+ 
+-INCLUDES = -I.. -I$(INTLDIR) -I$(top_srcdir)/include
++INCLUDES = -I.. -I$(INTLDIR) -I$(top_builddir)/include -I$(top_srcdir)/include
+ 
+ COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(XCFLAGS)
+ 
+@@ -246,8 +247,8 @@
+ 	    && chmod a-w $@-t \
+ 	    && mv $@-t $@ )
+ 
+-Makefile: Makefile.in.in $(top_srcdir)/config.status POTFILES
+-	cd $(top_srcdir)/ \
++Makefile: Makefile.in.in $(top_builddir)/config.status POTFILES
++	cd $(top_builddir)/ \
+ 	  && CONFIG_FILES=$(subdir)/$@.in CONFIG_HEADERS= \
+ 	       $(SHELL) ./config.status
+ 

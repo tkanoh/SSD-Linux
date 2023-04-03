@@ -1,0 +1,4 @@
+#	$ssdlinux: Makefile.cflags,v 1.1 2004/03/23 14:05:40 yamagata Exp $
+
+CPPFLAGS+=	-DLOCALEDIR=\"/usr/share/locale\" -DSHAREDIR=\"/usr/share\"
+CPPFLAGS+=	-DHAVE_CONFIG_H -I${LIBCUDIR} -I${DIST}/src -I${DIST}/lib

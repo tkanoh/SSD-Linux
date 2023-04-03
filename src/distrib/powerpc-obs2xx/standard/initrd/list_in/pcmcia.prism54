@@ -1,0 +1,5 @@
+#       $ssdlinux: pcmcia.prism54,v 1.1 2005/01/06 06:29:06 todoroki Exp $
+
+# 802.11g/b Prism chip
+COPY    @MODULESDIR@/kernel/drivers/net/wireless/prism54/prism54.o.gz   lib/modules/@KERNEL_VERSION@/pcmcia/prism54.o.gz
+ECOPY   444 @SRCTOPDIR@/lib/firmware/prism54/isl3890            usr/lib/hotplug/firmware/isl3890

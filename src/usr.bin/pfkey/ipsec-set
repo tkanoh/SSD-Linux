@@ -1,0 +1,223 @@
+#!/bin/sh
+#	$ssdlinux: ipsec-set,v 1.1.1.1 2002/05/02 13:37:11 kanoh Exp $
+# set -x
+#############################################################################
+# Copyright (C) 2001 USAGI/WIDE Project.
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+# 3. Neither the name of the project nor the names of its contributors
+#    may be used to endorse or promote products derived from this software
+#    without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+#
+# $USAGI: ipsec-set.in,v 1.5 2001/11/12 08:50:20 mk Exp $
+#############################################################################
+#
+# For easy testing!
+#
+#############################################################################
+# hostA                                                              hostB
+#       ------------------------------------------------------------>
+#       hostA_*
+#
+#       <------------------------------------------------------------
+#                                                             hostB_*
+#
+#
+#
+## Configuration file example (you have to specify it by -c option.)
+# (see ipsec-static.conf-sample about config-file format)
+#
+#LABEL: foo
+#hostA_addr=3ffe:a:b:c::1
+#hostB_addr=3ffe:a:b:c::2
+#hostA_AH_SPI=0x1234
+#hostA_ESP_SPI=0x5678
+#hostB_AH_SPI=0x9abc
+#hostB_ESP_SPI=0xdef0
+#AH_auth=hmac-md5
+#AH_authkey=0x0123456789abcdef0123456789abcdef
+#ESP_auth=hmac-md5
+#ESP_authkey=0x0123456789abcdef0123456789abcdef
+#ESP_esp=3des-cbc
+#ESP_espkey=0x0123456789abcdef0123456789abcdef0123456789abcdef
+#PROTOCOL=
+
+# a number of items in one LABEL
+ITEM=13
+
+CONFIG_FILE=/etc/ipsec-static.conf
+PFKEY_CMD=/usr/bin/pfkey
+
+usage()
+{
+	echo -e "usage: ipsec-set [-c config-file] command\n\tcommand:all(|set)/noauth/ah/esp/noauthesp\n\t\treset/noauth-reset/ah-rest/esp-reset/noauthesp-reset [label]"
+}
+
+default_set()
+{
+hostA_addr=
+hostB_addr=
+hostA_AH_SPI=
+hostA_ESP_SPI=
+hostB_AH_SPI=
+hostB_ESP_SPI=
+AH_auth=
+AH_authkey=
+ESP_auth=
+ESP_authkey=
+ESP_esp=
+ESP_espkey=
+PROTOCOL=
+}
+
+read_conf()
+{
+sed -e '/^#/d' $CONFIG_FILE |sed -e '/^$/d'| egrep  -A $ITEM "LABEL:[[:space:]]*${label}" |tail -$ITEM | tr -d ' |\t'
+}
+
+
+if [ $# -eq 0 ] || [ $# -ge 5 ] ; then
+	usage
+	exit 1
+fi
+
+default_set
+
+TEMP=`getopt -o hc: --long config-file:,help -- "$@"`
+
+if [ $? != 0 ] ; then usage ; exit 1 ; fi
+
+eval set -- "$TEMP"
+
+while true ; do
+     case "$1" in
+	     -c|--config-file) CONFIG_FILE=$2 ; shift 2 ;;
+	     -h|--help) usage; exit ;;
+	     --) shift ; break ;;
+	     *) usage; exit 1 ;;
+     esac
+done
+command=$1
+label=$2
+if [ "${label}" = "" ] ; then
+	label=default
+	shift
+else
+	shift 2
+fi
+
+if [ $# -ne 0 ] ; then
+	usage
+	exit 1
+fi
+
+eval `read_conf`
+
+if [ "$PROTOCOL" = "" ] ; then
+	PROTOCOL=any
+fi
+
+case "$command" in
+all|set)
+	# hostA -> hostB
+	${PFKEY_CMD} -A sa -T ah  -S ${hostA_AH_SPI}  -s ${hostA_addr} -d ${hostB_addr} --auth ${AH_auth}  --authkey ${AH_authkey} \
+														-p ${PROTOCOL} 
+	${PFKEY_CMD} -A sa -T esp -S ${hostA_ESP_SPI} -s ${hostA_addr} -d ${hostB_addr} --auth ${ESP_auth} --authkey ${ESP_authkey} \
+									--esp ${ESP_esp} --espkey ${ESP_espkey} -p ${PROTOCOL} 
+	${PFKEY_CMD} -A sp -T ah -S ${hostA_AH_SPI}  -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL}
+	${PFKEY_CMD} -A sp -T esp -S ${hostA_ESP_SPI}  -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL}
+	# hostB -> hostA
+	${PFKEY_CMD} -A sa -T ah -S ${hostB_AH_SPI}  -d ${hostA_addr} -s ${hostB_addr} --auth ${AH_auth} --authkey ${AH_authkey} \
+		 												-p ${PROTOCOL}
+	${PFKEY_CMD} -A sa -T esp -S ${hostB_ESP_SPI} -d ${hostA_addr} -s ${hostB_addr} --auth ${ESP_auth} --authkey ${ESP_authkey} \
+									--esp ${ESP_esp} --espkey ${ESP_espkey} -p ${PROTOCOL} 
+	${PFKEY_CMD} -A sp -T ah -S ${hostB_AH_SPI}  -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL} 
+	${PFKEY_CMD} -A sp -T esp -S ${hostB_ESP_SPI} -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL}   
+	;;
+noauth)
+	# hostA -> hostB
+	${PFKEY_CMD} -A sa -T ah -S ${hostA_AH_SPI}  -s ${hostA_addr} -d ${hostB_addr} --auth ${AH_auth} --authkey ${AH_authkey} -p ${PROTOCOL}
+	${PFKEY_CMD} -A sa -T esp -S ${hostA_ESP_SPI} -s ${hostA_addr} -d ${hostB_addr} --esp ${ESP_esp} --espkey ${ESP_espkey} -p ${PROTOCOL}
+	${PFKEY_CMD} -A sp -T ah -S ${hostA_AH_SPI}  -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL}
+	${PFKEY_CMD} -A sp -T esp -S ${hostA_ESP_SPI}  -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL}
+	# hostB -> hostA
+	${PFKEY_CMD} -A sa -T ah -S ${hostB_AH_SPI}  -d ${hostA_addr} -s ${hostB_addr} --auth ${AH_auth} --authkey ${AH_authkey} -p ${PROTOCOL}
+	${PFKEY_CMD} -A sa -T esp -S ${hostB_ESP_SPI} -d ${hostA_addr} -s ${hostB_addr}  --esp ${ESP_esp} --espkey ${ESP_espkey} -p ${PROTOCOL}
+	${PFKEY_CMD} -A sp -T ah -S ${hostB_AH_SPI}  -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL}
+	${PFKEY_CMD} -A sp -T esp -S ${hostB_ESP_SPI} -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL}
+	;;
+ah)
+	# hostA -> hostB
+	${PFKEY_CMD} -A sa -T ah -S ${hostA_AH_SPI}  -s ${hostA_addr} -d ${hostB_addr} --auth ${AH_auth} --authkey ${AH_authkey} -p ${PROTOCOL}
+	${PFKEY_CMD} -A sp -T ah -S ${hostA_AH_SPI}  -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL}
+	# hostB -> hostA
+	${PFKEY_CMD} -A sa -T ah -S ${hostB_AH_SPI}  -d ${hostA_addr} -s ${hostB_addr} --auth ${AH_auth} --authkey ${AH_authkey} -p ${PROTOCOL}
+	${PFKEY_CMD} -A sp -T ah -S ${hostB_AH_SPI}  -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL}
+	;;
+esp)
+	# hostA -> hostB
+	${PFKEY_CMD} -A sa -T esp -S ${hostA_ESP_SPI} -s ${hostA_addr} -d ${hostB_addr} --auth ${ESP_auth} --authkey ${ESP_authkey} \
+										--esp ${ESP_esp} --espkey ${ESP_espkey} -p ${PROTOCOL}
+	${PFKEY_CMD} -A sp -T esp -S ${hostA_ESP_SPI}  -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL}
+	# hostB -> hostA
+	${PFKEY_CMD} -A sa -T esp -S ${hostB_ESP_SPI} -d ${hostA_addr} -s ${hostB_addr} --auth ${ESP_auth} --authkey ${ESP_authkey} \
+										--esp ${ESP_esp} --espkey ${ESP_espkey} -p ${PROTOCOL}
+	${PFKEY_CMD} -A sp -T esp -S ${hostB_ESP_SPI} -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL}
+	;;
+noauthesp)
+	# hostA -> hostB
+	${PFKEY_CMD} -A sa -T esp -S ${hostA_ESP_SPI} -s ${hostA_addr} -d ${hostB_addr} --esp ${ESP_esp} --espkey ${ESP_espkey} -p ${PROTOCOL}
+	${PFKEY_CMD} -A sp -T esp -S ${hostA_ESP_SPI}  -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL}
+	# hostB -> hostA
+	${PFKEY_CMD} -A sa -T esp -S ${hostB_ESP_SPI} -d ${hostA_addr} -s ${hostB_addr} --esp ${ESP_esp} --espkey ${ESP_espkey} -p ${PROTOCOL}
+	${PFKEY_CMD} -A sp -T esp -S ${hostB_ESP_SPI} -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL}
+	;;
+#########################################################################################################
+reset|noauth-reset)
+	${PFKEY_CMD} -D sa -T ah -S ${hostA_AH_SPI}  -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL}
+	${PFKEY_CMD} -D sa -T ah -S ${hostB_AH_SPI}  -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL}
+	${PFKEY_CMD} -D sa -T esp -S ${hostA_ESP_SPI}  -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL}
+	${PFKEY_CMD} -D sa -T esp -S ${hostB_ESP_SPI}  -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL}
+	${PFKEY_CMD} -D sp -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL} 
+	${PFKEY_CMD} -D sp -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL}
+	;;
+ah-reset)
+	${PFKEY_CMD} -D sp -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL}
+	${PFKEY_CMD} -D sa -T ah -S ${hostA_AH_SPI}  -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL}
+	${PFKEY_CMD} -D sp -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL}
+	${PFKEY_CMD} -D sa -T ah -S ${hostB_AH_SPI}  -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL}
+	;;
+esp-reset|noauthesp-reset)
+	${PFKEY_CMD} -D sp -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL}
+	${PFKEY_CMD} -D sa -T esp -S ${hostA_ESP_SPI}  -s ${hostA_addr} -d ${hostB_addr} -p ${PROTOCOL}
+	${PFKEY_CMD} -D sp -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL}
+	${PFKEY_CMD} -D sa -T esp -S ${hostB_ESP_SPI}  -d ${hostA_addr} -s ${hostB_addr} -p ${PROTOCOL}
+	;;
+*)
+	usage
+	exit 1
+	;;
+esac
+
+${PFKEY_CMD} -L
+

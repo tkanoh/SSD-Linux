@@ -1,0 +1,14 @@
+# $ssdlinux: CAN-2003-0961.diff,v 1.1 2004/11/02 17:06:12 kanoh Exp $
+diff -Naru linux-2.4.20.orig/mm/mmap.c linux-2.4.20/mm/mmap.c
+--- linux-2.4.20.orig/mm/mmap.c	2002-12-11 11:39:45.000000000 +0900
++++ linux-2.4.20/mm/mmap.c	2003-12-05 00:53:44.000000000 +0900
+@@ -1037,6 +1037,9 @@
+ 	if (!len)
+ 		return addr;
+ 
++	if ((addr + len) > TASK_SIZE || (addr + len) < addr)
++		return -EINVAL;
++
+ 	/*
+ 	 * mlock MCL_FUTURE?
+ 	 */

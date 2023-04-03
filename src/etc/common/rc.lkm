@@ -1,0 +1,54 @@
+#	$ssdlinux: rc.lkm,v 1.1.1.1 2002/05/02 13:37:06 kanoh Exp $
+#
+# this script loads or unloads LKMs (loadable kernel modules).
+
+RELEASE=`/bin/uname -r`
+
+if [ "$1" = "start" ]; then
+	if [ -e /lib/modules/$RELEASE/modules.dep \
+	     -a /lib/modules/$RELEASE/modules.dep -nt /etc/modules.conf ]; then
+		NEWMODS="`/usr/bin/find /lib/modules/$RELEASE -type f -newer /lib/modules/$RELEASE/modules.dep`"
+		if [ ! "" = "$NEWMODS" ]; then
+			/sbin/depmod -a
+		fi
+	else
+		/sbin/depmod -A
+	fi
+fi
+
+if [ -s /etc/lkm.conf ]; then
+	case "$1" in
+	start)
+		(while read path options; do
+			cmd='/sbin/modprobe '
+			case $path in
+				\#*|"")
+					continue
+					;;
+				/*)
+					;;
+				*)
+					cmd="$cmd $path $options"
+					;;
+			esac
+			$cmd
+		done) < /etc/lkm.conf
+		;;
+	stop)
+		(while read path options; do
+			cmd='/sbin/modprobe -r '
+			case $path in
+				\#*|"")
+					continue
+					;;
+				/*)
+					;;
+				*)
+					cmd="$cmd $path $options"
+					;;
+			esac
+			$cmd
+		done) < /etc/lkm.conf
+		;;
+	esac
+fi

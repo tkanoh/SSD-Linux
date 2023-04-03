@@ -1,0 +1,15 @@
+#       $ssdlinux: hotplug,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+BCOPY	@SRCTOPDIR@/bin/csh/csh					bin/csh
+ECOPY	555 @SRCTOPDIR@/usr.bin/which/which.csh			usr/bin/which
+BCOPY	@SRCTOPDIR@/usr.bin/env/env				usr/bin/env
+BCOPY	@SRCTOPDIR@/usr.sbin/pciutils/pcimodules/pcimodules	usr/sbin/pcimodules
+ECOPY	555 @SRCTOPDIR@/dist/hotplug/sbin/hotplug		sbin/hotplug
+ECOPY	555 @SRCTOPDIR@/sbin/hotplug/etc/rc.hotplug		etc/rc.hotplug
+ECOPY	555 @SRCTOPDIR@/dist/hotplug/etc/hotplug/firmware.agent	etc/hotplug/firmware.agent
+ECOPY	555 @SRCTOPDIR@/dist/hotplug/etc/hotplug/hotplug.functions	etc/hotplug/hotplug.functions
+ECOPY	555 @SRCTOPDIR@/dist/hotplug/etc/hotplug/net.agent	etc/hotplug/net.agent
+ECOPY	555 @SRCTOPDIR@/dist/hotplug/etc/hotplug/pci.agent	etc/hotplug/pci.agent
+ECOPY	555 @SRCTOPDIR@/dist/hotplug/etc/hotplug/pci.rc		etc/hotplug/pci.rc
+ECOPY	644 @SRCTOPDIR@/dist/hotplug/etc/hotplug/blacklist	etc/hotplug/blacklist
+ECOPY	555 @SRCTOPDIR@/dist/hotplug/etc/hotplug.d/default/default.hotplug	etc/hotplug.d/default/default.hotplug

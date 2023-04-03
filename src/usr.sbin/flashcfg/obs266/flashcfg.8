@@ -1,0 +1,91 @@
+.\"	$ssdlinux: flashcfg.8,v 1.1 2004/11/09 07:54:28 yamagata Exp $
+.\"
+.\" Copyright (c) 2003-2004
+.\"         Plat'Home CO., LTD. <openlab@plathome.co.jp>. All rights reserved.
+.\"
+.\" Conditions and the no-warranty notice below apply to this software except
+.\" software which has its own conditions and the no-warranty notice.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+.\" INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.TH FLASHCFG "8" "April 2003" "OpenBlockS266" "System management commands"
+.SH NAME
+flashcfg \- manage FlashROM
+.SH SYNOPSIS
+.B flashcfg
+\fB\-c \fIrootdev\fR
+.fi
+.PP
+.B flashcfg
+\fB\-d\fR
+.fi
+.PP
+.B flashcfg
+\fB\-f \fIboot_image\fR
+.fi
+.PP
+.B flashcfg
+\fB\-h\fR
+.fi
+.PP
+.B flashcfg
+\fB\-s \fIlist_file\fR
+.fi
+.PP
+.B flashcfg
+\fB\-x\fR
+.fi
+.SH DESCRIPTION
+The flashcfg command restores files and directories from FlashROM,
+saves them to it, deletes them from it,
+loads a boot image to it and changes the root file system.
+.TP
+\fB\-c \fIrootdev\fR
+change the root file system to \fIrootdev\fR: \fIinitrd\fR (initrd),
+\fIharddisk\fR (hard disk), \fIhda1,...,had4\fR (partition)
+.TP
+\fB\-d\fR
+delete files saved from FlashROM
+.TP
+\fB\-f \fIboot_image\fR
+load the boot image, \fIboot_image\fR, to FlashROM
+.TP
+\fB\-h\fR
+display this help and exit
+.TP
+\fB\-s \fIlist_file\fR
+save files and directoties in \fIlist_file\fR (/etc/flashcfg) to FlashROM
+.TP
+\fB\-x\fR
+restore files and directoties from FlashROM
+.SH FILES
+.TP
+.I /etc/flashcfg
+list of files and directories restored or saved.
+.SH AUTHOR
+Written by Plat'Home CO., LTD. <openlab@plathome.co.jp>.
+.SH "REPORTIONG BUGS"
+Report bugs to <openlab@plathome.co.jp>.
+.SH COPURIGHT
+Copyright \(co 2003-2004 Plat'Home CO., LTD.

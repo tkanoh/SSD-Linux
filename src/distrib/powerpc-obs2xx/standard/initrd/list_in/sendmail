@@ -1,0 +1,27 @@
+#	$ssdlinux: sendmail,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+BCOPY	@SRCTOPDIR@/usr.sbin/sendmail/sendmail/sendmail	usr/sbin/sendmail
+BCOPY	@SRCTOPDIR@/usr.sbin/sendmail/makemap/makemap	usr/sbin/makemap
+SYMLINK /usr/sbin/sendmail				usr/bin/newaliases
+SYMLINK /usr/sbin/sendmail				usr/bin/mailq
+SYMLINK /usr/sbin/sendmail				usr/bin/hoststat
+SYMLINK /usr/sbin/sendmail				usr/bin/purgestat
+SPECIAL	/bin/chmod 2555 usr/sbin/sendmail
+SPECIAL chown root.smmsp usr/sbin/sendmail
+SPECIAL /bin/chmod 770 var/spool/clientmqueue
+SPECIAL chown smmsp.smmsp var/spool/clientmqueue
+
+BCOPY	@SRCTOPDIR@/usr.sbin/sendmail/mail.local/mail.local usr/libexec/mail.local
+SPECIAL	/bin/chmod 2555 usr/libexec/mail.local
+SPECIAL chown root.smmsp usr/libexec/mail.local
+
+ECOPY	644 @SRCTOPDIR@/etc/common/mail/aliases		etc/mail/aliases
+ECOPY	444 @SRCTOPDIR@/usr.sbin/sendmail/cf/cf/cf/generic-ssdlinux.cf etc/mail/sendmail.cf
+ECOPY	444 @SRCTOPDIR@/dist/sendmail/sendmail/helpfile	etc/mail/helpfile
+ECOPY	644 @COMMON_ETCDIR@/myname			etc/mail/local-host-names
+SPECIAL touch etc/mail/relay-domains
+SPECIAL chown root.bin etc/mail/helpfile
+SPECIAL	touch etc/mail/statistics
+SPECIAL	/bin/chmod 644 etc/mail/statistics
+SPECIAL chown root.bin etc/mail/statistics
+SYMLINK	/dev/null var/log/maillog

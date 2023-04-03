@@ -1,0 +1,23 @@
+#	$ssdlinux: Makefile.cflags,v 1.4 2004/11/24 01:19:30 yamagata Exp $
+INCSDIR=	/usr/include/security
+
+CPPFLAGS+=	-Wall -Wwrite-strings -Wpointer-arith -Wcast-qual
+CPPFLAGS+=	-Wwrite-strings -Wcast-qual
+CPPFLAGS+=	-Wcast-align -Wstrict-prototypes -Wmissing-prototypes
+CPPFLAGS+=	-Wnested-externs -Winline -Wshadow
+CPPFLAGS+=	-Dlinux -ansi -D_POSIX_SOURCE -pedantic
+
+CPPFLAGS+=	-I${DIST}/../../lib/pam/include
+CPPFLAGS+=	-I${DIST}/libpam/include
+CPPFLAGS+=	-I${DIST}/libpam_misc/include
+CPPFLAGS+=	-I${DIST}/libpamc/include
+
+CPPFLAGS+=	-DPAM_DYNAMIC
+CPPFLAGS+=	-D"DEFAULT_MODULE_PATH=\"/lib/security/\""
+
+CPPFLAGS+=	-DLIBPAM_VERSION_MAJOR=0
+CPPFLAGS+=	-DLIBPAM_VERSION_MINOR=77
+
+LDADD+=		-lc -ldl
+
+NOGCCERROR=	yes

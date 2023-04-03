@@ -1,0 +1,13 @@
+--- e2fsprogs-1.36/e2fsck/unix.c.orig	2005-01-25 17:09:24.000000000 +0900
++++ e2fsprogs-1.36/e2fsck/unix.c	2005-03-02 11:21:17.000000000 +0900
+@@ -276,8 +276,8 @@
+ 			     (unsigned) fs->super->s_max_mnt_count*2))
+ 			reason = 0;
+ 	} else if (fs->super->s_checkinterval &&
+-		   ((now - fs->super->s_lastcheck) >= 
+-		    fs->super->s_checkinterval)) {
++		 now >= (fs->super->s_lastcheck +
++			     fs->super->s_checkinterval)) {
+ 		reason = _(" has gone %u days without being checked");
+ 		reason_arg = (now - fs->super->s_lastcheck)/(3600*24);
+ 		if (batt && ((now - fs->super->s_lastcheck) < 

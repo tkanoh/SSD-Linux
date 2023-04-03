@@ -1,0 +1,71 @@
+#	$ssdlinux: tar-1.15.1.flashcfg.diff,v 1.1 2004/12/22 08:45:00 yamagata Exp $
+diff -aruN tar-1.15.1.orig/src/common.h tar-1.15.1/src/common.h
+--- tar-1.15.1.orig/src/common.h	2004-12-21 23:31:58.000000000 +0900
++++ tar-1.15.1/src/common.h	2004-12-22 17:14:46.000000000 +0900
+@@ -266,6 +266,8 @@
+ 
+ GLOBAL bool touch_option;
+ 
++GLOBAL bool noTimeCheckOption;
++
+ /* Count how many times the option has been set, multiple setting yields
+    more verbose behavior.  Value 0 means no verbosity, 1 means file name
+    only, 2 means file name and all attributes.  More than 2 is just like 2.  */
+diff -aruN tar-1.15.1.orig/src/extract.c tar-1.15.1/src/extract.c
+--- tar-1.15.1.orig/src/extract.c	2004-12-21 18:55:12.000000000 +0900
++++ tar-1.15.1/src/extract.c	2004-12-22 17:14:46.000000000 +0900
+@@ -204,12 +204,15 @@
+ check_time (char const *file_name, time_t t)
+ {
+   time_t now;
+-  if (t <= 0)
+-    WARN ((0, 0, _("%s: implausibly old time stamp %s"),
+-	   file_name, tartime (t)));
+-  else if (start_time < t && (now = time (0)) < t)
+-    WARN ((0, 0, _("%s: time stamp %s is %lu s in the future"),
+-	   file_name, tartime (t), (unsigned long) (t - now)));
++  if ( ! noTimeCheckOption)
++  {
++    if (t <= 0)
++      WARN ((0, 0, _("%s: implausibly old time stamp %s"),
++	     file_name, tartime (t)));
++    else if (start_time < t && (now = time (0)) < t)
++      WARN ((0, 0, _("%s: time stamp %s is %lu s in the future"),
++	     file_name, tartime (t), (unsigned long) (t - now)));
++  }
+ }
+ 
+ /* Restore stat attributes (owner, group, mode and times) for
+diff -aruN tar-1.15.1.orig/src/tar.c tar-1.15.1/src/tar.c
+--- tar-1.15.1.orig/src/tar.c	2004-12-21 23:11:26.000000000 +0900
++++ tar-1.15.1/src/tar.c	2004-12-22 17:14:46.000000000 +0900
+@@ -233,7 +233,8 @@
+   VERSION_OPTION,
+   VOLNO_FILE_OPTION,
+   WILDCARDS_OPTION,
+-  WILDCARDS_MATCH_SLASH_OPTION
++  WILDCARDS_MATCH_SLASH_OPTION,
++  NO_TIME_CHECK_OPTION
+ };
+ 
+ const char *argp_program_version = "tar (" PACKAGE_NAME ") " VERSION;
+@@ -497,6 +498,8 @@
+    N_("exclude patterns use wildcards (default)"), 71 },
+   {"wildcards-match-slash", WILDCARDS_MATCH_SLASH_OPTION, 0, 0,
+    N_("exclude pattern wildcards match '/' (default)"), 71 },
++  {"no-time-check", NO_TIME_CHECK_OPTION, 0, 0,
++   N_("implausibly old time stamp"), 71 },
+ 
+   {NULL, 0, NULL, 0,
+    N_("Informative output:"), 80 },
+@@ -1165,6 +1168,10 @@
+       same_owner_option = 1;
+       break;
+       
++    case NO_TIME_CHECK_OPTION:
++      noTimeCheckOption = true;
++      break;
++
+     case '0':
+     case '1':
+     case '2':

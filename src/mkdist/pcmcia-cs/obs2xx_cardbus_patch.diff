@@ -1,0 +1,16 @@
+diff -Naru pcmcia-cs.orig/modules/cistpl.c pcmcia-cs/modules/cistpl.c
+--- pcmcia-cs.orig/modules/cistpl.c	2003-12-15 12:58:03.000000000 +0900
++++ pcmcia-cs/modules/cistpl.c	2004-02-02 12:52:25.000000000 +0900
+@@ -509,6 +509,12 @@
+     if (!(s->state & SOCKET_PRESENT))
+ 	return CS_NO_CARD;
+ 
++#ifdef CONFIG_OPENBLOCKS
++    if ((tuple->CISOffset & 0x80000000) != 0) {
++        return CS_NO_CARD;
++    }
++#endif
++
+     link[1] = tuple->TupleLink;
+     ofs = tuple->CISOffset + tuple->TupleLink;
+     attr = SPACE(tuple->Flags);

@@ -1,0 +1,22 @@
+#	$ssdlinux: Makefile.cflags,v 1.4 2004/04/08 06:16:47 todoroki Exp $
+
+SCRIPTS=	${MODULE}.o.gz
+CLEANFILES=	${SCRIPTS} *.o
+
+DIST=		${.CURDIR}/../../../../../dist/ov511
+KERNSRC=	${DIST}/../../linux
+.PATH:		${DIST}
+
+CPPFLAGS+=	-c -D__KERNEL__ -DMODULE -DOUTSIDE_KERNEL -O2 -Wall
+CPPFLAGS+=	-Wstrict-prototypes -fomit-frame-pointer -I${KERNSRC}/include
+
+${SCRIPTS}: ${.TARGET:M*.o.gz:.o.gz=.c}
+	${CC} ${CPPFLAGS} ${DIST}/${.TARGET:M*.o.gz:.o.gz=.c}
+	gzip -9 ${.TARGET:M*.o.gz:.o.gz=.o}
+
+scriptsinstall:
+	if [ ! -d ${DESTDIR}${BINDIR} ]; then \
+		mkdir -p ${DESTDIR}${BINDIR}; \
+	fi
+	${INSTALL} -c -m ${SCRIPTSMODE} -o ${BINOWN} -g ${BINGRP} \
+		${SCRIPTS} ${DESTDIR}${BINDIR}

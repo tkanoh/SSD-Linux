@@ -1,0 +1,302 @@
+#	$ssdlinux: netatalk-1.5.5.diff,v 1.1 2004/03/19 06:46:22 yamagata Exp $
+diff -aruN netatalk-1.5.5.orig/bin/nbp/nbplkup.c netatalk-1.5.5/bin/nbp/nbplkup.c
+--- netatalk-1.5.5.orig/bin/nbp/nbplkup.c	2001-06-29 23:14:46.000000000 +0900
++++ netatalk-1.5.5/bin/nbp/nbplkup.c	2004-03-19 15:17:30.000000000 +0900
+@@ -68,6 +68,7 @@
+ 
+     extern char		*optarg;
+     extern int		optind;
++    char buf1[100], buf2[100];
+ 
+     memset(&addr, 0, sizeof(addr));
+     while (( c = getopt( ac, av, "r:A:" )) != EOF ) {
+@@ -148,9 +149,11 @@
+ 	exit( -1 );
+     }
+     for ( i = 0; i < c; i++ ) {
++	cvtsjis2euc( nn[ i ].nn_obj, buf1, nn[ i ].nn_objlen );
++	cvtsjis2euc( nn[ i ].nn_type, buf2, nn[ i ].nn_typelen );
+ 	printf( "%31.*s:%-34.*s %u.%u:%u\n",
+-		nn[ i ].nn_objlen, nn[ i ].nn_obj,
+-		nn[ i ].nn_typelen, nn[ i ].nn_type,
++		nn[ i ].nn_objlen, buf1,
++		nn[ i ].nn_typelen, buf2,
+ 		ntohs( nn[ i ].nn_sat.sat_addr.s_net ),
+ 		nn[ i ].nn_sat.sat_addr.s_node,
+ 		nn[ i ].nn_sat.sat_port );
+diff -aruN netatalk-1.5.5.orig/etc/afpd/desktop.c netatalk-1.5.5/etc/afpd/desktop.c
+--- netatalk-1.5.5.orig/etc/afpd/desktop.c	2002-01-03 06:03:37.000000000 +0900
++++ netatalk-1.5.5/etc/afpd/desktop.c	2004-03-19 15:17:30.000000000 +0900
+@@ -603,8 +603,8 @@
+ 
+ char *mtoupath(const struct vol *vol, char *mpath)
+ {
+-    static char  upath[ MAXPATHLEN + 1];
+-    char	*m, *u;
++    static unsigned char  upath[ MAXPATHLEN + 1];
++    unsigned char *m, *u, c1, c2;
+     int		 i = 0;
+ 
+     if ( *mpath == '\0' ) {
+@@ -639,15 +639,38 @@
+                     (((vol->v_flags & AFPVOL_USEDOTS) == 0) &&
+                      ( i == 0 && (*m == '.' )))) {
+ #endif /* AD_VERSION == AD_VERSION1 */
+-                /* do hex conversion. */
+-                *u++ = ':';
+-                *u++ = hexdig[ ( *m & 0xf0 ) >> 4 ];
+-                *u = hexdig[ *m & 0x0f ];
++		c1 = *m++;
++		if ( ( (c1 >= 0x81) && (c1 <= 0x9f) ) ||
++			( (c1 >= 0xe0) && (c1 <= 0xfc) ) ) {
++			c2 = *m++;
++			i++;
++			c1 -= ( (c1 <= 0x9f)? 0x71: 0xb1 );
++			c1 <<= 1;
++			c1++;
++			if (c2 > 0x7f) c2--;
++			if (c2 >= 0x9e) {
++				c2 -= 0x7d;
++				c1++;
++			} else {
++				c2 -= 0x1f;
++			}
++			*u++ = c1+0x80;
++			*u++ = c2+0x80;
++		} else {
++			if ( (c1 >= 0xa1) && (c1 <= 0xdf) ) {
++				/* do hankaku kana conversion */
++				*u++ = 0x8e;
++				*u++ = c1;
++			} else {
++				/* do hex conversion. */
++				*u++ = ':';
++				*u++ = hexdig[ ( c1 & 0xf0 ) >> 4 ];
++				*u++ = hexdig[ c1 & 0x0f ];
++			}
++		}
+             } else
+-                *u = *m;
+-        u++;
++		*u++ = *m++;
+         i++;
+-        m++;
+     }
+     *u = '\0';
+ 
+@@ -659,8 +682,8 @@
+ 
+ char *utompath(const struct vol *vol, char *upath)
+ {
+-    static char  mpath[ MAXPATHLEN + 1];
+-    char        *m, *u;
++    static unsigned char  mpath[ MAXPATHLEN + 1];
++    unsigned char        *m, *u, c1, c2;
+     int          h;
+ 
+     /* do the hex conversion */
+@@ -674,15 +697,37 @@
+             *m = vol->v_utompage->map[(unsigned char) *u].value;
+         } else
+ #endif /* 1 */
+-            if ( *u == ':' && *(u+1) != '\0' && islxdigit( *(u+1)) &&
+-                    *(u+2) != '\0' && islxdigit( *(u+2))) {
+-                ++u;
+-                h = hextoint( *u ) << 4;
+-                ++u;
+-                h |= hextoint( *u );
+-                *m = h;
+-            } else
+-                *m = *u;
++	{
++		c1 = *u;
++		if ( (c1 & 0x80) != 0) {
++			if ( c1 == 0x8e ) {
++				/* do hankaku kana conversion */
++				u++;
++				*m = *u;
++			} else {
++				c1 -= 0x80;
++				u++;
++				c2 = (*u) - 0x80;
++				if (c1 & 0x01) c2 += 0x1f;
++				else c2 += 0x7d;
++				c1 -= 0x21;
++				c1 >>= 1;
++				c1 += 0x81;
++				if (c2 >= 0x7f) c2++;
++				if (c1 > 0x9f) c1 += 0x40;
++				*m++ = c1;
++				*m = c2;
++			}
++		} else if ( *u == ':' && *(u+1) != '\0' && islxdigit( *(u+1)) &&
++			*(u+2) != '\0' && islxdigit( *(u+2))) {
++			++u;
++			h = hextoint( *u ) << 4;
++			++u;
++			h |= hextoint( *u );
++			*m = h;
++		} else
++			*m = *u;
++	}
+ 
+         /* handle case conversion */
+         if (vol->v_casefold & AFPVOL_UTOMLOWER)
+diff -aruN netatalk-1.5.5.orig/etc/afpd/messages.c netatalk-1.5.5/etc/afpd/messages.c
+--- netatalk-1.5.5.orig/etc/afpd/messages.c	2002-03-28 07:13:37.000000000 +0900
++++ netatalk-1.5.5/etc/afpd/messages.c	2004-03-19 15:17:45.000000000 +0900
+@@ -134,7 +134,7 @@
+     if (*rbuflen > MAXMESGSIZE)
+         *rbuflen = MAXMESGSIZE;
+     *rbuf++ = *rbuflen;
+-    memcpy(rbuf, message, *rbuflen);
++    cvteuc2sjis( message, rbuf, *rbuflen);
+ 
+     *rbuflen += 5;
+ 
+diff -aruN netatalk-1.5.5.orig/include/atalk/paths.h netatalk-1.5.5/include/atalk/paths.h
+--- netatalk-1.5.5.orig/include/atalk/paths.h	2001-08-01 04:51:12.000000000 +0900
++++ netatalk-1.5.5/include/atalk/paths.h	2004-03-19 15:17:45.000000000 +0900
+@@ -13,6 +13,7 @@
+ #define ATALKPATHCAT(a,b) a/**/b
+ #endif
+ 
++#define _PATH_LOCKDIR  "/var/run/"
+ 
+ /* lock file path. this should be re-organized a bit. */
+ #if ! defined (_PATH_LOCKDIR)
+diff -aruN netatalk-1.5.5.orig/libatalk/nbp/Makefile.in netatalk-1.5.5/libatalk/nbp/Makefile.in
+--- netatalk-1.5.5.orig/libatalk/nbp/Makefile.in	2002-09-02 01:53:12.000000000 +0900
++++ netatalk-1.5.5/libatalk/nbp/Makefile.in	2004-03-19 15:21:54.000000000 +0900
+@@ -118,7 +118,7 @@
+ 
+ noinst_LTLIBRARIES = libnbp.la
+ 
+-libnbp_la_SOURCES = nbp_util.c nbp_lkup.c nbp_rgstr.c nbp_unrgstr.c
++libnbp_la_SOURCES = nbp_util.c nbp_lkup.c nbp_rgstr.c nbp_unrgstr.c nbp_knj.c
+ 
+ noinst_HEADERS = nbp_conf.h
+ subdir = libatalk/nbp
+@@ -130,7 +130,7 @@
+ libnbp_la_LDFLAGS =
+ libnbp_la_LIBADD =
+ am_libnbp_la_OBJECTS = nbp_util.lo nbp_lkup.lo nbp_rgstr.lo \
+-	nbp_unrgstr.lo
++	nbp_unrgstr.lo nbp_knj.lo
+ libnbp_la_OBJECTS = $(am_libnbp_la_OBJECTS)
+ 
+ DEFS = @DEFS@
+@@ -142,7 +142,8 @@
+ @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/nbp_lkup.Plo \
+ @AMDEP_TRUE@	./$(DEPDIR)/nbp_rgstr.Plo \
+ @AMDEP_TRUE@	./$(DEPDIR)/nbp_unrgstr.Plo \
+-@AMDEP_TRUE@	./$(DEPDIR)/nbp_util.Plo
++@AMDEP_TRUE@	./$(DEPDIR)/nbp_util.Plo \
++@AMDEP_TRUE@	./$(DEPDIR)/nbp_knj.Plo
+ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+ 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
+@@ -187,6 +188,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nbp_rgstr.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nbp_unrgstr.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nbp_util.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nbp_knj.Plo@am__quote@
+ 
+ distclean-depend:
+ 	-rm -rf ./$(DEPDIR)
+diff -aruN netatalk-1.5.5.orig/libatalk/nbp/nbp_knj.c netatalk-1.5.5/libatalk/nbp/nbp_knj.c
+--- netatalk-1.5.5.orig/libatalk/nbp/nbp_knj.c	1970-01-01 09:00:00.000000000 +0900
++++ netatalk-1.5.5/libatalk/nbp/nbp_knj.c	2004-03-19 15:17:45.000000000 +0900
+@@ -0,0 +1,80 @@
++/*
++ * Copyright (c) 1990,1997 Regents of The University of Michigan.
++ * All Rights Reserved. See COPYRIGHT.
++ */
++
++#include <stdio.h>
++#include <string.h>
++
++cvtsjis2euc( buf1,buf2, len )
++char	*buf1, *buf2;
++int	len;
++{
++	unsigned char c1,c2;
++
++	while (len--) {
++		c1 = *buf1++;
++		if ( ( (c1 >= 0x81) && (c1 <= 0x9f) ) ||
++			( (c1 >= 0xe0) && (c1 <= 0xfc) ) ) {
++			c2 = *buf1++;
++			c1 -= ( (c1 <= 0x9f)? 0x71: 0xb1 );
++			c1 <<= 1;
++			c1++;
++			if (c2 > 0x7f) c2--;
++			if (c2 >= 0x9e) {
++				c2 -= 0x7d;
++				c1++;
++			} else {
++				c2 -= 0x1f;
++			}
++			*buf2++ = c1+0x80;
++			*buf2++ = c2+0x80;
++			len--;
++			if (len==0) break ;
++		} else {
++			if ( (c1 >= 0xa1) && (c1 <= 0xdf) ) {
++				/* do hankaku kana conversion */
++				*buf2++ = 0x8e;
++				*buf2++ = c1;
++				len--;
++				if (len==0) break ;
++			} else {
++				*buf2++ = c1;
++			}
++		}
++	}
++}
++
++cvteuc2sjis( buf1,buf2, len )
++char	*buf1, *buf2;
++int	len;
++{
++	unsigned char c1,c2;
++
++	while (len--) {
++		c1 = *buf1++;
++		if ( (c1 & 0x80) != 0) {
++			if ( c1 == 0x8e ) {
++				/* do hankaku kana conversion */
++				*buf2++ = *buf1++;
++			} else {
++				c1 -= 0x80;
++				c2 = (*buf1++) - 0x80;
++				if (c1 & 0x01) c2 += 0x1f;
++				else c2 += 0x7d;
++				c1 -= 0x21;
++				c1 >>= 1;
++				c1 += 0x81;
++				if (c2 >= 0x7f) c2++;
++				if (c1 > 0x9f) c1 += 0x40;
++				*buf2++ = c1;
++				*buf2++ = c2;
++				len--;
++				if (len == 0) break;
++			}
++		} else {
++			*buf2++ = c1;
++		}
++	}
++	*buf2 = *buf1;
++}
+diff -aruN netatalk-1.5.5.orig/libatalk/nbp/nbp_util.c netatalk-1.5.5/libatalk/nbp/nbp_util.c
+--- netatalk-1.5.5.orig/libatalk/nbp/nbp_util.c	2002-02-08 09:04:49.000000000 +0900
++++ netatalk-1.5.5/libatalk/nbp/nbp_util.c	2004-03-19 15:17:45.000000000 +0900
+@@ -148,7 +148,7 @@
+ 	if ( strlen( name ) + 1 > sizeof( buf )) {
+ 	    return( -1 );
+ 	}
+-	strcpy( buf, name );
++	cvteuc2sjis( name, buf, strlen(name)+1 );
+ 
+ 	if (( p = strrchr( buf, '@' )) != NULL ) {
+ 	    *p++ = '\0';

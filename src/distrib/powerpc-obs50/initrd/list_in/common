@@ -1,0 +1,201 @@
+#	$ssdlinux: common,v 1.21 2005/03/17 02:33:58 yamagata Exp $
+
+# /tmp, /var/tmp
+SPECIAL	/bin/chmod 1777 tmp
+SPECIAL	/bin/chmod 1777 var/tmp
+
+# /bin
+BCOPY @SRCTOPDIR@/bin/cat/cat			bin/cat
+BCOPY @SRCTOPDIR@/bin/chmod/chmod		bin/chmod
+BCOPY @SRCTOPDIR@/bin/cp/cp			bin/cp
+BCOPY @SRCTOPDIR@/bin/date/date			bin/date
+BCOPY @SRCTOPDIR@/bin/df/df			bin/df
+BCOPY @SRCTOPDIR@/bin/echo/echo			bin/echo
+BCOPY @SRCTOPDIR@/bin/expr/expr			bin/expr
+BCOPY @SRCTOPDIR@/bin/hostname/hostname		bin/hostname
+BCOPY @SRCTOPDIR@/bin/kill/kill			bin/kill
+BCOPY @SRCTOPDIR@/bin/ln/ln			bin/ln
+BCOPY @UTILSDIR@/x_login/login			bin/login
+BCOPY @SRCTOPDIR@/bin/ls/ls			bin/ls
+BCOPY @SRCTOPDIR@/bin/mkdir/mkdir		bin/mkdir
+BCOPY @SRCTOPDIR@/bin/mv/mv			bin/mv
+BCOPY @SRCTOPDIR@/bin/ps/ps			bin/ps
+BCOPY @SRCTOPDIR@/bin/pwd/pwd			bin/pwd
+BCOPY @SRCTOPDIR@/bin/rm/rm			bin/rm
+BCOPY @SRCTOPDIR@/bin/rmdir/rmdir		bin/rmdir
+BCOPY @SRCTOPDIR@/bin/sh/sh			bin/sh
+SYMLINK sh					bin/bash
+BCOPY @SRCTOPDIR@/bin/sleep/sleep		bin/sleep
+BCOPY @SRCTOPDIR@/bin/stty/stty			bin/stty
+BCOPY @SRCTOPDIR@/bin/sync/sync			bin/sync
+BCOPY @SRCTOPDIR@/bin/test/test			bin/test
+SYMLINK test					bin/[
+BCOPY @SRCTOPDIR@/bin/uname/uname		bin/uname
+
+# /sbin
+BCOPY @SRCTOPDIR@/sbin/agetty/agetty		sbin/agetty
+BCOPY @SRCTOPDIR@/sbin/dhclient/dhclient	sbin/dhclient
+BCOPY @SRCTOPDIR@/sbin/dmesg/dmesg		sbin/dmesg
+BCOPY @SRCTOPDIR@/sbin/e2fsck/e2fsck		sbin/e2fsck
+SYMLINK e2fsck					sbin/fsck.ext2
+BCOPY @SRCTOPDIR@/sbin/fsck/fsck		sbin/fsck
+BCOPY @SRCTOPDIR@/sbin/fdisk/fdisk		sbin/fdisk
+BCOPY @SRCTOPDIR@/sbin/halt/halt		sbin/halt
+SYMLINK halt					sbin/poweroff
+SYMLINK halt					sbin/reboot
+BCOPY @SRCTOPDIR@/sbin/hwclock/hwclock		sbin/hwclock
+#BCOPY @SRCTOPDIR@/sbin/ip/ip			sbin/ip
+#BCOPY @SRCTOPDIR@/sbin/iptables/iptables/iptables sbin/iptables
+BCOPY @SRCTOPDIR@/sbin/ifconfig/ifconfig	sbin/ifconfig
+BCOPY @SRCTOPDIR@/sbin/init/init		sbin/init
+SYMLINK init					sbin/telinit
+BCOPY @SRCTOPDIR@/sbin/killall5/killall5	sbin/killall5
+SYMLINK /sbin/killall5				bin/pidof
+BCOPY @SRCTOPDIR@/lib/glibc/build/elf/ldconfig	sbin/ldconfig
+BCOPY @SRCTOPDIR@/sbin/mknod/mknod		sbin/mknod
+BCOPY @SRCTOPDIR@/sbin/mount/mount		sbin/mount
+BCOPY @SRCTOPDIR@/sbin/mke2fs/mke2fs		sbin/mke2fs
+BCOPY @SRCTOPDIR@/sbin/mkswap/mkswap		sbin/mkswap
+BCOPY @SRCTOPDIR@/sbin/ping/ping		sbin/ping
+BCOPY @SRCTOPDIR@/sbin/route/route		sbin/route
+BCOPY @SRCTOPDIR@/sbin/runlevel/runlevel	sbin/runlevel
+BCOPY @SRCTOPDIR@/sbin/setserial/setserial	sbin/setserial
+BCOPY @SRCTOPDIR@/sbin/shutdown/shutdown	sbin/shutdown
+BCOPY @UTILSDIR@/sysinst/sysinst		sbin/sysinst
+BCOPY @UTILSDIR@/x_sulogin/sulogin		sbin/sulogin
+BCOPY @SRCTOPDIR@/sbin/swapon/swapon		sbin/swapon
+SYMLINK swapon					sbin/swapoff
+BCOPY @SRCTOPDIR@/sbin/umount/umount		sbin/umount
+BCOPY @SRCTOPDIR@/sbin/update/update		sbin/update
+
+# /usr/bin
+BCOPY @SRCTOPDIR@/usr.bin/chgrp/chgrp		usr/bin/chgrp
+BCOPY @SRCTOPDIR@/usr.bin/ftp/src/ftp		usr/bin/ftp
+BCOPY @SRCTOPDIR@/usr.bin/find/find		usr/bin/find
+BCOPY @SRCTOPDIR@/usr.bin/cmp/cmp		usr/bin/cmp
+BCOPY @SRCTOPDIR@/usr.bin/grep/grep		usr/bin/grep
+BCOPY @SRCTOPDIR@/usr.bin/gzip/gzip		usr/bin/gzip
+BCOPY @SRCTOPDIR@/usr.bin/id/id			usr/bin/id
+SCOPY @SRCTOPDIR@/lib/glibc/build/elf/ldd	usr/bin/ldd
+BCOPY @SRCTOPDIR@/usr.bin/mesg/mesg		usr/bin/mesg
+BCOPY @SRCTOPDIR@/usr.bin/more/more		usr/bin/more
+#BCOPY @SRCTOPDIR@/usr.bin/netstat/netstat	usr/bin/netstat
+BCOPY @UTILSDIR@/x_passwd/passwd		usr/bin/passwd
+SPECIAL	/bin/chmod 4555 usr/bin/passwd
+#BCOPY @SRCTOPDIR@/usr.bin/resize/resize	usr/bin/resize
+BCOPY @SRCTOPDIR@/usr.bin/sed/src/sed		usr/bin/sed
+BCOPY @UTILSDIR@/x_su/su			usr/bin/su
+SPECIAL	/bin/chmod 4555 usr/bin/su
+BCOPY @SRCTOPDIR@/usr.bin/tar/src/tar		usr/bin/tar
+BCOPY @SRCTOPDIR@/usr.bin/touch/touch		usr/bin/touch
+BCOPY @SRCTOPDIR@/usr.bin/tty/tty		usr/bin/tty
+#BCOPY @SRCTOPDIR@/usr.bin/ex/ex		usr/bin/ex
+#SYMLINK ex					usr/bin/vi
+SYMLINK	grep					usr/bin/egrep
+SYMLINK	grep					usr/bin/fgrep
+BCOPY @SRCTOPDIR@/usr.bin/basename/basename	usr/bin/basename
+
+# /usr/sbin
+BCOPY @SRCTOPDIR@/usr.sbin/badblocks/badblocks			usr/sbin/badblocks
+BCOPY @SRCTOPDIR@/usr.sbin/chown/chown				usr/sbin/chown
+BCOPY @SRCTOPDIR@/usr.sbin/chroot/chroot			usr/sbin/chroot
+#BCOPY @SRCTOPDIR@/usr.sbin/cron/cron				usr/sbin/cron
+BCOPY @SRCTOPDIR@/usr.sbin/flashcfg/@OPENBLOCKS@/flashcfg	usr/sbin/flashcfg
+BCOPY @SRCTOPDIR@/usr.sbin/inetd/inetd				usr/sbin/inetd
+BCOPY @SRCTOPDIR@/usr.sbin/portmap/portmap			usr/sbin/portmap
+BCOPY @SRCTOPDIR@/usr.sbin/pshd/pshd				usr/sbin/pshd
+BCOPY @SRCTOPDIR@/usr.sbin/runled/@OPENBLOCKS@/runled		usr/sbin/runled
+BCOPY @SRCTOPDIR@/usr.sbin/sysctl/sysctl			usr/sbin/sysctl
+#BCOPY @SRCTOPDIR@/usr.sbin/syslogd/syslogd			usr/sbin/syslogd
+
+# /usr/libexec
+#BCOPY @SRCTOPDIR@/libexec/ftpd/src/ftpd	usr/libexec/ftpd
+BCOPY @SRCTOPDIR@/libexec/telnetd/telnetd	usr/libexec/telnetd
+
+# shared libraies
+BCOPY @SRCTOPDIR@/lib/glibc/build/elf/ld.so.1			lib/ld.so.1
+BCOPY @SRCTOPDIR@/lib/glibc/build/libc.so.6			lib/libc.so.6
+BCOPY @SRCTOPDIR@/lib/e2fsprogs/libcom_err/libcom_err.so.2	usr/lib/libcom_err.so.2
+BCOPY @SRCTOPDIR@/lib/glibc/build/crypt/libcrypt.so.1		lib/libcrypt.so.1
+#BCOPY @SRCTOPDIR@/lib/glibc/build/math/libm.so			lib/libm.so.6
+#BCOPY @SRCTOPDIR@/lib/libdb/libdb.so.4.3			usr/lib/libdb.so.4
+BCOPY @SRCTOPDIR@/usr.bin/gcc/build/gcc/libgcc_s.so.1		usr/lib/libgcc_s.so.1
+#BCOPY @SRCTOPDIR@/lib/glibc/build/dlfcn/libdl.so		lib/libdl.so.2
+BCOPY @SRCTOPDIR@/lib/e2fsprogs/libe2p/libe2p.so.2		usr/lib/libe2p.so.2
+BCOPY @SRCTOPDIR@/lib/e2fsprogs/libext2fs/libext2fs.so.2	usr/lib/libext2fs.so.2
+BCOPY @SRCTOPDIR@/lib/e2fsprogs/libblkid/libblkid.so.1		usr/lib/libblkid.so.1
+BCOPY @SRCTOPDIR@/lib/e2fsprogs/libuuid/libuuid.so.1		usr/lib/libuuid.so.1
+BCOPY @SRCTOPDIR@/lib/libncurses/build/lib/libncurses.so.5	usr/lib/libncurses.so.5
+#BCOPY @SRCTOPDIR@/lib/glibc/build/nis/libnsl.so		lib/libnsl.so.1
+BCOPY @SRCTOPDIR@/lib/libproc/libproc.so.3.2.5			usr/lib/libproc.so.3.2.5
+BCOPY @SRCTOPDIR@/lib/glibc/build/linuxthreads/libpthread.so.0	lib/libpthread.so.0
+BCOPY @SRCTOPDIR@/lib/glibc/build/resolv/libresolv.so		lib/libresolv.so.2
+BCOPY @SRCTOPDIR@/lib/glibc/build/rt/librt.so.1			lib/librt.so.1
+BCOPY @SRCTOPDIR@/lib/shadow/libshadow_no_pam/libshadow.so.0	usr/lib/libshadow.so.0
+BCOPY @SRCTOPDIR@/lib/libtermcap/libtermcap.so.2		usr/lib/libtermcap.so.2
+BCOPY @SRCTOPDIR@/lib/glibc/build/login/libutil.so		lib/libutil.so.1
+BCOPY @SRCTOPDIR@/lib/glibc/build/nss/libnss_files.so		lib/libnss_files.so
+SYMLINK libnss_files.so						lib/libnss_files.so.2
+BCOPY @SRCTOPDIR@/lib/glibc/build/resolv/libnss_dns.so		lib/libnss_dns.so
+SYMLINK libnss_dns.so						lib/libnss_dns.so.2
+BCOPY @SRCTOPDIR@/lib/libz/libz.so.1				usr/lib/libz.so.1
+
+# /usr/share/zoneinfo/Asia
+COPY /usr/share/zoneinfo/Asia/Tokyo				usr/share/zoneinfo/Asia/Tokyo
+SYMLINK /usr/share/zoneinfo/Asia/Tokyo				etc/localtime
+
+# /usr/share/terminfo
+SPECIAL	cd usr/share; (cd /usr/share; tar cvpf - terminfo/j terminfo/k terminfo/l terminfo/v terminfo/x ) | tar xpf -
+
+# various files that we need in /etc for the install
+ECOPY	644 @SRCTOPDIR@/etc/powerpc-obs2xx/inittab	etc/inittab
+COPY    @SRCTOPDIR@/etc/powerpc-obs2xx/defaults/rc.conf etc/defaults/rc.conf
+ECOPY	555 @SRCTOPDIR@/etc/powerpc-obs2xx/rc		etc/rc
+ECOPY	555 @SRCTOPDIR@/etc/powerpc-obs2xx/rc.shutdown	etc/rc.shutdown
+ECOPY	555 @SRCTOPDIR@/etc/powerpc-obs2xx/rc.reboot	etc/rc.reboot
+ECOPY	644 @SRCTOPDIR@/etc/powerpc-obs2xx/passwd	etc/passwd
+ECOPY	644 @SRCTOPDIR@/etc/powerpc-obs2xx/shadow	etc/shadow
+ECOPY	644 @SRCTOPDIR@/etc/common/group		etc/group
+ECOPY	644 @SRCTOPDIR@/etc/common/protocols		etc/protocols
+ECOPY	644 @SRCTOPDIR@/etc/common/termcap		etc/termcap
+ECOPY	755 @SRCTOPDIR@/etc/common/rc.conf		etc/rc.conf
+SCOPY	@SRCTOPDIR@/etc/common/rc.local			etc/rc.local
+ECOPY	555 @SRCTOPDIR@/etc/common/rc.serial		etc/rc.serial
+ECOPY	555 @SRCTOPDIR@/etc/common/rc.single		etc/rc.single
+ECOPY	555 @SRCTOPDIR@/etc/common/rc.subr		etc/rc.subr
+ECOPY	555 @SRCTOPDIR@/etc/common/netstart		etc/netstart
+#ECOPY	644 @SRCTOPDIR@/etc/common/ftpchroot		etc/ftpchroot
+#ECOPY	644 @SRCTOPDIR@/etc/common/ftpusers		etc/ftpusers
+ECOPY	644 @SRCTOPDIR@/etc/common/gshadow		etc/gshadow
+ECOPY	644 @SRCTOPDIR@/etc/common/ld.so.conf		etc/ld.so.conf
+ECOPY	644 @SRCTOPDIR@/etc/common/motd			etc/motd
+ECOPY	644 @SRCTOPDIR@/etc/common/primes		etc/primes
+ECOPY	644 @SRCTOPDIR@/etc/common/shells		etc/shells
+ECOPY	644 @SRCTOPDIR@/etc/common/syslog.conf		etc/syslog.conf
+
+ECOPY	555 @SRCTOPDIR@/sbin/dhclient/dhclient-script	etc/dhclient-script
+SPECIAL	touch var/db/dhclient.leases
+ECOPY	644 @COMMON_ETCDIR@/fstab			etc/fstab
+ECOPY	555 @SRCTOPDIR@/etc/common/rc.sysinit		etc/rc.sysinit
+ECOPY	644 @SRCTOPDIR@/etc/common/login.defs		etc/login.defs
+ECOPY	644 @SRCTOPDIR@/etc/common/profile		etc/profile
+ECOPY	644 @SRCTOPDIR@/etc/common/services		etc/services
+ECOPY	644 @CURDIR@/flashcfg				etc/flashcfg
+ECOPY	644 @SRCTOPDIR@/etc/common/inetd.conf		etc/inetd.conf
+ECOPY	644 @SRCTOPDIR@/etc/common/hosts		etc/hosts
+ECOPY	644 @SRCTOPDIR@/etc/common/hosts.allow		etc/hosts.allow
+ECOPY	644 @SRCTOPDIR@/etc/common/hosts.deny		etc/hosts.deny
+ECOPY	644 @SRCTOPDIR@/etc/common/nsswitch.conf	etc/nsswitch.conf
+SPECIAL	touch etc/adjtime
+SPECIAL	touch etc/rc.iptables
+SPECIAL	touch etc/resolv.conf
+
+# copy the MAKEDEV script and make some devices
+SCOPY	@SRCTOPDIR@/etc/dev.powerpc-obs2xx/MAKEDEV	dev/MAKEDEV
+SPECIAL	cd dev;./MAKEDEV generic
+SPECIAL	/bin/rm dev/MAKEDEV
+
+SYMLINK	/dev/null var/log/authlog
+SYMLINK	/dev/null var/log/messages
+SYMLINK	/dev/null var/log/wtmp
+SYMLINK	/dev/null var/log/xferlog

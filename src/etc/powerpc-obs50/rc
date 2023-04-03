@@ -1,0 +1,365 @@
+#!/bin/sh
+#	$ssdlinux: rc,v 1.6 2004/09/17 15:18:39 yamagata Exp $
+
+if [ -f /etc/rc.subr ]; then
+	. /etc/rc.subr
+else
+	echo "Can't read /etc/rc.subr; aborting."
+	exit 1;
+fi
+
+if [ -f /etc/rc.conf ]; then
+	. /etc/rc.conf
+fi
+
+if [ "$rc_configured" != YES ]; then
+	echo "/etc/rc.conf is not configured. Multiuser boot aborted."
+	exit 1
+fi
+
+# set hostname, turn on network
+echo 'starting network'
+. /etc/netstart
+if [ $? -ne 0 ]; then
+	exit 1
+fi
+
+for fs in /usr /var $critical_filesystems; do
+	mount | (
+		ismounted=no
+		while read what _on on _type type; do
+			if [ $on = $fs ]; then
+				ismounted=yes
+			fi
+		done
+		if [ $ismounted = no ]; then
+			mount $fs >/dev/null 2>&1
+		fi
+	)
+done
+
+# clean up left-over files
+rm -f /etc/nologin
+rm -f /var/spool/lock/LCK.*
+rm -f /var/spool/uucp/STST/*
+#(cd /var/run && { rm -rf -- *; install -c -m 664 -g utmp /dev/null utmp; })
+
+# start the system logger first, so that all messages from daemons
+# are logged, then start savecore to get a dump on low memory systems
+# and then start the name server.
+
+if checkyesno pshd; then
+	if [ -f /usr/sbin/pshd ]; then
+		echo 'starting pshd'
+		/usr/sbin/pshd
+	fi
+fi
+
+if checkyesno syslogd; then
+	echo 'starting system logger'
+	rm -f /dev/log
+	/usr/sbin/syslogd $syslogd_flags
+fi
+
+if checkyesno klogd; then
+	echo 'starting kernel logger'
+	/usr/sbin/klogd $klogd_flags
+fi
+
+# note that portmap is generally required for all other rpc services.
+if checkyesno portmap; then
+	echo -n ' portmap';	portmap
+fi
+
+if checkyesno named; then
+	echo 'starting name server';	named $named_flags
+fi
+
+# set time, if requested
+if checkyesno ntpdate; then
+	if [ -z "$ntpdate_hosts" ]; then
+		ntpdate_hosts=`awk '/^server/ {print $2}' </etc/ntp.conf`
+	fi
+	if [ -n "$ntpdate_hosts"  ]; then
+		echo 'Setting date via ntp.'
+		ntpdate -b $ntpdate_hosts
+	fi
+fi
+
+if checkyesno bootparamd; then
+	if [ -r /etc/bootparams ]; then
+		echo -n ' rpc.bootparamd'; rpc.bootparamd $bootparamd_flags
+	else
+		echo
+		logger -s "WARNING: /etc/bootparams not found. " \
+		    "bootparamd not started."
+	fi
+fi
+
+echo '.'
+
+/sbin/mount -a
+
+echo '.'
+
+if [ -f /sbin/ldconfig ]; then
+	echo 'creating runtime link editor directory cache.'
+	/sbin/ldconfig
+fi 
+
+chmod 666 /dev/tty[pqrs]*
+
+# check the password temp/lock file
+if [ -f /etc/ptmp ]
+then
+	logger -s -p auth.err \
+	'password file may be incorrect -- /etc/ptmp exists'
+fi
+
+virecovery=`echo /var/tmp/vi.recover/recover.*`
+if [ "$virecovery" != "/var/tmp/vi.recover/recover.*" ]; then
+	echo preserving editor files
+	for i in $virecovery; do
+		if [ -r /etc/mail/sendmail.cf ]; then
+			sendmail -t < $i
+		fi
+	done
+fi
+
+echo clearing /tmp
+
+# Prune quickly with one rm, then use find to clean up /tmp/[lq]* (this
+# is not needed with mfs /tmp, but doesn't hurt anything).
+(cd /tmp && rm -rf [a-km-pr-zA-Z]* &&
+    find . ! -name . ! -name lost+found ! -name quota.user \
+	! -name quota.group -exec rm -rf -- {} \; -type d -prune)
+
+# Update kernel info in /etc/motd
+# Must be done *before* interactive logins are possible to prevent
+# possible race conditions.
+if checkyesno update_motd; then
+	echo 'updating motd.'
+	if [ ! -f /etc/motd ]; then
+		install -c -o root -g wheel -m 664 /dev/null /etc/motd
+	fi
+	T=/tmp/_motd
+	kernel_release=`uname -r`
+	kernel_version=`uname -v`
+	ssd_version=`uname -o`
+	rm -f $T
+	echo "$ssd_version/$kernel_release $kernel_version" > $T
+	echo "" >> $T
+	sed '1,/^$/d' < /etc/motd >> $T
+	cmp -s $T /etc/motd || cp $T /etc/motd
+	rm -f $T
+fi
+
+if [ -f /var/account/acct ]; then
+	echo 'turning on accounting';	accton /var/account/acct
+fi
+
+echo -n standard daemons:
+if checkyesno update; then
+	echo -n ' update';		update $update_flags
+fi
+
+if checkyesno cron; then
+	echo -n ' cron';		cron
+fi
+
+echo '.'
+
+# make ssh_host_key's
+if checkyesno sshd; then
+	if [ ! -f /etc/ssh/ssh_host_key ] ; then
+		echo "genarate ssh_host_key ..."
+		/usr/bin/ssh-keygen -t rsa1 -f /etc/ssh/ssh_host_key -N ""
+	fi
+	if [ ! -f /etc/ssh/ssh_host_dsa_key ] ; then
+		 echo "genarate ssh_host_dsa_key ..."
+		/usr/bin/ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key -N ""
+	fi
+	if [ ! -f /etc/ssh/ssh_host_rsa_key ] ; then
+		/usr/bin/ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ""
+	fi
+fi
+
+# now start all the other daemons
+echo -n starting network daemons:
+
+if checkyesno ripd && checkyesno routed; then
+	echo
+	logger -s "WARNING: ripd and routed both requested to be run: " \
+	    "running only ripd."
+	routed=NO
+fi
+
+if checkyesno routed; then
+	echo -n ' routed';		routed $routed_flags
+fi
+
+if checkyesno zebra; then
+	if [ -r /etc/zebra.conf ]; then
+		echo -n ' zebra';	zebra $zebra_flags
+	else
+		echo
+		logger -s "WARNING: /etc/zebra.conf not readable; " \
+			"zebra not started."
+	fi
+fi
+
+if checkyesno ripd; then
+	if [ -r /etc/ripd.conf ]; then
+		echo -n ' ripd';	ripd $ripd_flags
+	else
+		echo
+		logger -s "WARNING: /etc/ripd.conf not readable; " \
+			"ripd not started."
+	fi
+fi
+
+if checkyesno ospfd; then
+	if [ -r /etc/ospfd.conf ]; then
+		echo -n ' ospfd';	ospfd $ospfd_flags
+	else
+		echo
+		logger -s "WARNING: /etc/ospfd.conf not readable; " \
+		    "ospfd not started."
+	fi
+fi
+
+if checkyesno bgpd; then
+	if [ -r /etc/bgpd.conf ]; then
+		echo -n ' bgpd';	bgpd $bgpd_flags
+	else
+		echo
+		logger -s "WARNING: /etc/bgpd.conf not readable; " \
+		    "bgpd not started."
+	fi
+fi
+
+if checkyesno ripngd; then
+	if [ -r /etc/ripngd.conf ]; then
+		echo -n ' ripngd';	ripngd $ripngd_flags
+	else
+		echo
+		logger -s "WARNING: /etc/ripngd.conf not readable; " \
+			"ripngd not started."
+	fi
+fi
+
+if checkyesno ospf6d; then
+	if [ -r /etc/ospf6d.conf ]; then
+		echo -n ' ospf6d';	ospf6d $ospf6d_flags
+	else
+		echo
+		logger -s "WARNING: /etc/ospf6d.conf not readable; " \
+		    "ospf6d not started."
+	fi
+fi
+
+if checkyesno timed; then
+	echo -n ' timed'; 		timed $timed_flags
+fi
+
+if checkyesno ntpd; then
+	echo -n ' ntpd';		ntpd $ntpd_flags
+fi
+
+if checkyesno sshd; then
+	if [ -r /etc/ssh/sshd_config ]; then
+		echo -n ' sshd';	/usr/sbin/sshd $sshd_flags
+	else
+		echo
+		logger -s "WARNING: /etc/ssh/sshd_config not readable; " \
+		    "sshd not started."
+	fi
+fi
+
+if checkyesno dhcpd; then
+	if [ -r /etc/dhcpd.conf ]; then
+		if [ ! -f /var/db/dhcpd.leases ]; then
+			touch /var/db/dhcpd.leases
+		fi
+		echo -n ' dhcpd';		dhcpd $dhcpd_flags
+	else
+		echo
+		logger -s "WARNING: /etc/dhcpd.conf not readable; " \
+		    "dhcpd not started."
+	fi
+fi
+
+if checkyesno radvd; then
+	if [ -r /etc/radvd.conf ]; then
+		echo -n ' radvd';		radvd $radvd_flags
+	else
+		echo
+		logger -s "WARNING: /etc/radvd.conf not readable; " \
+		    "radvd not started."
+	fi
+fi
+
+if checkyesno rwhod; then
+	echo -n ' rwhod';		rwhod
+fi
+
+if checkyesno lpd; then
+	echo -n ' lpd';		lpd $lpd_flags
+fi
+
+# We call sendmail with a full path so that SIGHUP works.
+if checkyesno sendmail; then
+	if [ -r /etc/mail/sendmail.cf ]; then
+		if [ -f /etc/mail/aliases ]; then
+			if [ ! -f /etc/mail/aliases.db ]; then
+				/usr/bin/newaliases
+			fi
+		fi
+		echo -n ' sendmail';	/usr/sbin/sendmail $sendmail_flags
+	else
+		echo
+		logger -s "WARNING: /etc/mail/sendmail.cf not readable; " \
+		    "sendmail not started."
+	fi
+fi
+
+if checkyesno inetd; then
+	if [ -r /etc/inetd.conf ]; then
+		echo -n ' inetd';	inetd $inetd_flags
+	else
+		echo
+		logger -s "WARNING: /etc/inetd.conf not readable; " \
+		    "inetd not started."
+	fi
+fi
+
+if checkyesno loadkeys && [ -x /usr/bin/loadkeys ]; then
+        /usr/bin/loadkeys $loadkeys_flags
+fi
+
+echo '.'
+
+if [ -x /etc/rc.local ]; then
+	. /etc/rc.local
+fi
+
+if checkyesno do_contrib_rc; then
+	if [ -x /usr/contrib/etc/rc.local ]; then
+		. /usr/contrib/etc/rc.local
+	fi
+fi
+
+if checkyesno runled; then
+	if [ -f /usr/sbin/runled ]; then
+		rm -f /var/run/segled.pid
+		echo 'starting runled'
+		/usr/sbin/runled
+	fi
+fi
+
+date
+echo
+kernel_release=`uname -r`
+ssd_version=`uname -o`
+echo "Welcome to $ssd_version/$kernel_release" 
+exit 0

@@ -1,0 +1,9 @@
+#	$ssdlinux: inittab,v 1.1.1.1 2002/05/02 13:37:05 kanoh Exp $
+id:2:initdefault:
+l0:0:wait:/sbin/halt -d -f -p
+l1:S1:wait:/etc/rc
+l2:2345:wait:/etc/rc
+l6:6:wait:/sbin/reboot -d -f -i
+ca:12:ctrlaltdel:/sbin/reboot -d -f -i
+c1:2345:respawn:/sbin/agetty 38400 tty1 linux
+

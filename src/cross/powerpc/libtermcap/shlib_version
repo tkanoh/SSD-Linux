@@ -1,0 +1,5 @@
+#	$ssdlinux: shlib_version,v 1.1 2003/01/08 08:18:39 kanoh Exp $
+
+major=2
+minor=0
+teeny=8

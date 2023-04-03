@@ -1,0 +1,11 @@
+#	$ssdlinux: Makefile.cflags,v 1.5 2003/06/03 22:02:58 kanoh Exp $
+.if ${IPV6} == "yes"
+CPPFLAGS+= -I${LIBINET6}/include -D_USAGI=1 -DINET6=1
+.if ${GLIBC_MAJOR_VERSION} ==  "2.3"
+CPPFLAGS+= -D_USAGI_LIBINET6=23
+.else
+CPPFLAGS+= -D_USAGI_LIBINET6=22
+.endif
+.else
+CPPFLAGS+= -DSA_LEN=__libc_sa_len
+.endif

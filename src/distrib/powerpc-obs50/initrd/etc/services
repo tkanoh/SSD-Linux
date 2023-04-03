@@ -1,0 +1,20 @@
+#	$ssdlinux: services,v 1.1 2003/04/07 06:45:46 kanoh Exp $
+tcpmux		1/tcp		# TCP port service multiplexer
+echo		7/tcp
+echo		7/udp
+discard		9/tcp		sink null
+discard		9/udp		sink null
+ftp-data        20/tcp          # File Transfer [Default Data]
+ftp-data        20/udp          # File Transfer [Default Data]
+ftp             21/tcp          # File Transfer [Control]
+ftp             21/udp          # File Transfer [Control]
+telnet          23/tcp
+telnet          23/udp
+smtp		25/tcp		mail
+time		37/tcp		timserver
+time		37/udp		timserver
+domain		53/tcp		nameserver	# name-domain server
+domain		53/udp		nameserver
+www		80/tcp		http		# WorldWideWeb HTTP
+www		80/udp				# HyperText Transfer Protocol
+syslog		514/udp

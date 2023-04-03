@@ -1,0 +1,29 @@
+#	$ssdlinux: sync_fs-fix-2.diff,v 1.1 2004/11/02 17:06:13 kanoh Exp $
+ Documentation/filesystems/Locking |    2 +-
+ fs/super.c                        |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+--- 24/fs/super.c~sync_fs-fix-2	Thu Dec 19 02:34:24 2002
++++ 24-akpm/fs/super.c	Thu Dec 19 02:34:24 2002
+@@ -471,7 +471,7 @@ restart:
+ 			spin_unlock(&sb_lock);
+ 			down_read(&sb->s_umount);
+ 			write_super(sb);
+-			if (wait && sb->s_op && sb->s_op->sync_fs)
++			if (wait && sb->s_root && sb->s_op && sb->s_op->sync_fs)
+ 				sb->s_op->sync_fs(sb);
+ 			drop_super(sb);
+ 			goto restart;
+--- 24/Documentation/filesystems/Locking~sync_fs-fix-2	Thu Dec 19 02:34:24 2002
++++ 24-akpm/Documentation/filesystems/Locking	Thu Dec 19 02:34:24 2002
+@@ -109,7 +109,7 @@ delete_inode:	no	
+ clear_inode:	no	
+ put_super:	yes	yes	maybe		(see below)
+ write_super:	yes	yes	maybe		(see below)
+-write_super:	yes	no	maybe		(see below)
++sync_fs:	yes	no	maybe		(see below)
+ statfs:		yes	no	no
+ remount_fs:	yes	yes	maybe		(see below)
+ umount_begin:	yes	no	maybe		(see below)
+
+_

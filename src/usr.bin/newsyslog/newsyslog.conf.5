@@ -1,0 +1,463 @@
+.lf 1 newsyslog.conf.5so
+.\"-*- nroff -*-
+.\"
+.\" newsyslog.conf.5so.  Generated from newsyslog.conf.5so.in by configure.
+.\"
+.\" This file contains changes from the Open Software Foundation.
+.\"
+.\" This file contains changes from Greg A. Woods; Planix, Inc.
+.\"
+.\"	$ssdlinux: newsyslog.conf.5,v 1.4 2003/10/07 01:56:03 yamagata Exp $
+.\"ident	"@(#)newsyslog-1_1:newsyslog.conf.5so.in,v 1.13 2003/07/08 17:24:15 woods Exp"
+.\"
+.\" Copyright 1988, 1989 by the Massachusetts Institute of Technology
+.\" 
+.\" Permission to use, copy, modify, and distribute this software
+.\" and its documentation for any purpose and without fee is
+.\" hereby granted, provided that the above copyright notice
+.\" appear in all copies and that both that copyright notice and
+.\" this permission notice appear in supporting documentation,
+.\" and that the names of M.I.T. and the M.I.T. S.I.P.B. not be
+.\" used in advertising or publicity pertaining to distribution
+.\" of the software without specific, written prior permission.
+.\" M.I.T. and the M.I.T. S.I.P.B. make no representations about
+.\" the suitability of this software for any purpose.  It is
+.\" provided "as is" without express or implied warranty.
+.\"
+.Dd July 3, 2002
+.Dt NEWSYSLOG.CONF 5
+.Os
+.Sh "NAME"
+.Nm newsyslog.conf
+.Nd
+.Nm newsyslog
+configuration file
+.Sh "DESCRIPTION"
+The
+.Dq Pa /etc/newsyslog.conf
+file is the configuration file for the
+.Nm newsyslog
+program.  Each line of this file contains information about how a
+particular log file should be handled by
+.Nm newsyslog .
+Each line has five mandatory fields and three optional fields, with a
+whitespace separating each field.  Blank lines or lines beginning with
+.Dq #
+are ignored.  The fields of the configuration file are as follows:
+.Pp
+.Bl -tag -width indent
+.It Ar logfile_name
+Name of the system log file to be archived.
+.It Ar owner:group
+This optional field specifies the owner and group for the archive file.
+The colon-separated subfields may be numeric, or a name which is present
+in
+.Pa /etc/passwd
+or
+.Pa /etc/group
+respectively.  Either of the file's user-id or group-id may be left
+unchanged from the ownership of the current file by specifying it as
+.Dq Li -1.
+.It Ar mode 
+Specifies the file permissions of the log file and its archival copies
+in the standard three-digit octal format.
+.It Ar count
+Specify the number of archive files to be kept
+besides the log file itself.
+.It Ar size
+When the size of the log file reaches the number of kilobytes specified
+by
+.Ar size ,
+the log file will be trimmed as described above.  If this field
+is replaced by a
+.Ar * ,
+then the size of the log file is not taken into account
+when determining when to trim the log file.
+.It Ar interval
+The
+.Ar when
+field can consist of an interval, a specific time, or both.  If the
+.Ar when
+field is an asterisk
+.Pq Ql \&*
+log rotation will depend only on the contents of the
+.Ar size
+field.
+.Pp
+In the simple form of digits only they are interpreted as number of
+hours.  When
+.Ar interval
+hours have passed, the log file will be trimmed.  Note that if this
+value is an even multiple of 24 hours it may have special meaning
+depending on the way
+.Nm newsyslog
+is invoked (see the description of the
+.Fl m
+and
+.Fl M
+options in the
+.Xr newsyslog 8
+manual page).  Note also that when the
+.Fl m
+and
+.Fl M
+options are not used, and when the
+.Ar interval
+is not evenly divisible by 24, log files will not be rolled over at the
+same time of day.  In fact the roll-over time will probably creep around
+the clock, unless it is followed by a time specification.
+.Pp
+A time specification to fix the log file's rotation at a specified time,
+once per day, per week, or per month may also be given.  If it follows
+an interval then it must be separated by a hyphen (i.e. a minus sign,
+.Sq \- ) .
+.Pp
+.Em WARNING :
+When a time specification is given for any log file
+.Nm newsyslog
+must be invoked with the
+.Fl i
+option to tell it at what interval it is being run so that it can
+approximate the time of day calculations.  Note that one full minute is
+subtracted from the interval to give the time range after which the
+specification remains valid.  For example if an interval of 15 minutes
+is specified then a time specification will match if the current time is
+within 14 minutes
+.Em after
+the specified time.
+.Pp
+The daily, weekly, and/or monthly specification is given as:
+.Sm off
+.Bo
+. Va D\&hh
+.Bc ,
+.Bo
+. Va W\&w
+. Bo
+.  Va D\&hh
+. Bc
+.Bc 
+and
+.Bo
+. Va M\&dd
+. Bo
+.  Va D\&hh
+. Bc
+.Bc
+.Sm on
+respectively (with letters in either uppercase or lowercase).  The
+time-of-day fields, which are optional, default to midnight.  The ranges
+and meanings for these specifications are:
+.Pp
+.Bl -tag -width Ds -compact -offset indent
+.It Ar hh
+hours, range 0 ... 23
+.It Ar w
+day of week, range 0 ... 6, 0 = Sunday
+.It Ar dd
+day of month, range 1 ... 31, or the letter
+.Em L
+or
+.Em l
+to specify the last day of the month.
+.El
+.Pp
+Some examples:
+.Pp
+.Bl -tag -width Ds -compact -offset indent
+.It Ar D0
+rotate every night at midnight
+.It Ar D23
+rotate every day at 23:00 hr
+.It Ar W0D23
+rotate every week on Sunday at 23:00 hr
+.It Ar W5
+rotate every week on Friday at midnight.
+.It Ar MLD6
+rotate at the last day of every month at 6:00 hr
+.It Ar M5
+rotate on every 5th day of month at midnight
+.El
+.Pp
+If an interval
+.Em and
+a time specification are both given, then both conditions must be met.
+I.e. the file must be as old or older than the specified interval, and
+the current time must match the time specification.  This means that it
+is most useful to specify just an hour of the day (e.g.
+.Ar D6 ,
+for 6:00 hr) and an interval which is an even multiple of 24 hours.
+.Pp
+Normally the age of the log file will be determined by looking at the
+last modification time of the most recent archive copy, if one exists.
+If there is no archive copy, and the file is not marked as binary (see
+the
+.Ar B
+flag below), then
+.Nm newsyslog
+will make a somewhat feeble attempt to read the time-stamp from the first
+entry in the current log file (see the source for possible formats).
+.Pp
+The log file age has 30 minutes added to it in order to ensure that at a
+regular interval (especially 24hr multiple) the file is likely to to
+appear old enough to roll over.  This is mostly necessary for when the
+archive copy may not exist and the initial entry may not have been made
+right after log file roll-over.
+.It Ar flags
+This optional field specifies if the archive should have any
+special processing done to the archived log files.
+.Bl -tag -width indent
+.It Sy D
+The
+.Ar D
+flag prevents the creation of the new empty log file.  This can be
+useful to avoid cluttering log directories with files that'll never be
+used, or when a daemon creates its own log file(s) on demand (failure to
+use this flag in the latter case may result in spurious warnings should
+.Nm newsyslog
+and the daemon both try to create the log file).  Note though this flag
+should not be used with daemons like
+.Nm syslogd
+which require the log file to exist prior to when they start and prior
+to when they're signalled to re-open their log file(s).
+.It Sy Z
+The
+.Ar Z
+flag will make the archive files compress to save space by
+using
+.Nm compress
+or
+.Nm gzip ,
+depending on which was selected at compile time.
+.It Sy b
+The
+.Ar b
+flag means that the file is a binary file, and so the
+.Tn ASCII
+message which
+.Nm
+inserts to indicate the fact that the logs have been
+turned over should not be included.
+.It Sy 0
+The
+.Ar 0
+flag means that the most recent archive of the log file (i.e. the one that
+ends in
+.Dq Pa .0 )
+should not be compressed even when the
+.Ar Z
+flag is given.  (This flag may also be specified as
+.Ar P
+for compatability with
+.Nx . )
+This flag is necessary when managing log files written
+directly to by long-running processes (e.g.\ 
+.Nm smail ,
+.Nm httpd ,
+etc.).  This flag also makes it more convenient to browse through the
+most recently archived log file without having to first uncompress it or
+use tools like
+.Nm zmore ,
+or
+.Nm zgrep ,
+etc.
+.It Sy -
+The
+.Ar -
+flag means nothing, but can be used as a place-holder when either or
+both of the
+.Ar path_to_pid_file
+and
+.Ar sigtype
+fields are specified for entries without any flags.
+.El
+.Pp
+Flags can be specified in either uppercase or lowercase.
+.It Ar path_to_pid_file
+This optional field specifies the file name from which to read the
+associated daemon's process-id.  If this field is present, and not
+.Dq Pa /dev/null ,
+a SIGHUP is sent the process id contained in this file.  This field must
+start with a slash (i.e.\ 
+.Dq Pa / )
+in order to be recognised properly.
+.It Ar sigtype
+This optional field specifies the type of signal to be sent to the
+daemon process.  This may be a numeric or symbolic value.  By default a
+SIGHUP (hang-up) will be sent if this field is left blank.
+.El
+.Sh "EXAMPLE"
+.Pp
+A configuration file might appear as follows:
+.Bd -literal
+.lf 1 newsyslog.conf
+#
+#	newsyslog.conf - sample configuration file for newsyslog
+# 
+# WARNING:  the values used in this sample file are strictly for
+# demonstration and documentation purposes and are not necessarily the
+# best for real life use!
+#
+#ident "#(@):newsyslog-1_1:newsyslog.conf,v 1.12 2002/05/10 17:42:46 woods Exp"
+#
+# log_filename  [owner:group] mode count kb   hrs/at [flgs][/pid_file][sig]
+#               |             |    |     |    |      |     |
+/var/log/aculog uucp:dialer   640  10    *    ML     Z0    /dev/null  sigint
+/var/log/auth                 640  10    100  *      Z0
+/var/log/authpriv             640  10    100  *      Z0
+/var/log/cron                 640  3     *    D0     Z0               HUP
+/var/log/daemon               644  8     500  168    Z0               hup
+/var/log/debug                640  4     1000 168    Z0
+/var/log/httpd/access_log     644  5     *    D0     Z0    # only last one
+/var/log/httpd/error_log      644  5     *   D0 Z0 /var/run/httpd.pid SIGUSR1
+/var/log/kerberos.log         640  10    *    D0     Z0    /dev/null
+/var/log/kern                 644  10    500  *      Z0
+/var/log/local                644  10    1000 168    Z0
+/var/log/lpd-errs daemon:staff 644 4     100  *      Z0
+/var/log/lpd-acct daemon:staff 644 4     *    ML     Z0
+/var/log/lpr                  644  5     250  *      Z0
+/var/log/mail  root:staff     640  52    *    W0D0   Z0
+/var/log/messages             644  10    500  168    Z
+/var/log/news  news:news      644  2     *    D0     Z0
+/var/log/smail/logfile        644  52    *    W0D0   DZ0   /dev/null
+/var/log/smail/paniclog       644  5     500  168-D0 DZ0   /dev/null
+/var/log/syslog               640  3     500  *      Z0
+/var/log/user                 644  10    500  *      Z0
+/var/log/uucp  uucp:operator  644  5     *    W0D0   Z0
+/var/log/wtmp                 644  10    *    ML     bZ0
+/var/log/xferlog              640  10    *    W0D0   Z0
+.lf 292 newsyslog.conf.5so
+.Ed
+.Sh "FILES"
+.Bl -tag -width /etc/newsyslog.conf -compact
+.It Pa /etc/newsyslog.conf
+The
+.Nm newsyslog
+configuration file.
+.It Pa /var/run/syslogd.pid
+The default location of the PID for
+.Nm syslogd .
+.El
+.Sh "SEE ALSO"
+.Xr compress 1 ,
+.Xr cron 8 ,
+.Xr gzip 1 ,
+.Xr httpd 8 ,
+.Xr newsyslog 8 ,
+.Xr smail 8 ,
+.Xr syslog 3 ,
+.Xr syslogd 8 ,
+.Xr zgrep 1 ,
+.Xr zmore 1
+.Sh "STANDARDS"
+None.
+.Sh "COMPATABILITY"
+The original version of
+.Nm newsyslog
+expected a period
+.Pq Dq "\&."
+character to separate the user and group names in the
+.Ar owner
+field.  This has been changed to a colon
+.Pq Dq "\:"
+character so that user and group names may contain a period.  This
+change is in conjunction with a similar change in the
+.Nm chown
+command (as required by
+.St -p1003.2
+compliance).  A period is no longer accepted as a separator as there are
+already enough changes to make this version's configuration file format
+incompatible with previous versions.
+.Pp
+The
+.Fx
+version
+(and more recently the
+.Nx
+version) allows a restricted form of an ISO 8601 time format to specify
+the time of day when a log file should be rotated.  In those versions
+such a specification was given by placing it after an
+.So Li \&@ Sc Ns No -sign
+following the [optional] interval.  This version only allows the
+sufficiently useful daily, weekly, and/or monthly time specification
+with optional hour of day (also innovated by
+.Fx ) ,
+but it uses the hyphen (\-) as a separator from the optional interval
+instead of the more confusing
+.So Li \&$ Sc Ns No -sign.
+.Sh "HISTORY"
+Originated at MIT Project Athena.
+.Pp
+A
+.Nm
+file appeared in
+.Bx 4.4 .
+.Pp
+The
+.Ar path_to_pid_file
+optional field was added by
+.Fx .
+.Pp
+The
+.Ar sigtype
+optional field was added by
+.Nx .
+.Pp
+The optional daily, weekly, and/or monthly time specification feature
+was added by
+.Fx .
+.Pp
+This particular version's feature set, and this separate manual page for
+the configuration file, was put together by
+.An Greg A. Woods ,
+Planix, Inc.
+.Sh "AUTHOR"
+.An Theodore Ts'o ,
+MIT Project Athena
+.Pp
+Copyright 1987, Massachusetts Institute of Technology
+.Pp
+This version by
+.An Greg A. Woods ,
+Planix, Inc.
+.Sh "BUGS"
+.Pp
+Fields such as
+.Ar interval
+and
+.Ar size
+should allow the units of measurement to be specified.
+.Pp
+There is no provision for specification of a timezone in the
+.Ar interval
+field.
+.Pp
+Listing the same
+.Ar path_to_pid_file
+multiple times will cause SIGHUP to be sent to the associated daemon
+process for every log file with the same PID file which is rolled over.
+This is done to ensure that it's safe to compress the file after it has
+hopefully been closed but in theory should be optimised to only notify
+daemon(s) once (and of course to batch all the compression commands to
+the end of the process).  This behaviour is normally harmless for
+.Nm syslogd
+and multiple signals can be avoided for other daemons by ensuring their
+PID files are only listed once and that the
+.Ar 0
+flag is used to ensure the most recent log file is not immediately
+compressed.  Note that daemons which have multiple log files open may
+require signalling every time any one of their logs are rolled over
+anyway, especially if their different logs have different roll-over
+policies.
+.Pp
+The age of the log file may be impossible to determine, especially for
+binary format files, if the most recent archive copy
+.Pa ( logfile.0* )
+does not exist.
+.Pp
+Anyone messing with the modification time of the most recent archive
+copy will possibly break the file age determination algorithm and thus
+mess up regular archive intervals for such files.
+.\"
+.\"	The End.
+.\"

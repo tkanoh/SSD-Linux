@@ -1,0 +1,22 @@
+#	$ssdlinux: Makefile.cflags,v 1.7 2004/10/27 06:34:32 yamagata Exp $
+LIBSHADOW=	${DIST}/../../lib/shadow
+
+CPPFLAGS+= -Wall
+CPPFLAGS+= -DHAVE_CONFIG_H
+.if ${USE_PAM} == "yes" && !defined(FORCE_NO_PAM)
+CPPFLAGS+= -DUSE_PAM=1
+.else
+CPPFLAGS+= -DSU_ACCESS=1
+.endif
+CPPFLAGS+= -I${LIBSHADOW}/include
+CPPFLAGS+= -I${DIST}/lib
+CPPFLAGS+= -I${DIST}/libmisc
+.if ${USE_PAM} == "yes" && !defined(FORCE_NO_PAM)
+.if defined(CROSS_BUILD) || defined(NEW_GLIBC)
+CPPFLAGS+= -I${DIST}/../../lib/pam/include
+CPPFLAGS+= -I${DIST}/../Linux-PAM/libpam/include
+CPPFLAGS+= -I${DIST}/../Linux-PAM/libpamc/include
+CPPFLAGS+= -I${DIST}/../Linux-PAM/libpam_misc/include
+.endif
+.endif
+NOGCCERROR=	yes

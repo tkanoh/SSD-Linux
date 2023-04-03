@@ -1,0 +1,10 @@
+#	$ssdlinux: services,v 1.1.1.1 2002/05/02 13:37:05 kanoh Exp $
+tcpmux		1/tcp		# TCP port service multiplexer
+echo		7/tcp
+echo		7/udp
+discard		9/tcp		sink null
+discard		9/udp		sink null
+ftp-data        20/tcp          # File Transfer [Default Data]
+ftp-data        20/udp          # File Transfer [Default Data]
+ftp             21/tcp          # File Transfer [Control]
+ftp             21/udp          # File Transfer [Control]

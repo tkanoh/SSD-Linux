@@ -1,0 +1,306 @@
+.lf 1 newsyslog.8so
+.\"-*- nroff -*-
+.\"
+.\" newsyslog.8so.  Generated from newsyslog.8so.in by configure.
+.\"
+.\" This file contains changes from the Open Software Foundation.
+.\"
+.\" This file contains changes from Greg A. Woods; Planix, Inc.
+.\"
+.\"	$ssdlinux: newsyslog.8,v 1.3 2003/10/07 01:44:03 yamagata Exp $
+.\"	from: @(#)newsyslog.8
+.\"	FreeBSD: newsyslog.8,v 1.9 1997/10/06 07:46:06 charnier Exp
+.\"
+.\"ident	"@(#)newsyslog:newsyslog-1_1:newsyslog.8so.in,v 1.12 2003/07/08 17:24:32 woods Exp"
+.\"
+.\" Copyright 1988, 1989 by the Massachusetts Institute of Technology
+.\" 
+.\" Permission to use, copy, modify, and distribute this software
+.\" and its documentation for any purpose and without fee is
+.\" hereby granted, provided that the above copyright notice
+.\" appear in all copies and that both that copyright notice and
+.\" this permission notice appear in supporting documentation,
+.\" and that the names of M.I.T. and the M.I.T. S.I.P.B. not be
+.\" used in advertising or publicity pertaining to distribution
+.\" of the software without specific, written prior permission.
+.\" M.I.T. and the M.I.T. S.I.P.B. make no representations about
+.\" the suitability of this software for any purpose.  It is
+.\" provided "as is" without express or implied warranty.
+.\"
+.Dd July 3, 2003
+.Dt NEWSYSLOG 8
+.Os BSD
+.\"
+.Sh NAME
+.Nm newsyslog
+.Nd maintain system log files to manageable sizes
+.\"
+.Sh SYNOPSIS
+.Nm newsyslog
+.Oo
+.Fl m
+.Li |
+.Fl M
+.Li |
+.Fl i Ar interval
+.Oc
+.Op Fl T Ar HH:MM
+.Op Fl Fdnrv
+.Op Fl f Ar config_file
+.Op Fl p Ar syslogd_pidfile
+.Op Ar log_file ...
+.\"
+.Sh DESCRIPTION
+.Nm Newsyslog
+is a program that should be scheduled to run periodically by
+.Nm cron .
+When it is executed it archives log files if necessary.  If a log file
+is determined to require archiving, 
+.Nm
+rearranges the files so that
+.Dq Pa logfile
+is empty,
+.Dq Pa logfile.0
+has the last period's logs in it,
+.Dq Pa logfile.1
+has the next to last period's logs in it, and so on, up to a
+user-specified number of archived logs.  The archived logs may also be
+compressed to save space.  After all file operations are done
+.Nm
+notifies the
+.Nm syslogd
+daemon, or optionally some log-file specific daemon, by sending a
+.Dv SIGHUP
+to the daemon process.
+.Pp
+A log can be archived because of two reasons.  The log file can have
+grown bigger than a preset size in kilobytes, or a preset number of
+hours may have elapsed since the last log archive.  The granularity of
+.Nm
+is dependent on how often it is scheduled to run by
+.Nm cron .
+Since the program is quite fast, it may be scheduled to run at least
+every hour without any ill effects, which will match the granularity of
+elapsed time specifications.  However more frequent runs may be
+necessary to catch extremely fast growing log files when files are
+trimmed by size, and
+.Nm
+may be run as often as every minute without harm to facilitate this need.
+.Pp
+When starting up, 
+.Nm
+reads in a configuration file to determine which logs should be looked
+at.  By default, this configuration file is
+.Pa /etc/newsyslog.conf .
+Note that a POSIX advisory lock is obtained on the configuration file
+using the
+.Xr open 2
+.Dv O_EXLOCK
+flag.  This both prevents simultaneous execution of
+.Nm
+using the same configuration file, as well as preventing the reading of
+the file while it is being modified by any text editor which uses the
+same locking feature (for example
+.Xr vi 1 ) .
+.Pp
+If any
+.Ar log_file
+parameters are given then processing is restricted to just the specified
+files.  The control specifications for the specified files are taken
+from the configuration file.  Any files specified which do not
+correspond to entries in the configuration file will be ignored.
+.\"
+.Sh OPTIONS
+The following options can be used with newsyslog:
+.Bl -tag -width 12345678
+.It Fl d
+Place
+.Nm
+into debug mode.  No actions will be performed.  If the
+.Fl v
+option is also given then messages about what would be done will be
+printed without doing anything.  Repeat
+.Fl d
+as desired to see more detailed debugging messages.  Use of this option
+implies
+.Fl r
+too.
+.It Fl f Ar config_file
+Instruct newsyslog to use 
+.Ar config_file
+instead of
+.Pa /etc/newsyslog.conf
+for its configuration file.
+.It Fl F
+Force
+.Nm
+to trim log files immediately.  Note that the
+.Fl M
+and
+.Fl m
+options are not ignored thus making it possible to force trimming of
+only interval controlled logs.
+.Pp
+This option can be useful to initialize a freshly installed system with
+initial archive copies to ensure reliable interval calculation based on
+the age of the most recent archive file.  This option can also be useful
+to mark an important system milestone in all logs
+.Nm
+manages.
+.It Fl i Ar run_interval
+Specify the interval, in minutes, between runs of
+.Nm
+by
+.Nm cron .
+This option is necessary if the configuration file contains any
+.Ar interval
+field values which contain roll-over time specifications (i.e. time of
+day, week, or month).  If you are running
+.Nm
+by hand then just specify an interval of
+.Em 1 .
+.It Fl m
+Cause
+.Nm
+to trim log files which have an
+.Ar interval
+specified as an even multiple of 24 hours as well as any which may have
+grown beyond their allowed size.  I.e. do the
+.Dq midnight
+archiving of logs that must be archived at the same time every day or
+every
+.Ar N
+days.  You probably only want to specify this option for one invocation
+per 24 hours and you probably want to use the corresponding
+.Fl M
+flag on all other periodic invocations.
+.It Fl M
+Prevent
+.Nm
+from trimming log files which have an
+.Ar interval
+specified as an even multiple of 24 hours (i.e. the ones that would be
+archived when the
+.Fl m
+option is given).
+.It Fl n
+Cause
+.Nm
+not to trim the logs, but to print on its standard output what it would
+do if this option were not specified.  If used without the
+.Fl v
+(verbose) flag the result should be a shell script that would duplicate
+the actions of
+.Nm
+were it to be run without the
+.Fl n
+flag.  Use of this option implies
+.Fl r
+too.
+.It Fl p Ar syslogd_pidfile
+Instruct newsyslog to use 
+.Ar syslogd_pidfile
+instead of
+.Pa /var/run/syslogd.pid
+as the PID file for
+.Nm syslogd .
+.It Fl r
+Remove the restriction that
+.Nm
+must be running as root.  Of course, 
+.Nm
+will not be able to send a HUP signal to
+.Nm syslogd
+or most other daemons so this option is probably only useful for
+debugging unless an alternate configuration file is specified.
+.It Fl T Ar HH:MM
+Pretend the current time is
+.Ar HH:MM
+instead of the current time.  The time given is always treated as a
+future time.  This option is mostly useful for testing configurations.
+.It Fl v
+Place 
+.Nm
+in verbose mode.  In this mode it will print out each log and its
+reasons for either trimming that log or skipping it.
+.El
+.\"
+.Sh FILES
+.Bl -tag -width /var/run/syslogd.pid -compact
+.It Pa /etc/newsyslog.conf
+.Nm
+configuration file.
+.It Pa /var/run/syslogd.pid
+The default location of the PID for
+.Nm syslogd .
+.El
+.\"
+.Sh "SEE ALSO"
+.Xr compress 1 ,
+.Xr cron 8 ,
+.Xr gzip 1 ,
+.Xr newsyslog.conf 5 ,
+.Xr syslog 3 ,
+.Xr syslogd 8
+.Xr zgrep 1 ,
+.Xr zmore 1
+.\"
+.Sh "STANDARDS"
+None.
+.\"
+.Sh HISTORY
+Originated at MIT Project Athena.
+.Pp
+Someone at OSF hacked on it too.
+.Pp
+A
+.Nm
+command appeared in
+.Bx 4.4 .
+.Pp
+There was an extremely simple shell script of similar purpose,
+.Pa /usr/lib/newsyslog ,
+in SunOS-4.1.
+.Pp
+This particular version's feature set, and this separate manual page for
+the configuration file, was put together by
+.An Greg A. Woods ,
+Planix, Inc.
+.\"
+.Sh AUTHOR
+.An Theodore Ts'o ,
+MIT Project Athena
+.Pp
+Copyright 1987, Massachusetts Institute of Technology
+.Pp
+This version by
+.An Greg A. Woods ,
+Planix, Inc.
+.\"
+.Sh BUGS
+When the
+.Fl m
+and
+.Fl M
+options are not in use, and when the time period is not evenly divisible
+by 24, log files that are archived based on a time period will not be
+rolled over at the same time of day.  In fact the roll-over time will
+likely creep around the clock.
+.Pp
+.Nm
+sends SIGHUP to the associated daemon process for every log file
+trimmed.  This is done to ensure that it's safe to compress the file
+after it has hopefully been closed.  In theory we could try to optimize
+this procedure to only notify the daemon(s) once (and of course to batch
+all the compression commands at the end of the run).  The current
+behaviour is normally harmless for
+.Nm syslogd
+and multiple signals can be avoided for other daemons by ensuring their
+PID files are only listed once with the last associated log file and
+that the
+.Ar 0
+flag is used to ensure the most recent log file is not immediately
+compressed.  Note that daemons which have multiple log files open may
+requirer signalling every time any one of their logs are rolled over
+anyway, especially if their different logs have different roll-over
+policies.

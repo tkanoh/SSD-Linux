@@ -1,0 +1,34 @@
+--- pcmcia-cs.orig/clients/tulip_cb.c	2004-05-28 10:16:44.000000000 +0900
++++ pcmcia-cs/clients/tulip_cb.c	2004-05-28 10:16:53.000000000 +0900
+@@ -1268,6 +1268,7 @@
+ 		return 0xffff;
+ 	}
+ 
++#if 0
+ 	if (tp->chip_id == COMET || tp->chip_id == CENTAUR) {
+ 		if (phy_id == 1) {
+ 			if (location < 7)
+@@ -1279,6 +1280,7 @@
+ 		}
+ 		return 0xffff;
+ 	}
++#endif
+ 
+ 	/* Establish sync by sending at least 32 logic ones. */
+ 	for (i = 32; i >= 0; i--) {
+@@ -1325,6 +1327,7 @@
+ 		return;
+ 	}
+ 
++#if 0
+ 	if (tp->chip_id == COMET || tp->chip_id == CENTAUR) {
+ 		if (phy_id != 1)
+ 			return;
+@@ -1336,6 +1339,7 @@
+ 			outl(value, ioaddr + 0xD4 + ((location-29)<<2));
+ 		return;
+ 	}
++#endif
+ 
+ 	/* Establish sync by sending 32 logic ones. */
+ 	for (i = 32; i >= 0; i--) {

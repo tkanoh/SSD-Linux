@@ -1,0 +1,6 @@
+#	$ssdlinux: pcmcia-cs.serial,v 1.1 2004/12/02 01:54:32 todoroki Exp $
+
+# Serial Cards
+ECOPY	555 @SRCTOPDIR@/dist/pcmcia-cs/etc/serial	etc/pcmcia/serial
+ECOPY	644 @SRCTOPDIR@/dist/pcmcia-cs/etc/serial.opts	etc/pcmcia/serial.opts
+COPY	@MODULESDIR@/pcmcia/serial_cs.o.gz		lib/modules/@KERNEL_VERSION@/pcmcia/serial_cs.o.gz

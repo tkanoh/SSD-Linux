@@ -1,0 +1,12 @@
+#	$ssdlinux: mksigname.sh.diff,v 1.3 2004/11/18 04:06:47 yamagata Exp $
+--- newsyslog-1.1/mksigname.sh.orig	2003-07-09 01:49:42.000000000 +0900
++++ newsyslog-1.1/mksigname.sh	2004-11-18 12:59:13.000000000 +0900
+@@ -78,7 +78,7 @@
+ 
+ sed -n -e 's|^[ 	]*QwErTy \([0-9]\)[ 	]|/*  \1 */|p' \
+        -e 's|^[ 	]*QwErTy \([0-9][0-9]*\)[ 	]|/* \1 */|p' < $tmpout | \
+-	sort -n +1 | \
++	sort -n --key=+1 | \
+ 	awk 'BEGIN {
+ 		last = 0;
+ 		nsigs = 0;

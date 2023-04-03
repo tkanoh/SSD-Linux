@@ -1,0 +1,3 @@
+#	$ssdlinux: vtund,v 1.1 2004/12/02 01:54:34 todoroki Exp $
+./var/log/vtund
+./var/spool/lock/vtund

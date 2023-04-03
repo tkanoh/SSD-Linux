@@ -1,0 +1,51 @@
+#	$ssdlinux: Makefile.cflags,v 1.8 2005/02/09 05:46:54 todoroki Exp $
+
+WARNS?=		1
+WFORMAT?= 	2
+NONLS= 		yes
+BINDIR=		/lib/modules/${KERNEL_VERSION}/pcmcia
+SCRIPTSMODE=	644
+
+SCRIPTS=	${WIRELESS}.o.gz
+CLEANFILES+=	${SCRIPTS} *.o *.d
+
+PCMCIAMODULES=	${DIST}/../../lib/modules/wireless
+KERNSRC=	${DIST}/../../../linux
+DRIVERS=	${KERNSRC}/drivers/net
+.PATH:		${DRIVERS}
+
+.if ${TARGET_SSDHOSTTYPEX} == "powerpc-obs50" || ${TARGET_SSDHOSTTYPEX} == "powerpc-obs2xx"
+AFLAGS=		-fno-builtin -msoft-float -ffixed-r2
+.else
+AFLAGS=
+.endif
+
+CPPFLAGS=	${AFLAGS} -MD -O2 -nostdinc -pipe
+
+.if ${TARGET_SSDHOSTTYPEX} == "powerpc-obs2xx"
+TARGET=		powerpc-be-eabi
+CPPFLAGS+=	-DAH_BYTE_ORDER=AH_BIG_ENDIAN
+CPPFLAGS+=	-fsigned-char -I${KERNSRC}/arch/ppc 
+CPPFLAGS+=	-mmultiple -mstring -Wa,-m405 -Wno-uninitialized
+.else
+TARGET=         i386-elf
+CPPFLAGS+=	-DAH_BYTE_ORDER=AH_LITTLE_ENDIAN
+CPPFLAGS+=	-mpreferred-stack-boundary=2
+.endif
+
+MFLAG=		-DMODVERSIONS -include ${KERNSRC}/include/linux/modversions.h
+MFLAG+=		-include ${DIST}/../include/compat.h
+
+CPPFLAGS+=	-fno-common -fno-strict-aliasing -fomit-frame-pointer
+CPPFLAGS+=	-iwithprefix include
+CPPFLAGS+=	-Wall -Wno-trigraphs -Wstrict-prototypes
+CPPFLAGS+=	-I${.CURDIR} -I${.CURDIR}/../ath_hal
+CPPFLAGS+=	-I${DIST} -I${DIST}/../ -I${DIST}/../hal -I${DIST}/../hal/linux
+CPPFLAGS+=	-I${DIST}/../ath_hal -I${DIST}/../net80211 -I${DIST}/../ath
+CPPFLAGS+=	-I${DIST}/../include -I${KERNSRC}/include
+CPPFLAGS+=	-D__KERNEL__ -DEXPORT_SYMTAB ${MFLAG} -DMODULE
+CPPFLAGS+=	-DAH_REGOPS_FUNC -DATH_PCI
+CPPFLAGS+=      -DKBUILD_BASENAME=${WIRELESS} -c
+
+scriptsinstall::
+	${INSTALL} -c -m ${SCRIPTSMODE} -o ${BINOWN} -g ${BINGRP} ${SCRIPTS} ${DESTDIR}${BINDIR}

@@ -1,0 +1,22 @@
+#	$ssdlinux: common,v 1.1 2004/12/02 01:54:34 todoroki Exp $
+./bin
+./sbin
+./dev
+./etc/defaults
+./lib
+./mnt
+./proc
+./tmp
+./usr/bin
+./usr/sbin
+./usr/lib
+./usr/libexec
+./usr/share/zoneinfo/Asia
+./var/run
+./var/db
+./var/lock
+./var/log
+./var/spool
+./var/cron/tabs
+./var/tmp
+./root

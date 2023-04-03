@@ -1,0 +1,5 @@
+#	$ssdlinux: ifconfig,v 1.1 2003/04/07 06:45:46 kanoh Exp $
+/etc/ifconfig.eth0
+/etc/ifconfig.eth1
+/etc/myname
+/etc/mygate

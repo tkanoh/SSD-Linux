@@ -1,0 +1,77 @@
+#	$ssdlinux: Makefile.cflags,v 1.22 2004/04/08 06:16:47 todoroki Exp $
+
+DIST=		${.CURDIR}/../../../../dist/pcmcia-cs
+KERNSRC=	${DIST}/../../linux
+PCMCIAMODULES=	${DIST}/../../lib/modules/pcmcia
+
+.if defined(CLIENT)
+SCRIPTS=	${CLIENT}.o.gz
+DISTSUBDIR=	clients
+.endif
+
+.if defined(MODULE)
+SCRIPTS=	${MODULE}.o.gz
+DISTSUBDIR=	modules
+.endif
+
+.if defined(WIRELESS)
+SCRIPTS=	${WIRELESS}.o.gz
+DISTSUBDIR= 	wireless
+.endif
+
+CLEANFILES=	${SCRIPTS} *.o *.d
+
+.PATH:		${DIST}/${DISTSUBDIR} ${DIST}/man
+
+.if ${TARGET_SSDHOSTTYPEX} == "powerpc-obs50" || ${TARGET_SSDHOSTTYPEX} == "powerpc-obs2xx"
+AFLAGS=		-fno-builtin -msoft-float -ffixed-r2
+.else
+AFLAGS=
+.endif
+
+MFLAG=		-DMODVERSIONS -include ${KERNSRC}/include/linux/modversions.h
+
+INCLUDES=	-I${PCMCIAMODULES}/include -I${KERNSRC}/include
+
+CPPFLAGS=	${AFLAGS} -MD
+.if defined(MODULE)
+CPPFLAGS+=	-O2
+.else
+CPPFLAGS+=	-O3
+.endif
+CPPFLAGS+=	-Wall -Wstrict-prototypes -pipe
+CPPFLAGS+=	${INCLUDES} -D__KERNEL__ -DMODULE -c
+
+KCPPFLAGS+=	-MD -c -O2 ${INCLUDES}
+KCPPFLAGS+=	-D__KERNEL__ -DEXPORT_SYMTAB ${MFLAG} -DPCMCIA -D__NO_VERSION__
+
+.if !defined(ALTMKSCRIPTS)
+.if !defined(MODULEOBJ)
+${SCRIPTS}: ${.TARGET:M*.o.gz:.o.gz=.c}
+	${CC} ${CPPFLAGS} ${DIST}/${DISTSUBDIR}/${.TARGET:M*.o.gz:.o.gz=.c}
+	gzip -9 ${.TARGET:M*.o.gz:.o.gz=.o}
+
+.else
+${MODULEOBJ}: ${DIST}/${DISTSUBDIR}/${.TARGET:M*.o:.o=.c}
+	${CC} ${CPPFLAGS} ${DIST}/${DISTSUBDIR}/${.TARGET:M*.o:.o=.c}
+
+.if defined(KERNOBJ)
+${KERNOBJ}: ${KERNSRC}/drivers/${KERNDRVDIR}/${.TARGET:M*.o:.o=.c}
+	${CC} ${KCPPFLAGS} ${KERNSRC}/drivers/${KERNDRVDIR}/${.TARGET:M*.o:.o=.c}
+
+${SCRIPTS}: ${MODULEOBJ} ${KERNOBJ}
+	${LD} -r -o ${.TARGET:M*.o.gz:.o.gz=.o} ${MODULEOBJ} ${KERNOBJ}
+	gzip -9 ${.TARGET:M*.o.gz:.o.gz=.o}
+
+.else
+${SCRIPTS}: ${MODULEOBJ}
+	${LD} -r -o ${.TARGET:M*.o.gz:.o.gz=.o} ${MODULEOBJ}
+	gzip -9 ${.TARGET:M*.o.gz:.o.gz=.o}
+
+.endif # defined(KERNOBJ)
+.endif # !defined(MODULEOBJ)
+.endif # !defined(ALTMKSCRIPTS)
+
+scriptsinstall:
+	${INSTALL} -c -m ${SCRIPTSMODE} -o ${BINOWN} -g ${BINGRP} \
+		${SCRIPTS} ${DESTDIR}${BINDIR}

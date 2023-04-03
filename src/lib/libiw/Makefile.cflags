@@ -1,0 +1,4 @@
+#	$ssdlinux: Makefile.cflags,v 1.6 2004/11/09 01:28:24 yamagata Exp $
+
+CPPFLAGS+=	-W -Wall -Wstrict-prototypes -Wmissing-prototypes -Wshadow \
+		-Wpointer-arith -Wcast-qual -Winline -I${DIST}/../../lib/libiw

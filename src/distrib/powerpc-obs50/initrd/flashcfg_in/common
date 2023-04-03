@@ -1,0 +1,17 @@
+#	$ssdlinux: common,v 1.1 2003/04/07 06:45:46 kanoh Exp $
+/etc/adjtime
+/etc/flashcfg
+/etc/fstab
+/etc/group
+/etc/hosts
+/etc/hosts.allow
+/etc/hosts.deny
+/etc/inetd.conf
+/etc/inittab
+/etc/nsswitch.conf
+/etc/passwd
+/etc/rc.conf
+/etc/rc.iptables
+/etc/resolv.conf
+/etc/shadow
+/etc/syslog.conf
